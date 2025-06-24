@@ -1,2 +1,13 @@
 # Afterglow
-Installing and running flatpak apps in Borealis for a huge performance boost over Crostini!
+
+## *Installing and running apps in Steam/Borealis for superb performance over Crostini!*
+
+### Requirements: 
+
+- ChromeOS
+- Steam installed and open
+- Internet connection
+
+  
+
+
