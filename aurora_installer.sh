@@ -114,11 +114,8 @@ export DISPLAY=:0
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
-echo "$DBUS_SESSION_BUS_ADDRESS"
-
-
 export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
-
+echo "$DBUS_SESSION_BUS_ADDRESS"
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
@@ -131,12 +128,9 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
-
-export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
-
-echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal"
+echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 mkdir -p "$XDG_RUNTIME_DIR/doc"
 chmod 700 "$XDG_RUNTIME_DIR/doc"
 export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share:/usr/local/share:/usr/share"
@@ -149,10 +143,9 @@ if ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call \
     export DBUS_SESSION_BUS_ADDRESS
 fi
         ;;
-exit 0
-        ;;
     *)
         echo "${RED}Invalid option.$RESET"
         exit 1
         ;;
 esac
+exit 0
