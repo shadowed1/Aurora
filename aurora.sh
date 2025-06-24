@@ -30,19 +30,16 @@ sleep 1
               mkdir -p ~/opt/flatpak-deps
               URL="https://archlinux.org/packages/extra/x86_64/flatpak/download/"
               wget --content-disposition --trust-server-names "$URL"
-              # too many files are named download
               if [[ -f "download" ]]; then
                 FILE="download"
               else
                 FILE=$(ls -t *.pkg.tar.zst 2>/dev/null | head -n 1)
               fi
-              # colons in filenames are a bad idea!
               SAFE_FILE="${FILE//:/}"
               if [[ "$FILE" != "$SAFE_FILE" ]]; then
                 mv "$FILE" "$SAFE_FILE"
                 FILE="$SAFE_FILE"
               fi
-              # Extract .zst
               unzstd "$FILE"
               TAR_FILE="${FILE%.zst}"
               tar --use-compress-program=unzstd -xvf $TAR_FILE -C ~/opt/flatpak
@@ -62,7 +59,6 @@ echo "${BLUE}Downloading ostree: https://archlinux.org/packages/extra/x86_64/ost
                 FILE=$(ls -t *.pkg.tar.zst 2>/dev/null | head -n 1)
               fi
               echo "Downloaded file: $FILE"
-              # colons in filenames are a bad idea!
               SAFE_FILE="${FILE//:/}"
               if [[ "$FILE" != "$SAFE_FILE" ]]; then
                 mv "$FILE" "$SAFE_FILE"
@@ -74,7 +70,7 @@ echo "${BLUE}Downloading ostree: https://archlinux.org/packages/extra/x86_64/ost
               rm $FILE
               rm $TAR_FILE
 
-echo "${MAGENTA} ${FILE} extracted. ${RESET}
+echo "${MAGENTA} ${FILE} extracted. ${RESET}"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 sleep 1  
 echo ""
@@ -88,7 +84,6 @@ echo "${BLUE}Downloading libxml2: https://archlinux.org/packages/core/x86_64/lib
                 FILE=$(ls -t *.pkg.tar.zst 2>/dev/null | head -n 1)
               fi
               echo "Downloaded file: $FILE"
-              # colons in filenames are a bad idea!
               SAFE_FILE="${FILE//:/}"
               if [[ "$FILE" != "$SAFE_FILE" ]]; then
                 mv "$FILE" "$SAFE_FILE"
@@ -100,7 +95,7 @@ echo "${BLUE}Downloading libxml2: https://archlinux.org/packages/core/x86_64/lib
               rm $FILE
               rm $TAR_FILE
           
-echo "${MAGENTA} ${FILE} extracted. ${RESET}
+echo "${MAGENTA} ${FILE} extracted.${RESET}"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"       
 sleep 1
 echo ""
@@ -114,7 +109,6 @@ echo "${BLUE}Downloading libmalcontent: https://archlinux.org/packages/extra/x86
                 FILE=$(ls -t *.pkg.tar.zst 2>/dev/null | head -n 1)
               fi
               echo "Downloaded file: $FILE"
-              # colons in filenames are a bad idea!
               SAFE_FILE="${FILE//:/}"
               if [[ "$FILE" != "$SAFE_FILE" ]]; then
                 mv "$FILE" "$SAFE_FILE"
@@ -126,7 +120,7 @@ echo "${BLUE}Downloading libmalcontent: https://archlinux.org/packages/extra/x86
               rm $FILE
               rm $TAR_FILE
           
-echo "${MAGENTA} ${FILE} extracted. ${RESET}
+echo "${MAGENTA} ${FILE} extracted.${RESET}"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"       
 sleep 1
         ;;
@@ -137,11 +131,3 @@ exit 0
         exit 1
         ;;
 esac
-
-
-
-
-echo "Moved $TAR_FILE to ~/opt/flatpak-deps"
-
-# Remove original compressed file after to prevent 'download' duplicates
-rm -f "$FILE"
