@@ -24,7 +24,7 @@ case "$choice" in
         ;;
     1)
         
-echo "${BLUE}Downloading Flatpak: https://archlinux.org/packages/extra/x86_64/flatpak/${RESET}"   
+echo "${BLUE}Downloading Flatpak: https://archlinux.org/packages/extra/x86_64/flatpak/download${RESET}"   
 sleep 1
               mkdir -p ~/opt/flatpak
               mkdir -p ~/opt/flatpak-deps
@@ -49,9 +49,10 @@ sleep 1
               rm $FILE
               rm $TAR_FILE
         
-echo "${MAGENTA} ${FILE} extracted to ~/opt/ and ~/opt/flatpak-deps created.${RESET}"        
+echo "${MAGENTA} ${FILE} extracted to ~/opt/ and ~/opt/flatpak-deps created.${RESET}"
+echo ""
 sleep 1         
-echo "${BLUE}Downloading ostree: https://archlinux.org/packages/extra/x86_64/ostree${RESET}"
+echo "${BLUE}Downloading ostree: https://archlinux.org/packages/extra/x86_64/ostree/download${RESET}"
 
               URL="https://archlinux.org/packages/extra/x86_64/ostree/download"
                wget --content-disposition --trust-server-names "$URL"
@@ -75,13 +76,11 @@ echo "${BLUE}Downloading ostree: https://archlinux.org/packages/extra/x86_64/ost
 
 echo "${MAGENTA} ${FILE} extracted. ${RESET}
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-echo ""
 sleep 1  
 echo ""
-echo "
-echo "${BLUE}Downloading libxml2: https://archlinux.org/packages/core/x86_64/libxml2/${RESET}"
+echo "${BLUE}Downloading libxml2: https://archlinux.org/packages/core/x86_64/libxml2/download${RESET}"
 
-              URL="https://archlinux.org/packages/core/x86_64/libxml2"
+              URL="https://archlinux.org/packages/core/x86_64/libxml2/download"
                wget --content-disposition --trust-server-names "$URL"
               if [[ -f "download" ]]; then
                 FILE="download"
@@ -102,7 +101,33 @@ echo "${BLUE}Downloading libxml2: https://archlinux.org/packages/core/x86_64/lib
               rm $TAR_FILE
           
 echo "${MAGENTA} ${FILE} extracted. ${RESET}
-        
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"       
+sleep 1
+echo ""
+echo "${BLUE}Downloading libmalcontent: https://archlinux.org/packages/extra/x86_64/libmalcontent/download/${RESET}"
+
+              URL="https://archlinux.org/packages/extra/x86_64/libmalcontent/download/"
+               wget --content-disposition --trust-server-names "$URL"
+              if [[ -f "download" ]]; then
+                FILE="download"
+              else
+                FILE=$(ls -t *.pkg.tar.zst 2>/dev/null | head -n 1)
+              fi
+              echo "Downloaded file: $FILE"
+              # colons in filenames are a bad idea!
+              SAFE_FILE="${FILE//:/}"
+              if [[ "$FILE" != "$SAFE_FILE" ]]; then
+                mv "$FILE" "$SAFE_FILE"
+                FILE="$SAFE_FILE"
+              fi
+              unzstd "$FILE"
+              TAR_FILE="${FILE%.zst}"
+              tar --use-compress-program=unzstd -xvf $TAR_FILE -C ~/opt/flatpak-deps
+              rm $FILE
+              rm $TAR_FILE
+          
+echo "${MAGENTA} ${FILE} extracted. ${RESET}
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"       
 sleep 1
         ;;
 exit 0
