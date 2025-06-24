@@ -1,6 +1,6 @@
 # Afterglow
 
-## *Installing and running apps in Steam/Borealis for superb performance over Crostini!*
+## *Installing and running apps in Borealis (Steam) for superb performance over Crostini!*
 
 ### Requirements: 
 
