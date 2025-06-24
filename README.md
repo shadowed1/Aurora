@@ -1,4 +1,4 @@
-# Afterglow
+# Aurora
 
 ## *Installing and running apps in Borealis (Steam) for superb performance over Crostini!*
 
