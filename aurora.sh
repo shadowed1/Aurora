@@ -123,6 +123,31 @@ echo "${BLUE}Downloading libmalcontent: https://archlinux.org/packages/extra/x86
 echo "${MAGENTA} ${FILE} extracted.${RESET}"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"       
 sleep 1
+echo ""
+echo "${BLUE}Downloading libmalcontent: https://archlinux.org/packages/core/x86_64/gpgme/download${RESET}"
+
+              URL="https://archlinux.org/packages/core/x86_64/gpgme/download"
+               wget --content-disposition --trust-server-names "$URL"
+              if [[ -f "download" ]]; then
+                FILE="download"
+              else
+                FILE=$(ls -t *.pkg.tar.zst 2>/dev/null | head -n 1)
+              fi
+              echo "Downloaded file: $FILE"
+              SAFE_FILE="${FILE//:/}"
+              if [[ "$FILE" != "$SAFE_FILE" ]]; then
+                mv "$FILE" "$SAFE_FILE"
+                FILE="$SAFE_FILE"
+              fi
+              unzstd "$FILE"
+              TAR_FILE="${FILE%.zst}"
+              tar --use-compress-program=unzstd -xvf $TAR_FILE -C ~/opt/flatpak-deps
+              rm $FILE
+              rm $TAR_FILE
+          
+echo "${MAGENTA} ${FILE} extracted.${RESET}"
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"       
+sleep 1
         ;;
 exit 0
         ;;
