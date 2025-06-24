@@ -10,8 +10,8 @@
 
 ### How to install:
 
-- Open Crosh (ctrl-alt-t) and type in:
+- Open Crosh (ctrl-alt-t) and type in: <br>
 `vsh borealis`
 
-- Paste:
+- Copy Paste in borealis shell: <br>
 `bash <(curl -s "https://raw.githubusercontent.com/shadowed1/aurora/main/aurora_installer.sh?$(date +%s)")`
