@@ -44,7 +44,7 @@ download_and_extract()
     local url="$1"
     local target_dir="$2"
     local FILE SAFE_FILE
-    echo "${MAGENTA}"
+    echo "${CYAN}}"
     echo "Downloading: $url"
     wget --content-disposition --trust-server-names "$url"
     echo "${RESET}"
@@ -61,11 +61,11 @@ download_and_extract()
         FILE="$SAFE_FILE"
     fi
     echo "${BLUE}"
-    echo "Extracting $FILE ${RESET}${CYAN}to $target_dir"
+    echo "Extracting $FILE to $target_dir"
     tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
     rm -f "$FILE"
-    echo "${RESET}"
-    echo "${MAGENTA}${BOLD}${FILE} extracted.${RESET}"
+    echo "${RESET}${MAGENTA}${BOLD}"
+    echo "${FILE} extracted.${RESET}"
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
     LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib" ~/opt/flatpak/usr/bin/flatpak --version
