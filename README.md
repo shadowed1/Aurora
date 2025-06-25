@@ -37,5 +37,5 @@
 `flatpak run --command=sh com.visualstudio.code` <br>
 `/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
 
-- Apps and their data are is saved in ~/opt/
+- Apps and their data are saved in ~/opt/
 - Please back up often, I am not 100% sure what will happen on Steam updates.  
