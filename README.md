@@ -40,7 +40,10 @@
 - 4k DPI scaling is easy to apply. Before starting an app run:
   
 `export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=2` <br>
- `export XCURSOR_SIZE=24` <br>
+`export XCURSOR_SIZE=24` <br>
+  
+ Customize to your liking. Applying changes requires restarting app. 
+
 
 Firefox: 
 
@@ -54,5 +57,3 @@ Minecraft:
 `flatpak install com.mojang.Minecraft` <br>
 `flatpak run com.mojang.Minecraft` <br>
 
- 
- Customize to your liking. Applying changes requires restarting app. 
