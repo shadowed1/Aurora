@@ -63,6 +63,8 @@ TMPDIR=$HOME/tmp
 export TMPDIR="$HOME/tmp"
 chown -R $USER:$USER ~/.local/share/flatpak
 chmod -R u+rw ~/.local/share/flatpak
+flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak --user update --appstream
 
 
 if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
