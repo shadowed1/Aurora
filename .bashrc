@@ -1,3 +1,5 @@
+  source ~/opt/flatpak_env.sh
+
   export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
   export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
   export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"
