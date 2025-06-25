@@ -26,6 +26,10 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   sleep 1
 fi
 
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+  export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
+fi
+
 export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
 
 if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
@@ -56,56 +60,9 @@ flatpak() {
   esac
 }
 EOF
+echo "Flatpak initialized!"
 fi
 
-# Add Aurora Flatpak env initialization to ~/.bashrc if missing
-ENV_MARKER="# Aurora Flatpak env initialization"
-if ! grep -q "$ENV_MARKER" "$HOME/.bashrc"; then
-  cat << EOF >> "$HOME/.bashrc"
-$ENV_MARKER
-RED=\$(tput setaf 1)
-GREEN=\$(tput setaf 2)
-YELLOW=\$(tput setaf 3)
-BLUE=\$(tput setaf 4)
-MAGENTA=\$(tput setaf 5)
-CYAN=\$(tput setaf 6)
-BOLD=\$(tput bold)
-RESET=\$(tput sgr0)
-
-if [ -f "\$HOME/opt/flatpak.env" ]; then
-    . "\$HOME/opt/flatpak.env"
-fi
-
-echo "\${MAGENTA}Aurora initializing Flatpak!\${RESET}\${BLUE}"
-
-export TMPDIR="\$HOME/tmp"
-mkdir -p "\$XDG_RUNTIME_DIR" "\$TMPDIR"
-chmod 700 "\$XDG_RUNTIME_DIR"
-
-if [ ! -S "\$XDG_RUNTIME_DIR/dbus-session" ]; then
-  dbus-daemon --session \\
-    --address="unix:path=\$XDG_RUNTIME_DIR/dbus-session" \\
-    --print-address=1 \\
-    --nopidfile \\
-    --nofork > "\$XDG_RUNTIME_DIR/dbus-session.address" &
-  sleep 1
-fi
-
-export DBUS_SESSION_BUS_ADDRESS=\$(grep -E '^unix:' "\$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
-
-if [ -x "\$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && ! pgrep -u "\$USER" -f xdg-desktop-portal-gtk > /dev/null; then
-  "\$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
-fi
-if [ -x "\$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" ] && ! pgrep -u "\$USER" -f xdg-desktop-portal\$ > /dev/null; then
-  "\$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" &
-fi
-
-flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak --user update --appstream
-
-echo "\${RESET}\${CYAN}Flatpak ready!\${RESET}"
-EOF
-fi
 
 
 
