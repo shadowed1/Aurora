@@ -35,6 +35,8 @@
 `flatpak install flathub org.mozilla.firefox` <br>
 `flatpak run org.mozilla.firefox` <br>
 
+- Some apps will not work the conventional way like Brave or Visual Studio. When running VS:
+  
 `flatpak run --command=sh com.visualstudio.code` <br>
 `/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
 
