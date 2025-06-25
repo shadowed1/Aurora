@@ -69,6 +69,7 @@ show_help() {
     echo "source aurora cursor 32    # Set cursor size (8 - 200)"
     echo "aurora help         # Show help"
     echo ""
+    echo "flatpak list        # Show list of installed apps"
     echo "flatpak --help"     # flatpak has a lot of commands! 
     echo "${BLUE}"
     echo "flatpak search Discord"
@@ -82,6 +83,8 @@ show_help() {
     echo "flatpak run --command=sh com.visualstudio.code"
     echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
     echo "Use ls /app/bin to help find the app in these situations."
+    echo "Brave browser might need to append '&' at the end to run:"
+    echo "/app/bin/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &"
     echo "${RESET}"
 }
 
