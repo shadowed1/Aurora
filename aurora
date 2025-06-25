@@ -84,6 +84,49 @@ show_help() {
     echo "${RESET}"
 }
 
+aurora_uninstall() {
+    echo "${MAGENTA}${BOLD}Aurora Uninstaller${RESET}"
+    echo "${BLUE}${BOLD}Select an option:${RESET}"
+    echo "${BLUE}[0] Quit${RESET}"
+    echo "${CYAN}{[1] Remove ~/opt (Aurora + Flatpak only; keep Flatpak apps and data)${RESET}"
+    echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, and runtime directory)${RESET}"
+    echo ""
+    read -rp "Enter your choice [0-2]: " CHOICE
+
+    case "$CHOICE" in
+        0)
+            echo "${BLUE}Quit.${RESET}"
+            return 0
+            ;;
+        1)
+            echo "${CYAN}Removing ~/opt only (leaving Flatpak apps/data)...${RESET}"
+            if [ -d "$HOME/opt" ]; then
+                rm -rf "$HOME/opt"
+                echo "${CYAN}Removed $HOME/opt${RESET}"
+            else
+                echo "${YELLOW}$HOME/opt not found.${RESET}"
+            fi
+            echo "${CYAN}Aurora Flatpak runtime removed, but Flatpak apps/data are still installed.${RESET}"
+            ;;
+        2)
+            echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, and ~/.xdg-runtime-dir ...${RESET}"
+            for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
+                if [ -e "$DIR" ]; then
+                    rm -rf "$DIR"
+                    echo "${MAGENTA}Removed $DIR${RESET}"
+                else
+                    echo "${YELLOW}$DIR not found.${RESET}"
+                fi
+            done
+            echo "${CYAN}Full Aurora uninstall complete. All Flatpak runtimes, apps, and data removed.${RESET}"
+            ;;
+        *)
+            echo "${RED}Invalid choice. Exiting.${RESET}"
+            return 1
+            ;;
+    esac
+}
+
 case "$1" in
     display)
         set_display_scaling "$2"
@@ -106,6 +149,12 @@ case "$1" in
                 echo "${MAGENTA}XCURSOR_SIZE = $XCURSOR_SIZE${RESET}" || \
                 echo "${BLUE}XCURSOR_SIZE remain default.${RESET}"
         fi
+        ;;
+        reinstall)
+        bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+        ;;
+        uninstall)
+        aurora_uninstall
         ;;
     *)
         echo "${RED}Unknown command $1 ${RESET}"
