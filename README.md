@@ -34,29 +34,29 @@
 - Some apps will not work the conventional way like Brave or Visual Studio. When running VS:
   
 `flatpak run --command=sh com.visualstudio.code` <br>
-`/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
+`/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br> <br>
 
-- to find where an app is after opening a shell for the app, run:
-`ls /app/bin`
+- To find where an app is after opening a shell for the app, run:
+`ls /app/bin` <br> <br>
 
 
 - 4k DPI scaling is easy to apply. Before starting an app run:
   
 `export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=2` <br>
-`export XCURSOR_SIZE=24` <br>
+`export XCURSOR_SIZE=24` <br> 
   
- Customize to your liking. Applying changes requires restarting app. 
+ Customize to your liking. Applying changes requires restarting app. <br><br>
 
 
 Firefox: 
 
 `flatpak search firefox` <br>
 `flatpak install flathub org.mozilla.firefox` <br>
-`flatpak run org.mozilla.firefox` <br>
+`flatpak run org.mozilla.firefox` <br> <br>
 
 Minecraft:
 
 `flatpak search mojang` <br>
 `flatpak install com.mojang.Minecraft` <br>
-`flatpak run com.mojang.Minecraft` <br>
+`flatpak run com.mojang.Minecraft` <br> <br>
 
