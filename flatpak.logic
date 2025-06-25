@@ -38,15 +38,22 @@ fi
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak --user update --appstream
 
+echo "${RESET}${CYAN}Flatpak ready!${RESET}"
+
+MARKER="# Aurora Flatpak --user logic"
+if ! grep -q "$MARKER" "$HOME/.bashrc"; then
+  cat << 'EOF' >> "$HOME/.bashrc"
 flatpak() {
-  case "$1" in
+  case "\$1" in
     --help|-h|help|""|--version)
-      command flatpak "$@"
+      command flatpak "\$@"
       ;;
     *)
-      command flatpak --user "$@"
+      command flatpak --user "\$@"
       ;;
   esac
 }
+EOF
+fi
 
-echo "${RESET}${CYAN}Flatpak ready!${RESET}"
+
