@@ -10,7 +10,7 @@
 - ChromeOS
 - Steam installed and open
 - Internet connection
-
+- Logging into steam is NOT required.  
 <br>
 <br>
 
