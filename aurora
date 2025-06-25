@@ -52,7 +52,7 @@ set_cursor_scaling() {
 }
 
 show_help() {
-    echo "${MAGENTA}
+    echo "${MAGENTA}"
     echo "Commands with examples:"
     echo "aurora              # show current display and cursor values
     echo "aurora display 1.0  # Set display scaling factor (0.25 - 4.0.)"
