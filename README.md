@@ -23,7 +23,3 @@
 - Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
 - Adds .bashrc for flatpak commands to actually work.
 - Many apps will require to be run 'internally' see 'How to Use' section below.
-
-
-
-### How to use: 
