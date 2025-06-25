@@ -9,12 +9,12 @@ BOLD=$(tput bold)
 RESET=$(tput sgr0)
 echo "${MAGENTA}"
 echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
-echo "║                                          AURORA:                                              ║"
-echo "║     Run apps on Borealis using Flatpak for signficantly more performance than Crostini!       ║"
+echo "║                                          ${BOLD}${MAGENTA}AURORA:${RESET}${MAGENTA}                                              ║"
+echo "║     ${RESET}${BOLD}${MAGENTA}Run apps on Borealis using Flatpak with signficantly more performance than Crostini!${RESET}${MAGENTA}      ║"
 echo "╚═══════════════════════════════════════════════════════════════════════════════════════════════╝"
 echo "${RESET}"
-echo "${BLUE}0: Quit$RESET"
-echo "${MAGENTA}1: Download and install Flatpak to ~/opt${RESET}"
+echo "${BLUE}${BOLD}0: Quit$RESET"
+echo "${MAGENTA}${BOLD}1: Download and install Flatpak to ~/opt${RESET}"
 
 read -rp "Enter (0-1): " choice
 
