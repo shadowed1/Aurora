@@ -12,7 +12,6 @@
 - Internet connection
 
 <br>
-##############################################################
 <br>
 
 ### How to install:
@@ -24,7 +23,6 @@
 `bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")`
 
 <br>
-##############################################################
 <br>
 
 ### Features:
