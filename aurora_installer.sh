@@ -105,11 +105,9 @@ export DISPLAY=:0
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
-echo "$DBUS_SESSION_BUS_ADDRESS"
 sleep 1
 export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
-export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
-mkdir -p "$XDG_RUNTIME_DIR"
+echo "$DBUS_SESSION_BUS_ADDRESS"
 chmod 700 "$XDG_RUNTIME_DIR"
 if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
   dbus-daemon --session \
@@ -144,6 +142,8 @@ chmod -R u+rw ~/.local/share/flatpak
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak --user update --appstream
 echo "Flatpak is ready to go!"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
+chmod +x ~/opt/flatpak_wrapper.sh
 exec "$HOME/opt/flatpak/usr/bin/flatpak" --user "$@"
 
 
