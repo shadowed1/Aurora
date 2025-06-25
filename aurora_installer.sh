@@ -137,7 +137,19 @@ chown -R $USER:$USER ~/.local/share/flatpak
 chmod -R u+rw ~/.local/share/flatpak
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak --user update --appstream
-echo "Flatpak is ready to go!"
+###############################################
+export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
+export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"
+TMPDIR=$HOME/tmp 
+export TMPDIR="$HOME/tmp"
+export DISPLAY=:0
+export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+echo "$DBUS_SESSION_BUS_ADDRESS"
+###############################################
+echo "${GREEN}Flatpak is ready to go!${RESET}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
 chmod +x ~/opt/flatpak_wrapper.sh
 
