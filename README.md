@@ -41,9 +41,9 @@
 
 
 - 4k DPI scaling is easy to apply. Before starting an app run:
-  
-`export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=2` <br>
-`export XCURSOR_SIZE=24` <br> 
-  
+
+`aurora display 2` to set scaling to 2x.
+`aurora cursor 32` will set the cursor to 32px. 
+
  Customize to your liking. Applying changes requires restarting app. <br><br>
 
