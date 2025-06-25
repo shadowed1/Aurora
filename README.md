@@ -18,15 +18,6 @@
 `bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")`
 
 
-### How it works:
-
-- Borealis offers hardware acceleration support that makes Crostini's poor performance untenable. 
-- Downloads Flatpak and its required dependencies from Arch's repository.
-- Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
-- Adds .bashrc for flatpak commands to actually work.
-- Steam can be closed entirely as long as an app is running.
-- Many apps will require to be run 'internally' see 'How to Use' section below.
-
 ### How to use:
 
 - Apps and their data are saved in ~/opt/
@@ -49,4 +40,12 @@ When running VS:
 `aurora cursor 32` will set the cursor to 32px. <br>
 
  Customize to your liking. Applying changes requires restarting app. <br><br>
+
+ ### How it works:
+
+- Borealis offers hardware acceleration support that makes Crostini's poor performance untenable. 
+- Downloads Flatpak and its required dependencies from Arch's repository.
+- Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
+- Adds .bashrc for flatpak commands to actually work.
+- Steam can be closed entirely as long as an app is running.
 
