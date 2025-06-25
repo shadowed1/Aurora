@@ -11,7 +11,7 @@ export PATH="/usr/bin:$PATH"
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
-echo "${CYAN}Initalizing Flatpak!${RESET}${BLUE}"
+echo "${MAGENTA}Aurora initalizing Flatpak!${RESET}${BLUE}"
 export PATH="/bin:/usr/bin:$PATH"
 echo 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"' >> ~/.bashrc
