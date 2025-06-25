@@ -10,48 +10,50 @@ BOLD=$(tput bold)
 RESET=$(tput sgr0)
 DISPLAY_SCALING=""
 CURSOR_SIZE=""
+
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
 set_display_scaling() {
     local input="$1"
+
     if [[ "$input" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
         DISPLAY_SCALING=$(printf "%.2f" "$input")
 
         if (( $(awk "BEGIN {print ($DISPLAY_SCALING < 0.25)}") )); then
-            echo "${RED}Warning: DISPLAY_SCALING below 0.25, resetting to 1.0${RESET}"
+            echo "${RED}Warning: DISPLAY_SCALING below 0.25, resetting to 1.0${RESET}" >&2
             DISPLAY_SCALING=1.0
         elif (( $(awk "BEGIN {print ($DISPLAY_SCALING > 4.0)}") )); then
-            echo "${RED}Warning: DISPLAY_SCALING above 4.0, resetting to 4.0${RESET}"
+            echo "${RED}Warning: DISPLAY_SCALING above 4.0, resetting to 4.0${RESET}" >&2
             DISPLAY_SCALING=4.0
         fi
 
-        echo "${GREEN}Display scaling set to $DISPLAY_SCALING${RESET}"
-        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
+        echo "${GREEN}Display scaling set to $DISPLAY_SCALING${RESET}" >&2
+        echo "export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING"
     else
-        echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}"
+        echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}" >&2
         return 1
     fi
 }
 
 set_cursor_scaling() {
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then
-        echo "${RED}Error: Cursor size must be an integer.${RESET}"
+        echo "${RED}Error: Cursor size must be an integer.${RESET}" >&2
         return 1
     fi
 
     CURSOR_SIZE=$1
 
     if (( CURSOR_SIZE < 8 )); then
-        echo "${YELLOW}Warning: Cursor size below 8, resetting to 8.${RESET}"
+        echo "${YELLOW}Warning: Cursor size below 8, resetting to 8.${RESET}" >&2
         CURSOR_SIZE=8
     elif (( CURSOR_SIZE > 200 )); then
-        echo "${YELLOW}Warning: Cursor size above 200, resetting to 200.${RESET}"
+        echo "${YELLOW}Warning: Cursor size above 200, resetting to 200.${RESET}" >&2
         CURSOR_SIZE=200
     fi
 
-    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}"
-    export XCURSOR_SIZE=$CURSOR_SIZE
+    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
+    echo "export XCURSOR_SIZE=$CURSOR_SIZE"
 }
 
 show_help() {
@@ -76,11 +78,8 @@ show_help() {
     echo "ls /app/bin to help find the app!"
     echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
     echo "${RESET}"
-    
-    
    
 }
-
 
 case "$1" in
     display)
