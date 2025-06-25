@@ -47,6 +47,7 @@ download_and_extract()
     echo "${MAGENTA}"
     echo "Downloading: $url"
     wget --content-disposition --trust-server-names "$url"
+    echo "${RESET}"
     
     if [[ -f "download" ]]; then
         FILE="download"
@@ -59,11 +60,11 @@ download_and_extract()
         mv "$FILE" "$SAFE_FILE"
         FILE="$SAFE_FILE"
     fi
-
+    ${BLUE}
     echo "Extracting $FILE to $target_dir"
     tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
     rm -f "$FILE"
-
+    ${RESET}
     echo "${MAGENTA}${BOLD}${FILE} extracted.${RESET}"
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
@@ -97,6 +98,11 @@ download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 
 URL="https://archlinux.org/packages/extra/x86_64/xdg-dbus-proxy/download"
 download_and_extract "$URL" "$HOME/opt/flatpak-deps"
+
+if ! grep -q 'flatpak.env' ~/.bashrc; then
+  echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
+fi
+
 
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
