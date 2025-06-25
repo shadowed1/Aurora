@@ -81,8 +81,16 @@ fi
 export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 
 flatpak() {
-  command flatpak --user "$@"
+  case "$1" in
+    --help|-h|help|--version)
+      command flatpak "$@"
+      ;;
+    *)
+      command flatpak --user "$@"
+      ;;
+  esac
 }
+
 
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
