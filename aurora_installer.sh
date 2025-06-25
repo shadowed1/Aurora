@@ -160,11 +160,11 @@ mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 echo "$DBUS_SESSION_BUS_ADDRESS"
 ###############################################
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.bashrc -o ~/.bashrc
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/aurora
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/flatpak.env
 chmod +x ~/aurora
-chmod +x ~/opt/flatpak_wrapper.sh
+chmod 644 ~/.bashrc
 
 
 echo "${MAGENTA}"
