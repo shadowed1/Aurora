@@ -25,10 +25,12 @@
 - Many apps will require to be run 'internally' see 'How to Use' section below.
 
 ### How to use:
-  
-flatpak search firefox
-flatpak install flathub org.mozilla.firefox
-flatpak run org.mozilla.firefox
 
-flatpak run --command=sh com.visualstudio.code
-/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal
+--user argument is always part of this Flatpak install since we have no root access.
+  
+`flatpak search firefox` <br>
+`flatpak install flathub org.mozilla.firefox` <br>
+`flatpak run org.mozilla.firefox` <br>
+
+`flatpak run --command=sh com.visualstudio.code` <br>
+`/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
