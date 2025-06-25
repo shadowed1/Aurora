@@ -27,6 +27,7 @@ read -rp "Enter (0-1): " choice
 export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
+export PATH="/bin:/usr/bin:$PATH"
 
 
 
@@ -47,7 +48,7 @@ download_and_extract()
     echo "${MAGENTA}"
     echo "Downloading: $url"
     wget --content-disposition --trust-server-names "$url"
-    echo "${RESET}${CYAN}"
+    echo "${RESET}${BLUE}"
     
     if [[ -f "download" ]]; then
         FILE="download"
