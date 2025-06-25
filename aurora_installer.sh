@@ -92,7 +92,6 @@ download_and_extract()
     echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
-    LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib" ~/opt/flatpak/usr/bin/flatpak --version
    # sleep 1
 }
 
@@ -142,14 +141,22 @@ chmod 644 ~/.bashrc
 
 
 
-export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
+export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
 export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
 export PATH="/bin:$PATH"
+
+if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
+  echo "libostree-1.so.1 missing from deps!"
+  exit 1
+fi
+
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
 sleep 3
+
 /bin/bash ~/opt/bin/aurora help
+
 sleep 3
 echo "${MAGENTA}"
 echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
