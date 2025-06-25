@@ -76,8 +76,8 @@ show_help() {
     echo "flatpak search visualstudio"
     echo "flatpak install com.visualstudio.code"
     echo "flatpak --command=sh com.visualstudio.code"
-    echo "ls /app/bin to help find the app!"
     echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
+    echo "Use ls /app/bin to help find the app in these situations."
     echo "${RESET}"
    
 }
