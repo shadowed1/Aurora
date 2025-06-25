@@ -2,6 +2,8 @@
   <img src="https://i.imgur.com/vhqBIyM.png" alt="logo" width="5000" />
 </p>  
 
+
+
 ## *Run numerous apps and games through Borealis (Steam) for a large performance boost over Crostini!*
 ### Requirements: 
 
@@ -17,11 +19,33 @@
 - Copy Paste in borealis shell: <br>
 `bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")`
 
+### Features:
+- Steam can be closed entirely as long as an app is running.
+- Borealis shell tabs automatically initiate Flatpak support.  
+<p align="center">
+  <img src="https://i.imgur.com/JaW6d3P.png" alt="logo" width="5000" />
+</p>  
+
+- Aurora can tweak display scaling and cursor size. 
+
+- Fantastic hardware acceleration for apps:
+
+<p align="center">
+  <img src="https://i.imgur.com/j9ID9gZ.png" alt="logo" width="600" />
+</p>  
+
+- Minecraft Java using the Prism Launcher:
+
+<p align="center">
+  <img src="https://i.imgur.com/SKNLuZb.png" alt="logo" width="5000" />
+</p>  
+
+
+
 
 ### How to use:
 
 - Apps and their data are saved in ~/opt/
-- Please back up often, I am not 100% sure what will happen on Steam updates.  
 - --user argument is built-in for this Flatpak since we have no root access.
 - Some apps will not run the conventional way. Brave or Visual Studio are good examples.<br>
 
@@ -47,5 +71,4 @@ When running VS:
 - Downloads Flatpak and its required dependencies from Arch's repository.
 - Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
 - Adds .bashrc for flatpak commands to actually work.
-- Steam can be closed entirely as long as an app is running.
 
