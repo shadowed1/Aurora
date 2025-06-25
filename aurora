@@ -2,7 +2,6 @@
 # NOTE: To apply environment changes, run this script via: `source aurora ...`
 # Running it directly will not persist env changes in your current shell.
 
-export PATH="/bin:$PATH"
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
