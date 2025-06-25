@@ -68,6 +68,16 @@ When running VS:
 
  Customize to your liking. Applying changes requires restarting app. <br><br>
 
+ #### Sharing files (Simalar to "Share with Linux")
+ 
+ (optional) create a new folder under "MyFiles" (i.e. Steam_files)
+ - Open Crosh (ctrl-alt-t) and type in: <br>
+`vmc share borealis [folder path from MyFiles]`
+- in my example this would be:  <br>
+  `vmc share borealis Steam_files`
+- if you simply want to share the whole downloads folder do: <br>
+  `vmc share borealis Downloads`
+
  ### How it works:
 
 - Borealis offers hardware acceleration support that makes Crostini's poor performance untenable. 
