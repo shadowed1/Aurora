@@ -7,16 +7,16 @@ MAGENTA=$(tput setaf 5)
 CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
-echo "${BLUE}"
+echo "${MAGENTA}${BOLD}"
 echo ""
 echo "   ------    ----    ---- -----------    --------   -----------     ------${RESET}"    
-echo "${MAGENTA}  ********   ****    **** ***********   **********  ***********    ********${RESET}"   
-echo "${BLUE} ----------  ----    ---- ----    ---  ----    ---- ----    ---   ----------${RESET}" 
+echo "${MAGENTA}${BOLD}  ********   ****    **** ***********   **********  ***********    ********${RESET}"   
+echo "${MAGENTA} ----------  ----    ---- ----    ---  ----    ---- ----    ---   ----------${RESET}" 
 echo "${MAGENTA}****    **** ****    **** *********    ***      *** *********    ****    ****${RESET}" 
 echo "${BLUE}------------ ----    ---- ---------    ---      --- ---------    ------------${RESET}" 
-echo "${MAGENTA}************ ************ ****  ****   ****    **** ****  ****   ************${RESET}" 
-echo "${BLUE}----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----${RESET}" 
-echo "${MAGENTA}****    **** ************ ****    ****   ********   ****    **** ****    ****${RESET}"
+echo "${BLUE}************ ************ ****  ****   ****    **** ****  ****   ************${RESET}" 
+echo "${BLUE}${BOLD}----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----${RESET}" 
+echo "${CYAN}****    **** ************ ****    ****   ********   ****    **** ****    ****${RESET}"
 echo ""
 echo "${RESET}${BOLD}${MAGENTA}Run apps on Borealis using Flatpak with signficantly more performance than Crostini!${RESET}${MAGENTA}"
 echo "${RESET}"
