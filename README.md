@@ -30,11 +30,18 @@
 - Apps and their data are saved in ~/opt/
 - Please back up often, I am not 100% sure what will happen on Steam updates.  
 - --user argument is built-in for Flatpak since we have no root access.
-  
+
+Firefox: 
+
 `flatpak search firefox` <br>
 `flatpak install flathub org.mozilla.firefox` <br>
 `flatpak run org.mozilla.firefox` <br>
 
+Minecraft:
+
+`flatpak search mojang` <br>
+`flatpak install com.mojang.Minecraft` <br>
+`flatpak run com.mojang.Minecraft` <br>
 - Some apps will not work the conventional way like Brave or Visual Studio. When running VS:
   
 `flatpak run --command=sh com.visualstudio.code` <br>
