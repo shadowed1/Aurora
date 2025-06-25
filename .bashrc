@@ -11,6 +11,7 @@ export PATH="/usr/bin:$PATH"
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
+grep -qxF 'export PATH="$HOME/opt/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/opt/bin:$PATH"' >> ~/.bashrc
 echo "${MAGENTA}Aurora initalizing Flatpak!${RESET}${BLUE}"
 export PATH="/bin:/usr/bin:$PATH"
 echo 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' >> ~/.bashrc
