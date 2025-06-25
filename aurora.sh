@@ -167,8 +167,8 @@ chown -R $USER:$USER ~/.local/share/flatpak
 chmod -R u+rw ~/.local/share/flatpak
 sleep 1
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.bashrc -o ~/bashrc
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak-wrapper.sh -o ~/opt/flatpak_wrapper.sh
-chmod +x ~/opt/flatpak-wrapper.sh
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
+chmod +x ~/opt/flatpak_wrapper.sh
 chmod 644 ~/.bashrc
 exec "$HOME/opt/flatpak/usr/bin/flatpak" --user "$@"
 echo "Flatpak is ready to go!"
