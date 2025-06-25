@@ -8,11 +8,7 @@
   mkdir -p "$XDG_RUNTIME_DIR"
   chmod 700 "$XDG_RUNTIME_DIR"
   echo "$DBUS_SESSION_BUS_ADDRESS"
-  
-  sleep 1
-  
   export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
-  
   export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
   mkdir -p "$XDG_RUNTIME_DIR"
   chmod 700 "$XDG_RUNTIME_DIR"
@@ -25,9 +21,6 @@
       --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
     sleep 1
   fi
-  
-  sleep 1
-  
   export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
   mkdir -p "$XDG_RUNTIME_DIR/doc"
   mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
@@ -35,22 +28,13 @@
   "$XDG_RUNTIME_DIR/doc/portal"
   chmod 700 "$XDG_RUNTIME_DIR/doc"
   export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share:/usr/local/share:/usr/share"
-  
-  sleep 1
-  
-  
   export GTK_USE_PORTAL=0
   export FLATPAK_DISABLE_PORTAL=1
-  
   if ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call \
        --print-reply /org/freedesktop/DBus org.freedesktop.DBus.ListNames > /dev/null 2>&1; then
       eval "$(dbus-launch --sh-syntax)"
       export DBUS_SESSION_BUS_ADDRESS
   fi
-  
-  sleep 1
-  
-  
   mkdir -p ~/tmp
   mkdir -p $HOME/tmp
   TMPDIR=$HOME/tmp
