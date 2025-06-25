@@ -68,7 +68,7 @@ download_and_extract()
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
     LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib" ~/opt/flatpak/usr/bin/flatpak --version
-    sleep 1
+   # sleep 1
 }
 
 URL="https://archlinux.org/packages/extra/x86_64/flatpak/download"
@@ -167,10 +167,13 @@ echo "║${RESET}${BOLD}${MAGENTA}                                       INSTALL
 echo "╚═══════════════════════════════════════════════════════════════════════════════════════════════╝"
 echo "${RESET}"
 echo ""
-bash aurora help
-bash aurora
+export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
 export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
+bash aurora
+bash aurora help
+
 EOF
 
         ;;
