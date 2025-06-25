@@ -1,4 +1,7 @@
 source ~/opt/flatpak_env.sh
+flatpak() {
+  command flatpak --user "$@"
+}
 
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
