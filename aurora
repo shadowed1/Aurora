@@ -58,6 +58,7 @@ show_help() {
     echo "aurora display 1.5  # Set display scaling factor (0.25 - 4.0)"
     echo "aurora cursor 32    # Set cursor size (8 - 200)"
     echo "aurora help         # Show help"
+    echo ""
     echo "${RESET}"
    
 }
