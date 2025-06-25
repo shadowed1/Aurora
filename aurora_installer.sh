@@ -107,7 +107,7 @@ fi
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.bashrc -o ~/.bashrc
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/aurora
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/bin/flatpak.env
-chmod +x ~/aurora
+chmod +x ~/opt/bin/aurora
 chmod 644 ~/.bashrc
 
 
