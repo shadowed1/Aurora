@@ -24,10 +24,11 @@ echo "${BLUE}${BOLD}0: Quit$RESET"
 echo "${MAGENTA}${BOLD}1: Download and install Flatpak to ~/opt${RESET}"
 
 read -rp "Enter (0-1): " choice
-
-export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$PATH"
+export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-export PATH="$HOME:$PATH"
+"$HOME/opt/flatpak/usr/bin/flatpak" --version
+
+
 
 case "$choice" in
     0)
@@ -159,6 +160,7 @@ curl -L https://raw.githubusercontent.com/shadowed1/Aurora/refs/heads/main/auror
 chmod +x ~/aurora
 chmod +x ~/opt/flatpak_wrapper.sh
 
+
 echo "${MAGENTA}"
 echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
 echo "║${RESET}${BOLD}${MAGENTA}                                       INSTALL COMPLETE!${RESET}${MAGENTA}                                       ║"
@@ -166,6 +168,9 @@ echo "╚═══════════════════════�
 echo "${RESET}"
 echo ""
 bash aurora help
+export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
+export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
+EOF
 
         ;;
     *)
