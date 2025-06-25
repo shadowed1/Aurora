@@ -7,21 +7,53 @@ MAGENTA=$(tput setaf 5)
 CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
-echo "${MAGENTA}${BOLD}"
-echo ""
-echo "   ------    ----    ---- -----------    --------   -----------     ------${RESET}"    
-echo "${MAGENTA}${BOLD}  ********   ****    **** ***********   **********  ***********    ********${RESET}"   
-echo "${MAGENTA} ----------  ----    ---- ----    ---  ----    ---- ----    ---   ----------${RESET}" 
-echo "${MAGENTA}****    **** ****    **** *********    ***      *** *********    ****    ****${RESET}" 
-echo "${BLUE}------------ ----    ---- ---------    ---      --- ---------    ------------${RESET}" 
-echo "${BLUE}************ ************ ****  ****   ****    **** ****  ****   ************${RESET}" 
-echo "${CYAN}----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----${RESET}" 
-echo "${CYAN}${BOLD}****    **** ************ ****    ****   ********   ****    **** ****    ****${RESET}"
-echo ""
-echo "${RESET}${CYAN}Run apps on Borealis using Flatpak with signficantly more performance than Crostini!${RESET}${MAGENTA}"
-echo "${RESET}"
-echo "${BLUE}${BOLD}0: Quit${RESET}"
-echo "${MAGENTA}${BOLD}1: Download and install Aurora + Flatpak to ~/opt${RESET}"
+lines=(
+"   ------    ----    ---- -----------    --------   -----------     ------"
+"  ********   ****    **** ***********   **********  ***********    ********"
+" ----------  ----    ---- ----    ---  ----    ---- ----    ---   ----------"
+"****    **** ****    **** *********    ***      *** *********    ****    ****"
+"------------ ----    ---- ---------    ---      --- ---------    ------------"
+"************ ************ ****  ****   ****    **** ****  ****   ************"
+"----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----"
+"****    **** ************ ****    ****   ********   ****    **** ****    ****"
+)
+
+
+# Color grid test
+num_lines=${#lines[@]}
+max_len=0
+for line in "${lines[@]}"; do
+  (( ${#line} > max_len )) && max_len=${#line}
+done
+
+for ((i=0; i<num_lines; i++)); do
+  line="${lines[i]}"
+  output=""
+  for ((j=0; j<${#line}; j++)); do
+    diagonal=$((i + j))
+    max_diag=$((num_lines + max_len - 2))
+    half_diag=$((max_diag / 2))
+
+    char="${line:j:1}"
+    
+    if [[ "$char" =~ [A-Za-z] ]]; then
+      if (( i == 5 || i == 6 )); then
+        color="$CYAN"
+      else
+        color="$MAGENTA"
+      fi
+    else
+      if (( diagonal <= half_diag )); then
+        color="$GREEN"
+      else
+        color="$BLUE"
+      fi
+    fi
+    
+    output+="${color}${char}${RESET}"
+  done
+  echo -e "$output"
+done
 
 read -rp "Enter (0-1): " choice
 export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
