@@ -40,7 +40,7 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
   sleep 1
 fi
 
-export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
 echo "$DBUS_SESSION_BUS_ADDRESS"
 chmod 700 "$XDG_RUNTIME_DIR"
 mkdir -p "$XDG_RUNTIME_DIR/doc"
@@ -83,8 +83,6 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
 fi
 
 
-
-export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 
 flatpak() {
   case "$1" in
