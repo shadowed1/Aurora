@@ -94,6 +94,10 @@ When running VS:
 0.01: Release
 
 ### Acknowledgments
-- Saragon making some great suggestions like using .bashrc, improving readme, and working on making Steam shortcuts a reality.
+- Saragon making great suggestions like using .bashrc, improving readme, finding bugs, and working on making Steam shortcuts a reality:
+https://github.com/Saragon4005
+
+- Thanks to DennisLfromGA for finding bugs, making great suggestions, and fixing issue to run certain apps:
+https://github.com/DennisLfromGA
   
 
