@@ -104,7 +104,6 @@ if ! grep -q 'flatpak.env' ~/.bashrc; then
   echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
 fi
 
-echo "${CYAN}Initializing Flatpak!${RESET}"
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"
