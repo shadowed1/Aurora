@@ -1,6 +1,6 @@
 # Aurora
 
-## *Installing and running apps in Borealis (Steam) for superb performance over Crostini!*
+## *Installing and running apps and games in Borealis (Steam) for superb performance over Crostini!*
 
 ### Requirements: 
 
@@ -27,7 +27,7 @@
 
 ### How to use:
 
---user argument is always part of this Flatpak install since we have no root access.
+--user argument is built-in for Flatpak since we have no root access.
   
 `flatpak search firefox` <br>
 `flatpak install flathub org.mozilla.firefox` <br>
