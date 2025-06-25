@@ -35,6 +35,9 @@ if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" ] && ! pgrep -u "$US
   "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" &
 fi
 
+flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak --user update --appstream
+
 flatpak() {
   case "$1" in
     --help|-h|help|""|--version)
