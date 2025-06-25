@@ -100,6 +100,9 @@ download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 URL="https://archlinux.org/packages/extra/x86_64/xdg-dbus-proxy/download"
 download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 
+URL="https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal/download"
+download_and_extract "$URL" "$HOME/opt/flatpak-deps"
+
 if ! grep -q 'flatpak.env' ~/.bashrc; then
   echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
 fi
