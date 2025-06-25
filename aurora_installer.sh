@@ -36,7 +36,7 @@ case "$choice" in
     1)
 echo ""
 echo "${CYAN}About to start downloading Flatpak and its dependencies!"
-echo "Errors loading shared libraries is normal behavior; those missing files are downloaded after.${RESET}"
+echo "${RESET}${CYAN}${BOLD}Errors loading shared libraries is normal behavior; those missing files are downloaded after.${RESET}"
 sleep 4
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
