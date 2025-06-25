@@ -27,8 +27,9 @@
 - Many apps will require to be run 'internally' see 'How to Use' section below.
 
 ### How to use:
-
---user argument is built-in for Flatpak since we have no root access.
+- Apps and their data are saved in ~/opt/
+- Please back up often, I am not 100% sure what will happen on Steam updates.  
+- --user argument is built-in for Flatpak since we have no root access.
   
 `flatpak search firefox` <br>
 `flatpak install flathub org.mozilla.firefox` <br>
@@ -37,5 +38,4 @@
 `flatpak run --command=sh com.visualstudio.code` <br>
 `/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
 
-- Apps and their data are saved in ~/opt/
-- Please back up often, I am not 100% sure what will happen on Steam updates.  
+
