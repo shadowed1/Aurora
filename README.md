@@ -19,7 +19,7 @@
 
 ### How it works:
 
-- Steam's virtual machine offers hardware acceleration support that Crostini cannot compete with. 
+- Steam's virtual machine offers hardware acceleration support that makes Crostini's poor performance untenable. 
 - Downloads Flatpak and its required dependencies from Arch's repository.
 - Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
 - Adds .bashrc for flatpak commands to actually work.
