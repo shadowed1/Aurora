@@ -25,7 +25,7 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
-
+export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
 echo "$DBUS_SESSION_BUS_ADDRESS"
 chmod 700 "$XDG_RUNTIME_DIR"
 mkdir -p "$XDG_RUNTIME_DIR/doc"
@@ -39,6 +39,7 @@ if ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call \
      --print-reply /org/freedesktop/DBus org.freedesktop.DBus.ListNames > /dev/null 2>&1; then
     eval "$(dbus-launch --sh-syntax)"
 fi
+
 
 sleep 1
 mkdir -p ~/tmp
