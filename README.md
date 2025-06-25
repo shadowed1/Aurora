@@ -50,7 +50,7 @@ Minecraft:
 
 - 4k DPI scaling is easy to apply. Before starting an app run:
   
-`export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=2
- export XCURSOR_SIZE=24`
+`export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=2` <br>
+ `export XCURSOR_SIZE=24` <br>
  
  Customize to your liking. Applying changes requires restarting app. 
