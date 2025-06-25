@@ -83,3 +83,7 @@ When running VS:
 ### Changelog:
 0.01: Release
 
+### Acknowledgments
+- Saragon make some great suggestions like using .bashrc
+  
+
