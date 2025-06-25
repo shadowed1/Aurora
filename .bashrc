@@ -60,3 +60,24 @@ mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 echo "$DBUS_SESSION_BUS_ADDRESS"
 ###############################################
+if [ -f "$HOME/opt/flatpak.env" ]; then
+    . "$HOME/opt/flatpak.env"
+fi
+
+if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
+    mkdir -p "$XDG_RUNTIME_DIR"
+    chmod 700 "$XDG_RUNTIME_DIR"
+    dbus-daemon --session \
+        --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
+        --print-address=1 \
+        --nopidfile \
+        --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
+    sleep 1
+fi
+
+export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+
+flatpak() {
+  command flatpak --user "$@"
+}
+
