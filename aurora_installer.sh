@@ -168,6 +168,7 @@ echo "╚═══════════════════════�
 echo "${RESET}"
 echo ""
 bash aurora help
+bash aurora
 export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
 export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
 EOF
