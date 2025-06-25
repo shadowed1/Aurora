@@ -64,7 +64,7 @@ download_and_extract()
     echo "Extracting $FILE to $target_dir"
     tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
     rm -f "$FILE"
-    echo "${RESET}${MAGENTA}${BOLD}${FILE} extracted.${RESET}"
+    echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
     LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib" ~/opt/flatpak/usr/bin/flatpak --version
