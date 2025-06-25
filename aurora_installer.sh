@@ -18,15 +18,17 @@ echo "${MAGENTA}${BOLD}1: Download and install Flatpak to ~/opt${RESET}"
 
 read -rp "Enter (0-1): " choice
 
+flatpak() {
+  LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib" "$HOME/opt/flatpak/usr/bin/flatpak" "$@"
+}
+
 case "$choice" in
     0)
         echo "Quit"
         ;;
     1)
 
-flatpak() {
-  LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib" "$HOME/opt/flatpak/usr/bin/flatpak" "$@"
-}
+
 
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
