@@ -1,6 +1,7 @@
-flatpak() {
-  command flatpak --user "$@"
-}
+if [ -f "$HOME/opt/flatpak.env" ]; then
+    . "$HOME/opt/flatpak.env"
+fi
+
 echo 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"' >> ~/.bashrc
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
@@ -13,6 +14,7 @@ export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 sleep 1
+
 if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
   dbus-daemon --session \
     --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
@@ -21,14 +23,17 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
+
 export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 echo "$DBUS_SESSION_BUS_ADDRESS"
 chmod 700 "$XDG_RUNTIME_DIR"
-sleep 1
-echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
+mkdir -p "$XDG_RUNTIME_DIR/doc"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal"
-mkdir -p "$XDG_RUNTIME_DIR/doc"
+echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
+
+
+
 chmod 700 "$XDG_RUNTIME_DIR/doc"
 export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share:/usr/local/share:/usr/share"
 sleep 1
@@ -48,18 +53,6 @@ chown -R $USER:$USER ~/.local/share/flatpak
 chmod -R u+rw ~/.local/share/flatpak
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak --user update --appstream
-###############################################
-export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
-export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"
-TMPDIR=$HOME/tmp 
-export TMPDIR="$HOME/tmp"
-export DISPLAY=:0
-export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
-mkdir -p "$XDG_RUNTIME_DIR"
-chmod 700 "$XDG_RUNTIME_DIR"
-echo "$DBUS_SESSION_BUS_ADDRESS"
-###############################################
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
@@ -74,6 +67,8 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
         --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
     sleep 1
 fi
+
+
 
 export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 
