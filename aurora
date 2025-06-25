@@ -1,4 +1,7 @@
 #!/bin/bash
+# NOTE: To apply environment changes, run this script via: `source aurora ...`
+# Running it directly will not persist env changes in your current shell.
+
 export PATH="/bin:$PATH"
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
@@ -14,6 +17,7 @@ CURSOR_SIZE=""
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
+
 set_display_scaling() {
     local input="$1"
 
@@ -28,8 +32,8 @@ set_display_scaling() {
             DISPLAY_SCALING=4.0
         fi
 
+        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
         echo "${GREEN}Display scaling set to $DISPLAY_SCALING${RESET}" >&2
-        echo "export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING"
     else
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}" >&2
         return 1
@@ -52,8 +56,8 @@ set_cursor_scaling() {
         CURSOR_SIZE=200
     fi
 
+    export XCURSOR_SIZE=$CURSOR_SIZE
     echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
-    echo "export XCURSOR_SIZE=$CURSOR_SIZE"
 }
 
 show_help() {
@@ -61,8 +65,8 @@ show_help() {
     echo "Commands with examples:"
     echo "${RESET}${MAGENTA}"
     echo "aurora              # Show current display and cursor values."
-    echo "aurora display 1.0  # Set display scaling factor (0.25 - 4.0.)"
-    echo "aurora cursor 32    # Set cursor size (8 - 200)"
+    echo "source aurora display 1.0  # Set display scaling factor (0.25 - 4.0.)"
+    echo "source aurora cursor 32    # Set cursor size (8 - 200)"
     echo "aurora help         # Show help"
     echo ""
     echo "flatpak --help"     # flatpak has a lot of commands! 
@@ -79,38 +83,34 @@ show_help() {
     echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
     echo "Use ls /app/bin to help find the app in these situations."
     echo "${RESET}"
-   
 }
 
 case "$1" in
     display)
-        set_display_scaling "$2" 
+        set_display_scaling "$2"
         ;;
     cursor)
         set_cursor_scaling "$2"
         ;;
-   --h|-h|h|--help|-help|help)
+    --h|-h|h|--help|-help|help)
         show_help
         ;;
     ""|status)
-
         if [[ -z "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" && -z "$XCURSOR_SIZE" ]]; then
             echo "${CYAN}ELECTRON_FORCE_DEVICE_SCALE_FACTOR and XCURSOR_SIZE remain default.${RESET}"
         else
             [[ -n "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" ]] && \
                 echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $ELECTRON_FORCE_DEVICE_SCALE_FACTOR${RESET}" || \
-                echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR remain default. ${RESET}"
+                echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR remain default.${RESET}"
 
             [[ -n "$XCURSOR_SIZE" ]] && \
                 echo "${MAGENTA}XCURSOR_SIZE = $XCURSOR_SIZE${RESET}" || \
                 echo "${BLUE}XCURSOR_SIZE remain default.${RESET}"
         fi
-        
         ;;
-
     *)
-            echo "${RED}Unknown command $1 ${RESET}"
-            show_help
-            exit 1
+        echo "${RED}Unknown command $1 ${RESET}"
+        show_help
+        exit 1
         ;;
 esac
