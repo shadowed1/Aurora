@@ -57,6 +57,11 @@ When running VS:
 `flatpak run --command=sh com.visualstudio.code` <br>
 `/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br> <br>
 
+When running Brave:
+
+`flatpak run --command=sh com.brave.Browser` <br>
+`/app/bin/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &` <br> <br>
+
 - To find where an app is after opening a shell for the app, run:
 `ls /app/bin` <br> <br>
 
