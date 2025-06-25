@@ -55,10 +55,15 @@ show_help() {
     echo "${MAGENTA}
     echo "Commands with examples:"
     echo "aurora              # show current display and cursor values
-    echo "aurora display 1.5  # Set display scaling factor (0.25 - 4.0)"
+    echo "aurora display 1.0  # Set display scaling factor (0.25 - 4.0.)"
     echo "aurora cursor 32    # Set cursor size (8 - 200)"
     echo "aurora help         # Show help"
     echo ""
+    echo "flatpak --help"
+    echo "flatpak search visualstudio"
+    echo "flatpak install com.visualstudio.code"
+    echo "flatpak --command=sh com.visualstudio.code"
+    echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
     echo "${RESET}"
    
 }
