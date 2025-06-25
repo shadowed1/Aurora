@@ -132,6 +132,11 @@ download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 URL="https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal-gtk/download"
 download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 
+# Futile attempt 
+URL="https://archlinux.org/packages/extra/x86_64/fuse3/download"
+download_and_extract "$URL" "$HOME/opt/flatpak-deps"
+https://archlinux.org/packages/extra/x86_64/fuse3/download
+
 
 if ! grep -q 'flatpak.env' ~/.bashrc; then
   echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
