@@ -92,12 +92,6 @@ download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 URL="https://archlinux.org/packages/extra/x86_64/xdg-dbus-proxy/download"
 download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 
-sleep 1
-export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
-LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib" ~/opt/flatpak/usr/bin/flatpak --version
-
-sleep 1
-
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"
@@ -108,9 +102,6 @@ export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 sleep 1
-export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
-echo "$DBUS_SESSION_BUS_ADDRESS"
-chmod 700 "$XDG_RUNTIME_DIR"
 if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
   dbus-daemon --session \
     --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
@@ -119,6 +110,9 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
+export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+echo "$DBUS_SESSION_BUS_ADDRESS"
+chmod 700 "$XDG_RUNTIME_DIR"
 sleep 1
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
@@ -146,7 +140,6 @@ flatpak --user update --appstream
 echo "Flatpak is ready to go!"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
 chmod +x ~/opt/flatpak_wrapper.sh
-exec "$HOME/opt/flatpak/usr/bin/flatpak" --user "$@"
 
 
 
