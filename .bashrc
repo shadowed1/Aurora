@@ -1,7 +1,3 @@
-#!/bin/bash
-
-initialize_flatpak() 
-{
   export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
   export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
   export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"
@@ -61,13 +57,3 @@ initialize_flatpak()
   export TMPDIR="$HOME/tmp"
   chown -R $USER:$USER ~/.local/share/flatpak
   chmod -R u+rw ~/.local/share/flatpak
-}
-
-case "$1" in
-  "")
-    initialize_flatpak
-    ;;
-    *)
-    exit 1
-     ;;
-esac
