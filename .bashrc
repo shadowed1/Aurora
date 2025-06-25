@@ -82,7 +82,7 @@ export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 
 flatpak() {
   case "$1" in
-    --help|-h|help|--version)
+    --help|-h|help|""|--version)
       command flatpak "$@"
       ;;
     *)
