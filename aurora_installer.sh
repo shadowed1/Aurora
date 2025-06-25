@@ -18,7 +18,7 @@ echo "${BLUE}************ ************ ****  ****   ****    **** ****  ****   **
 echo "${CYAN}----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----${RESET}" 
 echo "${CYAN}${BOLD}****    **** ************ ****    ****   ********   ****    **** ****    ****${RESET}"
 echo ""
-echo "${RESET}${CYAN}Run apps and games on Borealis using Flatpak with signficantly more performance than Crostini!${RESET}${MAGENTA}"
+echo "${RESET}${CYAN}Run apps and games on Borealis using Flatpak with signficantly higher performance than Crostini!${RESET}${MAGENTA}"
 echo "${RESET}"
 echo "${BLUE}0: Quit${RESET}"
 echo "${MAGENTA}1: Download and install Aurora + Flatpak to ~/ and ~/opt${RESET}"
