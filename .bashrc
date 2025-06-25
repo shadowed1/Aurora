@@ -12,15 +12,6 @@ if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
 echo "${MAGENTA}Aurora initalizing Flatpak!${RESET}${BLUE}"
-
-grep -qxF 'export PATH="$HOME/opt/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/opt/bin:$PATH"' >> ~/.bashrc
-
-grep -qxF 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' >> ~/.bashrc
-
-grep -qxF 'export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"' >> ~/.bashrc
-
-grep -qxF 'export LD_LIBRARY_PATH=...' ~/.bashrc || echo 'export LD_LIBRARY_PATH=...' >> ~/.bashrc
-
 export PATH="/bin:/usr/bin:$PATH"
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
@@ -71,20 +62,6 @@ chown -R $USER:$USER ~/.local/share/flatpak
 chmod -R u+rw ~/.local/share/flatpak
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak --user update --appstream
-
-
-if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
-    mkdir -p "$XDG_RUNTIME_DIR"
-    chmod 700 "$XDG_RUNTIME_DIR"
-    dbus-daemon --session \
-        --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
-        --print-address=1 \
-        --nopidfile \
-        --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
-    sleep 1
-fi
-
-
 
 flatpak() {
   case "$1" in
