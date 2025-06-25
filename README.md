@@ -42,8 +42,8 @@
 
 - 4k DPI scaling is easy to apply. Before starting an app run:
 
-`aurora display 2` to set scaling to 2x.
-`aurora cursor 32` will set the cursor to 32px. 
+`aurora display 2` to set scaling to 2x. <br>
+`aurora cursor 32` will set the cursor to 32px. <br>
 
  Customize to your liking. Applying changes requires restarting app. <br><br>
 
