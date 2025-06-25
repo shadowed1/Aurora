@@ -28,7 +28,6 @@ export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PAT
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
 export PATH="/bin:/usr/bin:$PATH"
-alias aurora='./aurora'
 
 
 case "$choice" in
