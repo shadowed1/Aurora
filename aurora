@@ -54,10 +54,11 @@ set_cursor_scaling() {
 show_help() {
     echo "${MAGENTA}
     echo "Commands with examples:"
+    echo "aurora              # show current display and cursor values
     echo "aurora display 1.5  # Set display scaling factor (0.25 - 4.0)"
     echo "aurora cursor 32    # Set cursor size (8 - 200)"
     echo "aurora help         # Show help"
-    echo "${RESET}
+    echo "${RESET}"
    
 }
 
@@ -73,6 +74,20 @@ case "$1" in
    --h|-h|h|--help|-help|help)
         show_help
         ;;
+    ""|status)
+        if [[ -z "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" && -z "$XCURSOR_SIZE" ]]; then
+            echo "${YELLOW}Status: Not yet applied.${RESET}"
+        else
+            [[ -n "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" ]] && \
+                echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $ELECTRON_FORCE_DEVICE_SCALE_FACTOR${RESET}" || \
+                echo "${YELLOW}ELECTRON_FORCE_DEVICE_SCALE_FACTOR not set${RESET}"
+
+            [[ -n "$XCURSOR_SIZE" ]] && \
+                echo "${MAGENTA}XCURSOR_SIZE = $XCURSOR_SIZE${RESET}" || \
+                echo "${YELLOW}XCURSOR_SIZE not set${RESET}"
+        fi
+        ;;
+
     *)
             echo "${RED}Unknown command $1 ${RESET}"
             show_help
