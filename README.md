@@ -41,3 +41,9 @@
 `/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
 
 
+- 4k support is easy to activate. Make sure to run:
+  
+`export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=2
+ export XCURSOR_SIZE=24`
+
+before starting the app. Customize to your liking. Applying changes requires restarting app. 
