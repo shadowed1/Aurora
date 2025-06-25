@@ -60,15 +60,6 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   sleep 1
 fi
 
-if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
-  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
-  grep -v '^export DBUS_SESSION_BUS_ADDRESS=' "$HOME/opt/flatpak.env" > "$HOME/opt/flatpak.env.tmp"
-  echo "export DBUS_SESSION_BUS_ADDRESS=\"$DBUS_SESSION_BUS_ADDRESS\"" >> "$HOME/opt/flatpak.env.tmp"
-  mv "$HOME/opt/flatpak.env.tmp" "$HOME/opt/flatpak.env"
-else
-  echo "D-Bus socket not found."
-fi
-
 download_and_extract()
 {
     local url="$1"
@@ -147,6 +138,15 @@ export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
 export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
 export PATH="/bin:$PATH"
+
+if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
+  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
+  grep -v '^export DBUS_SESSION_BUS_ADDRESS=' "$HOME/opt/flatpak.env" > "$HOME/opt/flatpak.env.tmp"
+  echo "export DBUS_SESSION_BUS_ADDRESS=\"$DBUS_SESSION_BUS_ADDRESS\"" >> "$HOME/opt/flatpak.env.tmp"
+  mv "$HOME/opt/flatpak.env.tmp" "$HOME/opt/flatpak.env"
+else
+  echo "D-Bus socket not found."
+fi
 
 if ! grep -q 'flatpak.env' ~/.bashrc; then
   echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
