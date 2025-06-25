@@ -133,11 +133,11 @@ if ! grep -q 'flatpak.env' ~/.bashrc; then
   echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
 fi
 
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.bashrc -o ~/.bashrc
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.logic -o ~/flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/flatpak.env
 chmod +x ~/opt/bin/aurora
-chmod 644 ~/.bashrc
+
 
 
 
@@ -150,6 +150,10 @@ export PATH="/bin:$PATH"
 if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
   echo "libostree-1.so.1 missing from deps!"
   exit 1
+fi
+
+if ! grep -Fxq '[ -f "$HOME/opt/flatpak.logic" ] && . "$HOME/opt/flatpak.logic"' "$HOME/.bashrc"; then
+  echo '[ -f "$HOME/opt/flatpak.logic" ] && . "$HOME/opt/flatpak.logic"' >> "$HOME/.bashrc"
 fi
 
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
