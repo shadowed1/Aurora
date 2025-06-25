@@ -7,40 +7,66 @@ MAGENTA=$(tput setaf 5)
 CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
+DISPLAY_SCALING=""
+CURSOR_SIZE=""
 
 set_display_scaling() {
-    if [[ "$2" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
-        DISPLAY_SCALING=$(printf "%.2f" "$2")
+    local input="$2"
+    if [[ "$input" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        DISPLAY_SCALING=$(printf "%.2f" "$input")
+
         if (( $(awk "BEGIN {print ($DISPLAY_SCALING < 0.25)}") )); then
             echo "${RED}Warning: DISPLAY_SCALING below 0.25, resetting to 1.0${RESET}"
-            export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=1
+            DISPLAY_SCALING=1.0
         elif (( $(awk "BEGIN {print ($DISPLAY_SCALING > 4.0)}") )); then
-            echo "${RED}Warning: DISPLAY_SCALING above 4, resetting to 4${RESET}"
-            export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=4
+            echo "${RED}Warning: DISPLAY_SCALING above 4.0, resetting to 4.0${RESET}"
+            DISPLAY_SCALING=4.0
         fi
-        sed -i "s/^DISPLAY_SCALING=.*/DISPLAY_SCALING=$DISPLAY_SCALING/" "$CONFIG_FILE"
-        echo "${GREEN}Display Scaling set to $DISPLAY_SCALING ${RESET}"
+
+        echo "${GREEN}Display scaling set to $DISPLAY_SCALING${RESET}"
         export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
     else
-        echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., , 3, 4.2)${RESET}"
-        exit 1
+        echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}"
+        return 1
     fi
 }
 
 set_cursor_scaling() {
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then
-        echo "Error: Cursor size must be an integer."
-        exit 1
+        echo "${RED}Error: Cursor size must be an integer.${RESET}"
+        return 1
     fi
-    echo "Max temperature threshold set to $MAX_TEMP°C"
+
+    CURSOR_SIZE=$1
+
+    if (( CURSOR_SIZE < 8 )); then
+        echo "${YELLOW}Warning: Cursor size below 8, resetting to 8.${RESET}"
+        CURSOR_SIZE=8
+    elif (( CURSOR_SIZE > 200 )); then
+        echo "${YELLOW}Warning: Cursor size above 200, resetting to 200.${RESET}"
+        CURSOR_SIZE=200
+    fi
+
+    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}"
+    export XCURSOR_SIZE=$CURSOR_SIZE
 }
 
+show_help() {
+    echo "${MAGENTA}
+    echo "Commands with examples:"
+    echo "aurora display 1.5  # Set display scaling factor (0.25 - 4.0)"
+    echo "aurora cursor 32    # Set cursor size (8 - 200)"
+    echo "aurora help         # Show help"
+    echo "${RESET}
+   
+}
+
+
 case "$1" in
-    scaling)
+    display)
         set_display_scaling "$2"
         ;;
-    "")
-        
+    cursor)   
         ;;
 
         ;;
@@ -48,7 +74,7 @@ case "$1" in
         show_help
         ;;
     *)
-            echo "${RED}Unknown command or value is too low: $1 ${RESET}"
+            echo "${RED}Unknown command $1 ${RESET}"
             show_help
             exit 1
         fi
