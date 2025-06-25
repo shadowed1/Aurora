@@ -4,7 +4,7 @@
 
 
 
-## *Run apps and games on Borealis using Flatpak with signficantly higher performance than Crostini!*
+## *Run apps and games in Borealis using Flatpak for signficantly higher performance than Crostini!*
 ### Requirements: 
 
 - ChromeOS
