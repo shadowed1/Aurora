@@ -53,12 +53,11 @@ dbus-daemon --session \
   --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
 sleep 1
 
-#if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
- # export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
-#else
-  #echo "${RED}Error: D-Bus socket not found. Aborting.${RESET}"
-  #exit 1
-#fi
+if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
+ export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
+else
+  echo "D-Bus socket not found."
+fi
 
 download_and_extract()
 {
