@@ -64,18 +64,28 @@ show_help() {
     echo "aurora help         # Show help"
     echo ""
     echo "flatpak --help"
+    echo "${BLUE}Example to run normally:
+    echo "flatpak search Discord"
+    echo "flatpak install com.discordapp.Discord"
+    echo "flatpak run com.discordapp.Discord${RESET}
+    echo "${MAGENTA}${BOLD}"
+    echo "Failed to connect to bus error appears it must be run as below:
+    echo "${RESET}{CYAN}"
     echo "flatpak search visualstudio"
     echo "flatpak install com.visualstudio.code"
     echo "flatpak --command=sh com.visualstudio.code"
+    echo "ls /app/bin to help find the app!"
     echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
     echo "${RESET}"
+    
+    
    
 }
 
 
 case "$1" in
     display)
-        set_display_scaling "$2"
+        set_display_scaling "$2" 
         ;;
     cursor)   
         ;;
