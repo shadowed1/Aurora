@@ -60,8 +60,8 @@ download_and_extract()
         mv "$FILE" "$SAFE_FILE"
         FILE="$SAFE_FILE"
     fi
-    ${BLUE}
-    echo "Extracting $FILE to $target_dir"
+    echo "${BLUE}"
+    echo "Extracting $FILE ${RESET}${CYAN}to $target_dir"
     tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
     rm -f "$FILE"
     ${RESET}
