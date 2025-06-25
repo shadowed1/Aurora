@@ -97,9 +97,6 @@ mkdir -p ~/tmp
 mkdir -p $HOME/tmp
 TMPDIR=$HOME/tmp
 export TMPDIR="$HOME/tmp"
-flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak --user update --appstream
-flatpak --user install flathub org.gnome.gedit
 chown -R $USER:$USER ~/.local/share/flatpak
 chmod -R u+rw ~/.local/share/flatpak
 TMPDIR="$HOME/tmp" flatpak --user install flathub org.gnome.gedit
@@ -170,7 +167,6 @@ curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.bashrc -o ~/bas
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
 chmod +x ~/opt/flatpak_wrapper.sh
 chmod 644 ~/.bashrc
-exec "$HOME/opt/flatpak/usr/bin/flatpak" --user "$@"
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"
@@ -231,7 +227,10 @@ TMPDIR=$HOME/tmp
 export TMPDIR="$HOME/tmp"
 chown -R $USER:$USER ~/.local/share/flatpak
 chmod -R u+rw ~/.local/share/flatpak
-
+flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak --user update --appstream
+flatpak --user install flathub org.gnome.gedit
+exec "$HOME/opt/flatpak/usr/bin/flatpak" --user "$@"
 echo "Flatpak is ready to go!"
 
 
