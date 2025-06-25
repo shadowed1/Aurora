@@ -64,12 +64,12 @@ show_help() {
     echo "aurora help         # Show help"
     echo ""
     echo "flatpak --help"
-    echo "${BLUE}Example to run normally:
+    echo "${BLUE}Example to run normally:"
     echo "flatpak search Discord"
     echo "flatpak install com.discordapp.Discord"
     echo "flatpak run com.discordapp.Discord${RESET}
     echo "${MAGENTA}${BOLD}"
-    echo "Failed to connect to bus error appears it must be run as below:
+    echo "Failed to connect to bus error appears it must be run as below:"
     echo "${RESET}{CYAN}"
     echo "flatpak search visualstudio"
     echo "flatpak install com.visualstudio.code"
