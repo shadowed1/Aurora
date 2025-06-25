@@ -126,7 +126,6 @@ download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 # Futile attempt 
 URL="https://archlinux.org/packages/extra/x86_64/fuse3/download"
 download_and_extract "$URL" "$HOME/opt/flatpak-deps"
-https://archlinux.org/packages/extra/x86_64/fuse3/download
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.logic -o ~/flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
