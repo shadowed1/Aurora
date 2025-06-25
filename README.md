@@ -80,3 +80,6 @@ When running VS:
 - Currently lacking Crostini's integration with the shelf
 - To do: Default web browser support
 
+### Changelog:
+0.01: Release
+
