@@ -25,13 +25,18 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
+
+if ! pgrep -u "$USER" -f xdg-desktop-portal; then
+  "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" &
+  "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
+fi
+
 export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
 echo "$DBUS_SESSION_BUS_ADDRESS"
 chmod 700 "$XDG_RUNTIME_DIR"
 mkdir -p "$XDG_RUNTIME_DIR/doc"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal"
-echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 chmod 700 "$XDG_RUNTIME_DIR/doc"
 sleep 1
 
