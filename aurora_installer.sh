@@ -27,7 +27,7 @@ read -rp "Enter (0-1): " choice
 
 export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-
+export PATH="$HOME:$PATH"
 
 case "$choice" in
     0)
