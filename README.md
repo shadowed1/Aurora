@@ -73,3 +73,8 @@ When running VS:
 - Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
 - Adds .bashrc for flatpak commands to actually work.
 
+
+### Limitations:
+- Currently lacking Crostini's integration with the shelf
+- To do: Default web browser support
+
