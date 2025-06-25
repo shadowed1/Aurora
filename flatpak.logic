@@ -54,6 +54,7 @@ flatpak() {
   esac
 }
 EOF
+. "$HOME/.bashrc"
 fi
 
 
