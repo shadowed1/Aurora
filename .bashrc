@@ -19,6 +19,8 @@ grep -qxF 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' ~/.bashrc || echo 'exp
 
 grep -qxF 'export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"' >> ~/.bashrc
 
+grep -qxF 'export LD_LIBRARY_PATH=...' ~/.bashrc || echo 'export LD_LIBRARY_PATH=...' >> ~/.bashrc
+
 export PATH="/bin:/usr/bin:$PATH"
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
