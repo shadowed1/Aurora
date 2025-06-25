@@ -1,7 +1,6 @@
 # Aurora
 
-## *Installing apps and games in Borealis (Steam) for a superb performance boost over Crostini!*
-
+## *Run numerous apps and games Borealis (Steam) for a superb performance boost over Crostini!*
 ### Requirements: 
 
 - ChromeOS
@@ -27,6 +26,7 @@
 - Many apps will require to be run 'internally' see 'How to Use' section below.
 
 ### How to use:
+
 - Apps and their data are saved in ~/opt/
 - Please back up often, I am not 100% sure what will happen on Steam updates.  
 - --user argument is built-in for Flatpak since we have no root access.
@@ -46,15 +46,4 @@
 `export XCURSOR_SIZE=24` <br> 
   
  Customize to your liking. Applying changes requires restarting app. <br><br>
-
-
-Firefox: 
-
-`flatpak install flathub org.mozilla.firefox` <br>
-`flatpak run org.mozilla.firefox` <br> <br>
-
-Minecraft:
-
-`flatpak install com.mojang.Minecraft` <br>
-`flatpak run com.mojang.Minecraft` <br> <br>
 
