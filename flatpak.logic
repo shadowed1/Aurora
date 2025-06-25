@@ -43,20 +43,19 @@ echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 # Add Aurora Flatpak --user function to ~/.bashrc if missing
 MARKER="# Aurora Flatpak --user logic"
 if ! grep -q "$MARKER" "$HOME/.bashrc"; then
-  cat << EOF >> "$HOME/.bashrc"
+ cat << 'EOF' >> "$HOME/.bashrc"
 # Aurora Flatpak --user logic
 flatpak() {
   case "$1" in
     --help|-h|help|""|--version)
-      command flatpak "\$@"
+      command flatpak "$@"
       ;;
     *)
-      command flatpak --user "\$@"
+      command flatpak --user "$@"
       ;;
   esac
 }
 EOF
-. "$HOME/.bashrc"
 fi
 
 # Add Aurora Flatpak env initialization to ~/.bashrc if missing
