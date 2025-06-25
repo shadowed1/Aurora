@@ -1,8 +1,16 @@
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
+MAGENTA='\033[35m'
+CYAN='\033[36m'
+BOLD='\033[1m'
+RESET='\033[0m'
 export PATH="/usr/bin:$PATH"
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
-echo "Initalizing Flatpak!"
+echo "${CYAN}Initalizing Flatpak!${RESET}"
 export PATH="/bin:/usr/bin:$PATH"
 echo 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"' >> ~/.bashrc
@@ -74,4 +82,6 @@ export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 flatpak() {
   command flatpak --user "$@"
 }
+
+echo "${CYAN}Flatpak ready!${RESET}"
 
