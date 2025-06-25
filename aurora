@@ -1,0 +1,56 @@
+#!/bin/bash
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+BOLD=$(tput bold)
+RESET=$(tput sgr0)
+
+set_display_scaling() {
+    if [[ "$2" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        DISPLAY_SCALING=$(printf "%.2f" "$2")
+        if (( $(awk "BEGIN {print ($DISPLAY_SCALING < 0.25)}") )); then
+            echo "${RED}Warning: DISPLAY_SCALING below 0.25, resetting to 1.0${RESET}"
+            export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=1
+        elif (( $(awk "BEGIN {print ($DISPLAY_SCALING > 4.0)}") )); then
+            echo "${RED}Warning: DISPLAY_SCALING above 4, resetting to 4${RESET}"
+            export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=4
+        fi
+        sed -i "s/^DISPLAY_SCALING=.*/DISPLAY_SCALING=$DISPLAY_SCALING/" "$CONFIG_FILE"
+        echo "${GREEN}Display Scaling set to $DISPLAY_SCALING ${RESET}"
+        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
+    else
+        echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., , 3, 4.2)${RESET}"
+        exit 1
+    fi
+}
+
+set_cursor_scaling() {
+    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+        echo "Error: Cursor size must be an integer."
+        exit 1
+    fi
+    echo "Max temperature threshold set to $MAX_TEMP°C"
+}
+
+case "$1" in
+    scaling)
+        set_display_scaling "$2"
+        ;;
+    "")
+        
+        ;;
+
+        ;;
+   --h|-h|h|--help|-help|help)
+        show_help
+        ;;
+    *)
+            echo "${RED}Unknown command or value is too low: $1 ${RESET}"
+            show_help
+            exit 1
+        fi
+        ;;
+esac
