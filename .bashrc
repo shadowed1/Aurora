@@ -1,4 +1,3 @@
-source ~/opt/flatpak_env.sh
 flatpak() {
   command flatpak --user "$@"
 }
