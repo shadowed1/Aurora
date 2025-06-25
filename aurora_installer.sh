@@ -23,6 +23,10 @@ echo "${RESET}"
 echo "${BLUE}0: Quit${RESET}"
 echo "${MAGENTA}1: Download and install Aurora + Flatpak to ~/ and ~/opt${RESET}"
 echo ""
+if [ ! -d "$HOME/.local/share/Steam" ]; then
+  echo "${RED}This installer must be run inside Borealis. Aborting.${RESET}"
+  exit 1
+fi
 read -rp "Enter (0-1): " choice
 export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
