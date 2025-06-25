@@ -155,6 +155,5 @@ case "$1" in
             echo "${RED}Unknown command $1 ${RESET}"
             show_help
             exit 1
-        fi
         ;;
 esac
