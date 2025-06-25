@@ -20,3 +20,5 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
 fi
 
 export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+
+exec flatpak "$@"
