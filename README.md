@@ -36,6 +36,9 @@
 `flatpak run --command=sh com.visualstudio.code` <br>
 `/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
 
+- to find where an app is after opening a shell for the app, run:
+`ls /app/bin`
+
 
 - 4k DPI scaling is easy to apply. Before starting an app run:
   
