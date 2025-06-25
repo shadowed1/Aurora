@@ -31,6 +31,17 @@
 - Please back up often, I am not 100% sure what will happen on Steam updates.  
 - --user argument is built-in for Flatpak since we have no root access.
 
+- Some apps will not work the conventional way like Brave or Visual Studio. When running VS:
+  
+`flatpak run --command=sh com.visualstudio.code` <br>
+`/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
+
+
+- 4k DPI scaling is easy to apply. Before starting an app run:
+  
+`export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=2` <br>
+ `export XCURSOR_SIZE=24` <br>
+
 Firefox: 
 
 `flatpak search firefox` <br>
@@ -42,15 +53,6 @@ Minecraft:
 `flatpak search mojang` <br>
 `flatpak install com.mojang.Minecraft` <br>
 `flatpak run com.mojang.Minecraft` <br>
-- Some apps will not work the conventional way like Brave or Visual Studio. When running VS:
-  
-`flatpak run --command=sh com.visualstudio.code` <br>
-`/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
 
-
-- 4k DPI scaling is easy to apply. Before starting an app run:
-  
-`export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=2` <br>
- `export XCURSOR_SIZE=24` <br>
  
  Customize to your liking. Applying changes requires restarting app. 
