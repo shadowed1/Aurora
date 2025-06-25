@@ -35,8 +35,9 @@ case "$choice" in
         ;;
     1)
 echo ""
-echo "${CYAN}Downloading Flatpak and its dependencies!${RESET}"
-sleep 3
+echo "${CYAN}About to start downloading Flatpak and its dependencies!"
+echo "Any error while loading shared libriaries is normal and expected.${RESET}
+sleep 6
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
  mkdir -p ~/opt/bin
