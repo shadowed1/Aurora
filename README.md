@@ -94,6 +94,6 @@ When running VS:
 0.01: Release
 
 ### Acknowledgments
-- Saragon making some great suggestions like using .bashrc and working on making Steam shortcuts a reality.
+- Saragon making some great suggestions like using .bashrc, improving readme, and working on making Steam shortcuts a reality.
   
 
