@@ -6,18 +6,18 @@ MAGENTA=$(tput setaf 5)
 CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
+
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
-echo "${MAGENTA}Aurora initalizing Flatpak!${RESET}${BLUE}"
 
-TMPDIR=$HOME/tmp 
+echo "${MAGENTA}Aurora initializing Flatpak!${RESET}${BLUE}"
 
-mkdir -p "$XDG_RUNTIME_DIR"
+export TMPDIR="$HOME/tmp"
+mkdir -p "$XDG_RUNTIME_DIR" "$TMPDIR"
 chmod 700 "$XDG_RUNTIME_DIR"
-sleep 1
 
-if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
+if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   dbus-daemon --session \
     --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
     --print-address=1 \
@@ -26,34 +26,14 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
   sleep 1
 fi
 
-if ! pgrep -u "$USER" -f xdg-desktop-portal; then
-  "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" &
+export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
+
+if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
   "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
 fi
-
-export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
-echo "$DBUS_SESSION_BUS_ADDRESS"
-chmod 700 "$XDG_RUNTIME_DIR"
-mkdir -p "$XDG_RUNTIME_DIR/doc"
-mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
-chmod 700 "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal"
-chmod 700 "$XDG_RUNTIME_DIR/doc"
-sleep 1
-
-if ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call \
-     --print-reply /org/freedesktop/DBus org.freedesktop.DBus.ListNames > /dev/null 2>&1; then
-    eval "$(dbus-launch --sh-syntax)"
+if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" ] && ! pgrep -u "$USER" -f xdg-desktop-portal$ > /dev/null; then
+  "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" &
 fi
-
-
-sleep 1
-mkdir -p ~/tmp
-mkdir -p $HOME/tmp
-TMPDIR=$HOME/tmp
-chown -R $USER:$USER ~/.local/share/flatpak
-chmod -R u+rw ~/.local/share/flatpak
-flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak --user update --appstream
 
 flatpak() {
   case "$1" in
@@ -66,6 +46,4 @@ flatpak() {
   esac
 }
 
-
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
-
