@@ -83,6 +83,7 @@ case "$1" in
         export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
         export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"
         TMPDIR=$HOME/tmp 
+        export PATH="$HOME:$PATH"
         export TMPDIR="$HOME/tmp"
         export DISPLAY=:0
         export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
