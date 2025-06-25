@@ -95,7 +95,7 @@ case "$1" in
     ""|status)
 
         if [[ -z "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" && -z "$XCURSOR_SIZE" ]]; then
-            echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR and XCURSOR_SIZE remain default.${RESET}"
+            echo "${CYAN}ELECTRON_FORCE_DEVICE_SCALE_FACTOR and XCURSOR_SIZE remain default.${RESET}"
         else
             [[ -n "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" ]] && \
                 echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $ELECTRON_FORCE_DEVICE_SCALE_FACTOR${RESET}" || \
