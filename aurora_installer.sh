@@ -132,11 +132,8 @@ curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/flatpak.env
 chmod +x ~/opt/bin/aurora
 
-export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$PATH"
+export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
-export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
-export PATH="/bin:$PATH"
 
 if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
   export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
