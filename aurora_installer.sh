@@ -8,6 +8,7 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 echo "${MAGENTA}"
+echo ""
 echo "   ------    ----    ---- -----------    --------   -----------     ------"    
 echo "  ********   ****    **** ***********   **********  ***********    ********"   
 echo " ----------  ----    ---- ----    ---  ----    ---- ----    ---   ----------" 
@@ -16,6 +17,7 @@ echo "------------ ----    ---- ---------    ---      --- ---------    ---------
 echo "************ ************ ****  ****   ****    **** ****  ****   ************" 
 echo "----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----" 
 echo "****    **** ************ ****    ****   ********   ****    **** ****    ****"
+echo ""
 echo "${RESET}${BOLD}${MAGENTA}Run apps on Borealis using Flatpak with signficantly more performance than Crostini!${RESET}${MAGENTA}"
 echo "${RESET}"
 echo "${BLUE}${BOLD}0: Quit$RESET"
