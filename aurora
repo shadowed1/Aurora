@@ -10,7 +10,6 @@ BOLD=$(tput bold)
 RESET=$(tput sgr0)
 DISPLAY_SCALING=""
 CURSOR_SIZE=""
-[[ -f ~/.bashrc ]] && source ~/.bashrc
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
@@ -70,7 +69,7 @@ show_help() {
     echo "flatpak run com.discordapp.Discord${RESET}"
     echo "${MAGENTA}${BOLD}"
     echo "Failed to connect to bus error appears it must be run as below:"
-    echo "${RESET}{CYAN}"
+    echo "${RESET}${CYAN}"
     echo "flatpak search visualstudio"
     echo "flatpak install com.visualstudio.code"
     echo "flatpak --command=sh com.visualstudio.code"
@@ -87,7 +86,8 @@ case "$1" in
     display)
         set_display_scaling "$2" 
         ;;
-    cursor)   
+    cursor)
+        set_cursor_scaling "$2"
         ;;
    --h|-h|h|--help|-help|help)
         show_help
