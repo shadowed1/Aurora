@@ -6,6 +6,7 @@ export TMPDIR="$HOME/tmp"
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 export GTK_USE_PORTAL=0
 export FLATPAK_DISABLE_PORTAL=1
+export PATH="$HOME:$PATH"
 
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
