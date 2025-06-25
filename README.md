@@ -99,7 +99,8 @@ When running Brave:
 
 ### Changelog:
 0.01: Release
-
+0.02: Removed .bashrc file and added append capability. Addedd check to make sure not to install anywhere but Borealis.
+Added uninstall and reinstall commands. Broke dbus logic but significantly cleaned up scripts 
 ### Acknowledgments
 - Saragon making great suggestions like using .bashrc, improving readme, finding bugs, and working on making Steam shortcuts a reality:
 https://github.com/Saragon4005
