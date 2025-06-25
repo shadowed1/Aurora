@@ -69,7 +69,7 @@ show_help() {
     echo "aurora help         # Show help"
     echo ""
     echo "flatpak list        # Show list of installed apps"
-    echo "flatpak --help"     # flatpak has a lot of commands!"
+    echo "flatpak --help      # flatpak has a lot of commands!"
     echo "${BLUE}"
     echo "flatpak search Discord"
     echo "flatpak install com.discordapp.Discord"
