@@ -1,3 +1,4 @@
+export PATH="/usr/bin:$PATH"
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
