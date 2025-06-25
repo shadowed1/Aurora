@@ -8,7 +8,6 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 echo "${MAGENTA}"
-echo ""
 echo "   ------    ----    ---- -----------    --------   -----------     ------"    
 echo "  ********   ****    **** ***********   **********  ***********    ********"   
 echo " ----------  ----    ---- ----    ---  ----    ---- ----    ---   ----------" 
@@ -35,8 +34,6 @@ case "$choice" in
         ;;
     1)
 
-
-
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
 
@@ -45,8 +42,8 @@ download_and_extract()
     local url="$1"
     local target_dir="$2"
     local FILE SAFE_FILE
-
-    echo "${BLUE}Downloading: $url${RESET}"
+    echo "${MAGENTA}"
+    echo "Downloading: $url"
     wget --content-disposition --trust-server-names "$url"
     
     if [[ -f "download" ]]; then
@@ -65,7 +62,7 @@ download_and_extract()
     tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
     rm -f "$FILE"
 
-    echo "${MAGENTA}${FILE} extracted.${RESET}"
+    echo "${MAGENTA}${BOLD}${FILE} extracted.${RESET}"
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
     LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib" ~/opt/flatpak/usr/bin/flatpak --version
@@ -156,7 +153,6 @@ mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 echo "$DBUS_SESSION_BUS_ADDRESS"
 ###############################################
-echo "${GREEN}Flatpak is ready to go!${RESET}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/refs/heads/main/aurora -o ~/aurora
 chmod +x ~/aurora
@@ -164,10 +160,11 @@ chmod +x ~/opt/flatpak_wrapper.sh
 
 echo "${MAGENTA}"
 echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
-echo "║                                       INSTALL COMPLETE!                                       ║"
+echo "║${RESET}${BOLD}${MAGENTA}                                       INSTALL COMPLETE!${RESET}${MAGENTA}                                       ║"
 echo "╚═══════════════════════════════════════════════════════════════════════════════════════════════╝"
 echo "${RESET}"
-
+echo ""
+bash aurora help
 
         ;;
     *)
