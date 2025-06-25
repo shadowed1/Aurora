@@ -156,6 +156,8 @@ echo "$DBUS_SESSION_BUS_ADDRESS"
 ###############################################
 echo "${GREEN}Flatpak is ready to go!${RESET}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/refs/heads/main/aurora -o ~/aurora
+chmod +x ~/aurora
 chmod +x ~/opt/flatpak_wrapper.sh
 
 echo "${MAGENTA}"
