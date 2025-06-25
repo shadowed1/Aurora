@@ -12,6 +12,13 @@ if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
 echo "${MAGENTA}Aurora initalizing Flatpak!${RESET}${BLUE}"
+
+grep -qxF 'export PATH="$HOME/opt/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/opt/bin:$PATH"' >> ~/.bashrc
+
+grep -qxF 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/opt/flatpak/usr/bin:$PATH"' >> ~/.bashrc
+
+grep -qxF 'export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/opt/flatpak-deps/usr/bin:$PATH"' >> ~/.bashrc
+
 export PATH="/bin:/usr/bin:$PATH"
 export PATH="$HOME/opt/flatpak/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
