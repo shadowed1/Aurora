@@ -7,7 +7,7 @@ MAGENTA=$(tput setaf 5)
 CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
-echo "${MAGENTA}${BOLD}"
+echo "${MAGENTA}"
 echo ""
 echo "   ------    ----    ---- -----------    --------   -----------     ------${RESET}"    
 echo "${MAGENTA}${BOLD}  ********   ****    **** ***********   **********  ***********    ********${RESET}"   
