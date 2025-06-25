@@ -22,6 +22,7 @@
 - Downloads Flatpak and its minimum required dependencies from Arch's repository.
 - Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
 - Adds .bashrc for flatpak commands to actually work.
+- Steam can be closed entirely as long as an app is running.
 - Many apps will require to be run 'internally' see 'How to Use' section below.
 
 ### How to use:
