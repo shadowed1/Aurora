@@ -114,8 +114,12 @@ export DISPLAY=:0
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
-export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 echo "$DBUS_SESSION_BUS_ADDRESS"
+
+sleep 1
+
+export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
@@ -128,12 +132,21 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
+
+sleep 1
+
+export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+
+echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal"
-echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 mkdir -p "$XDG_RUNTIME_DIR/doc"
 chmod 700 "$XDG_RUNTIME_DIR/doc"
 export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share:/usr/local/share:/usr/share"
+
+sleep 1
+
+
 export GTK_USE_PORTAL=0
 export FLATPAK_DISABLE_PORTAL=1
 
@@ -142,6 +155,17 @@ if ! dbus-send --session --dest=org.freedesktop.DBus --type=method_call \
     eval "$(dbus-launch --sh-syntax)"
     export DBUS_SESSION_BUS_ADDRESS
 fi
+
+sleep 1
+
+
+mkdir -p ~/tmp
+mkdir -p $HOME/tmp
+TMPDIR=$HOME/tmp
+export TMPDIR="$HOME/tmp"
+chown -R $USER:$USER ~/.local/share/flatpak
+chmod -R u+rw ~/.local/share/flatpak
+
         ;;
     *)
         echo "${RED}Invalid option.$RESET"
