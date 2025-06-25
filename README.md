@@ -15,3 +15,15 @@
 
 - Copy Paste in borealis shell: <br>
 `bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora.sh?$(date +%s)")`
+
+
+### How it works:
+
+- Downloads Flatpak and its minimum required dependencies from Arch's repository.
+- Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
+- Adds .bashrc for flatpak commands to actually work.
+- Many apps will require to be run 'internally' see 'How to Use' section below.
+
+
+
+### How to use: 
