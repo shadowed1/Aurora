@@ -1,6 +1,6 @@
 # Aurora
 
-## *Run numerous apps and games Borealis (Steam) for a superb performance boost over Crostini!*
+## *Run numerous apps and games through Borealis (Steam) for an enormous performance boost over Crostini!*
 ### Requirements: 
 
 - ChromeOS
