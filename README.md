@@ -30,7 +30,9 @@
 - Apps and their data are saved in ~/opt/
 - Please back up often, I am not 100% sure what will happen on Steam updates.  
 - --user argument is built-in for this Flatpak since we have no root access.
-- Some apps will not work the conventional way like Brave or Visual Studio. When running VS:
+- Some apps will not run the conventional way. Brave or Visual Studio are good examples.<br>
+
+When running VS:
   
 `flatpak run --command=sh com.visualstudio.code` <br>
 `/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br> <br>
