@@ -1,5 +1,4 @@
 #!/bin/bash
-export PATH="/bin:$PATH"
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
@@ -179,6 +178,7 @@ export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PAT
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
 export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
+export PATH="/bin:$PATH"
 /usr/bin/bash ~/aurora
 /usr/bin/bash ~/aurora help
 
