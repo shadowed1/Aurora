@@ -1,4 +1,6 @@
-# Aurora
+<p align="center">
+  <img src="https://i.imgur.com/vhqBIyM.png" alt="logo" width="5000" />
+</p>  
 
 ## *Run numerous apps and games through Borealis (Steam) for a large performance boost over Crostini!*
 ### Requirements: 
