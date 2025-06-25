@@ -86,7 +86,9 @@ show_help() {
     echo "${RESET}${CYAN}${BOLD}Use ls /app/bin to help find the app in these situations.${RESET}${CYAN}"
     echo ""
     echo "Brave browser might need to append '&' at the end to run:"
-    echo "flatpak run --command=sh com.visualstudio.code"
+    echo "flatpak search Brave"
+    echo "flatpak install com.brave.Browser"
+    echo "flatpak run --command=sh com.brave.Browser"
     echo "/app/bin/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &"
     echo "${RESET}"
 }
