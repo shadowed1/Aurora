@@ -19,7 +19,8 @@
 
 ### How it works:
 
-- Downloads Flatpak and its minimum required dependencies from Arch's repository.
+- Steam's virtual machine offers hardware acceleration support that Crostini cannot compete with. 
+- Downloads Flatpak and its required dependencies from Arch's repository.
 - Extracts Flatpak to ~/opt/flatpak and its dependencies to ~/opt/flatpak-deps
 - Adds .bashrc for flatpak commands to actually work.
 - Steam can be closed entirely as long as an app is running.
@@ -35,3 +36,6 @@
 
 `flatpak run --command=sh com.visualstudio.code` <br>
 `/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
+
+- Apps and their data are is saved in ~/opt/
+- Please back up often, I am not 100% sure what will happen on Steam updates.  
