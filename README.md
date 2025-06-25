@@ -11,6 +11,8 @@
 - Steam installed and open
 - Internet connection
 
+<br><br>
+
 ### How to install:
 
 - Open Crosh (ctrl-alt-t) and type in: <br>
@@ -19,22 +21,21 @@
 - Copy Paste in borealis shell: <br>
 `bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")`
 
+<br><br>
+
 ### Features:
+
 - Steam can be closed entirely as long as an app is running.
-- Borealis shell tabs automatically initiate Flatpak support.  
+- Borealis shell tabs automatically initiate Flatpak support.
+  
 <p align="center">
   <img src="https://i.imgur.com/JaW6d3P.png" alt="logo" width="5000" />
 </p>  
 
 - Aurora can tweak display scaling and cursor size. 
-
-- Fantastic hardware acceleration for apps:
-
-<p align="center">
-  <img src="https://i.imgur.com/j9ID9gZ.png" alt="logo" width="600" />
-</p>  
-
-- Minecraft Java using the Prism Launcher:
+- Fantastic hardware acceleration for all apps; even unsupported web browsers
+- Built-in GPU acceleration allows for longer battery life vs software rendering.
+- Minecraft Java with Prism Launcher @ 2160p:
 
 <p align="center">
   <img src="https://i.imgur.com/SKNLuZb.png" alt="logo" width="5000" />
