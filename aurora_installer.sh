@@ -174,7 +174,6 @@ export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
 bash aurora
 bash aurora help
 
-EOF
 
         ;;
     *)
