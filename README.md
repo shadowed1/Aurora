@@ -1,6 +1,6 @@
 # Aurora
 
-## *Installing and running apps and games in Borealis (Steam) for superb performance over Crostini!*
+## *Installing apps and games in Borealis (Steam) for a superb performance boost over Crostini!*
 
 ### Requirements: 
 
