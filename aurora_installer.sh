@@ -38,6 +38,7 @@ echo ""
 echo "${CYAN}About to start downloading Flatpak and its dependencies!"
 echo "${RESET}${CYAN}${BOLD}Errors loading shared libraries is normal behavior; those missing files are downloaded after.${RESET}"
 sleep 4
+
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
  mkdir -p ~/opt/bin
@@ -46,15 +47,20 @@ mkdir -p "$HOME/.xdg-runtime-dir"
 chmod 700 "$HOME/.xdg-runtime-dir"
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 
-dbus-daemon --session \
-  --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
-  --print-address=1 \
-  --nopidfile \
-  --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
-sleep 1
+if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
+  dbus-daemon --session \
+    --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
+    --print-address=1 \
+    --nopidfile \
+    --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
+  sleep 1
+fi
 
 if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
- export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
+  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
+  grep -v '^export DBUS_SESSION_BUS_ADDRESS=' "$HOME/opt/flatpak.env" > "$HOME/opt/flatpak.env.tmp"
+  echo "export DBUS_SESSION_BUS_ADDRESS=\"$DBUS_SESSION_BUS_ADDRESS\"" >> "$HOME/opt/flatpak.env.tmp"
+  mv "$HOME/opt/flatpak.env.tmp" "$HOME/opt/flatpak.env"
 else
   echo "D-Bus socket not found."
 fi
