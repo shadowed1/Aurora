@@ -12,7 +12,6 @@
   export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
   mkdir -p "$XDG_RUNTIME_DIR"
   chmod 700 "$XDG_RUNTIME_DIR"
-  
   if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     dbus-daemon --session \
       --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
