@@ -137,24 +137,20 @@ URL="https://archlinux.org/packages/extra/x86_64/fuse3/download"
 download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 https://archlinux.org/packages/extra/x86_64/fuse3/download
 
-
-if ! grep -q 'flatpak.env' ~/.bashrc; then
-  echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
-fi
-
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.logic -o ~/flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/flatpak.env
 chmod +x ~/opt/bin/aurora
-
-
-
 
 export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
 export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
 export PATH="/bin:$PATH"
+
+if ! grep -q 'flatpak.env' ~/.bashrc; then
+  echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
+fi
 
 if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
   echo "libostree-1.so.1 missing from deps!"
