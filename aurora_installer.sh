@@ -8,10 +8,15 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 echo "${MAGENTA}"
-echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
-echo "║                                          ${BOLD}${MAGENTA}AURORA:${RESET}${MAGENTA}                                              ║"
-echo "║     ${RESET}${BOLD}${MAGENTA}Run apps on Borealis using Flatpak with signficantly more performance than Crostini!${RESET}${MAGENTA}      ║"
-echo "╚═══════════════════════════════════════════════════════════════════════════════════════════════╝"
+echo "   ------    ----    ---- -----------    --------   -----------     ------"    
+echo "  ********   ****    **** ***********   **********  ***********    ********"   
+echo " ----------  ----    ---- ----    ---  ----    ---- ----    ---   ----------" 
+echo "****    **** ****    **** *********    ***      *** *********    ****    ****" 
+echo "------------ ----    ---- ---------    ---      --- ---------    ------------" 
+echo "************ ************ ****  ****   ****    **** ****  ****   ************" 
+echo "----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----" 
+echo "****    **** ************ ****    ****   ********   ****    **** ****    ****"
+echo "${RESET}${BOLD}${MAGENTA}Run apps on Borealis using Flatpak with signficantly more performance than Crostini!${RESET}${MAGENTA}"
 echo "${RESET}"
 echo "${BLUE}${BOLD}0: Quit$RESET"
 echo "${MAGENTA}${BOLD}1: Download and install Flatpak to ~/opt${RESET}"
@@ -153,8 +158,11 @@ echo "${GREEN}Flatpak is ready to go!${RESET}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak_wrapper.sh -o ~/opt/flatpak_wrapper.sh
 chmod +x ~/opt/flatpak_wrapper.sh
 
-
-
+echo "${MAGENTA}"
+echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                       INSTALL COMPLETE!                                       ║"
+echo "╚═══════════════════════════════════════════════════════════════════════════════════════════════╝"
+echo "${RESET}
 
 
         ;;
