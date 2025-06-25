@@ -31,8 +31,6 @@ export PATH="/bin:/usr/bin:$PATH"
 alias aurora='./aurora'
 
 
-
-
 case "$choice" in
     0)
         echo "Quit"
@@ -42,6 +40,7 @@ echo "${CYAN}Downloading Flatpak and its dependencies!${RESET}
 sleep 1
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
+ mkdir -p ~/opt/bin
 
 download_and_extract()
 {
@@ -106,8 +105,8 @@ if ! grep -q 'flatpak.env' ~/.bashrc; then
 fi
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.bashrc -o ~/.bashrc
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/aurora
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/flatpak.env
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/aurora
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/bin/flatpak.env
 chmod +x ~/aurora
 chmod 644 ~/.bashrc
 
@@ -123,7 +122,6 @@ export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 export PATH="\$HOME/opt/flatpak/usr/bin:\$HOME/opt/flatpak-deps/usr/bin:\$PATH"
 export LD_LIBRARY_PATH="\$HOME/opt/flatpak-deps/usr/lib:\$LD_LIBRARY_PATH"
 export PATH="/bin:$PATH"
-/usr/bin/bash ~/aurora help
 
 
 
