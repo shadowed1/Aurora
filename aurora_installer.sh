@@ -170,7 +170,7 @@ fi
 sleep 3
 
 PORTAL_ENV_BLOCK='
-# ----- Aurora Flatpak Borealis Portal & D-Bus env setup -----
+# ----- Flatpak Portal & D-Bus env setup -----
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal"
