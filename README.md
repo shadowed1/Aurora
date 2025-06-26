@@ -109,6 +109,8 @@ debug an app:
  
 `export G_MESSAGES_DEBUG=all
 flatpak run com.brave.Browser`
+`xdg-desktop-portal-gtk &
+xdg-desktop-portal &`
 
 ### Acknowledgments
 - Saragon making great suggestions, educating me about .bashrc, improving readme, finding bugs, and working on making Steam shortcuts a reality:
