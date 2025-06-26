@@ -9,7 +9,8 @@ RESET=$(tput sgr0)
 
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.xdg-runtime-dir}"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
-chmod 700 "$XDG_RUNTIME_DIR"
+touch "$XDG_RUNTIME_DIR/doc/portal/version"
+chmod 700 "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal" "$XDG_RUNTIME_DIR/doc/portal/version"
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
 export USER="${USER:-$(id -un)}"
