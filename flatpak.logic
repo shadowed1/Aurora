@@ -40,7 +40,9 @@ if [ -z "$XDG_RUNTIME_DIR" ]; then
   export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 fi
 
-export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+if [ -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
+  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')Add commentMore actions
+fi
 
 if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
   "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
