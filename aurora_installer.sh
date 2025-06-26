@@ -187,7 +187,7 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
   sleep 1
 fi
 # export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
-export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
+export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n 1)
 
 
 # env paths
