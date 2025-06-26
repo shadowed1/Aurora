@@ -29,9 +29,6 @@ if [ ! -d "$HOME/.local/share/Steam" ]; then
   exit 1
 fi
 read -rp "Enter (0-1): " choice
-export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
-export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-export PATH="/bin:/usr/bin:$PATH"
 
 
 case "$choice" in
@@ -51,6 +48,8 @@ sleep 4
 mkdir -p "$HOME/.xdg-runtime-dir"
 chmod 700 "$HOME/.xdg-runtime-dir"
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
+export PATH="/bin:/usr/bin:$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 
 if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   dbus-daemon --session \
@@ -133,7 +132,6 @@ curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/flatpak.env
 chmod +x ~/opt/bin/aurora
 
-export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 
 if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
