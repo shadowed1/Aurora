@@ -50,6 +50,40 @@
 
 ### How to use:
 
+Commands with examples:
+
+aurora                     # Show current display and cursor values
+source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)
+source aurora cursor 32    # Set cursor size (8 - 200)
+aurora help                # Show help
+aurora_debug               # echo a list of paths that flatpak will use
+aurora reinstall           # Redownload Aurora from Github
+aurora uninstall           # Launch uninstaller
+
+flatpak list               # Show list of installed apps
+flatpak --help              # flatpak has a lot of commands!
+
+NORMAL FLATPAK EXAMPLE:
+
+flatpak search Discord
+flatpak install com.discordapp.Discord
+flatpak run com.discordapp.Discord
+
+Failed to connect to bus error it must be run like example below:
+
+flatpak search visualstudio
+flatpak install com.visualstudio.code
+flatpak run --command=sh com.visualstudio.code
+/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal
+
+Use ls /app/bin to help find the app in these situations.
+
+Brave browser might need to append '&' at the end to run:
+flatpak search Brave
+flatpak install com.brave.Browser
+flatpak run --command=sh com.brave.Browser
+/app/bin/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &
+
 - Apps and their data are saved in ~/.local/share/flatpak and Aurora + Flatpak are stored in~/opt/.
 - --user argument is built-in for this Flatpak since we have no root access.
 - Some apps will not run the conventional way. Brave or Visual Studio are good examples.<br>
