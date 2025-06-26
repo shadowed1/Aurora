@@ -105,6 +105,11 @@ When running Brave:
 Added uninstall and reinstall commands. Thanks to Saragon for the suggestions and teachimg me more about .bashrc. 
 To do: Broke dbus logic but significantly cleaned up scripts.`<br>
 
+debug an app:
+ 
+`export G_MESSAGES_DEBUG=all
+flatpak run com.brave.Browser`
+
 ### Acknowledgments
 - Saragon making great suggestions, educating me about .bashrc, improving readme, finding bugs, and working on making Steam shortcuts a reality:
 https://github.com/Saragon4005
