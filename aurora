@@ -98,7 +98,7 @@ aurora_uninstall() {
     echo "${BLUE}${BOLD}Select an option:${RESET}"
     echo "${BLUE}[0] Quit${RESET}"
     echo "${CYAN}{[1] Remove ~/opt (Aurora + Flatpak only; keep Flatpak apps and data)${RESET}"
-    echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, and runtime directory)${RESET}"
+    echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, entries created in ~/.bashcr, and runtime directory)${RESET}"
     echo ""
     read -rp "Enter your choice [0-2]: " CHOICE
 
@@ -127,6 +127,17 @@ aurora_uninstall() {
                     echo "${YELLOW}$DIR not found.${RESET}"
                 fi
             done
+
+           
+            if grep -q "# Aurora Flatpak --user logic" "$HOME/.bashrc"; then
+                # Delete from marker to the closing "}" of the function
+                sed -i '/# Aurora Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
+                echo "${CYAN}Removed Aurora Flatpak function from .bashrc${RESET}"
+            fi
+
+            sed -i '/flatpak\.env/d' "$HOME/.bashrc"
+            sed -i '/flatpak\.logic/d' "$HOME/.bashrc"
+            
             echo "${CYAN}Full Aurora uninstall complete. All Flatpak runtimes, apps, and data removed.${RESET}"
             ;;
         *)
