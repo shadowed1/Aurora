@@ -138,7 +138,7 @@ aurora_uninstall() {
             sed -i '/flatpak\.env/d' "$HOME/.bashrc"
             sed -i '/flatpak\.logic/d' "$HOME/.bashrc"
             
-            echo "${CYAN}Full Aurora uninstall complete. All Flatpak runtimes, apps, and data removed.${RESET}"
+            echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, and data removed. ~/.bashcr entries removed. ${RESET}"
             ;;
         *)
             echo "${RED}Invalid choice. Exiting.${RESET}"
