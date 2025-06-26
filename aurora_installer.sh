@@ -175,7 +175,7 @@ sleep 3
 echo "${MAGENTA}"
 echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
 echo "║${RESET}${BOLD}${MAGENTA}                                       INSTALL COMPLETE!${RESET}${MAGENTA}                                       ║"
-echo "║               ${RESET}${BOLD}${MAGENTA}OPEN A NEW CROSH TAB AND RUN VSH BOREALIS TO START USING FLATPAK${RESET}${MAGENTA}                ║"
+echo "║          ${RESET}${BOLD}${MAGENTA}OPEN A NEW CROSH TAB AND RUN VSH BOREALIS TO CONTINUE SETTING UP FLATPAK${RESET}${MAGENTA}             ║"
 echo "╚═══════════════════════════════════════════════════════════════════════════════════════════════╝"
 echo "${RESET}"
 echo ""
