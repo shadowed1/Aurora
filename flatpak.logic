@@ -57,10 +57,10 @@ flatpak --user update --appstream
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
 # Add Flatpak --user function to ~/.bashrc if missing:
-MARKER="# Aurora Flatpak --user logic"
+MARKER="# Flatpak --user logic"
 if ! grep -q "$MARKER" "$HOME/.bashrc"; then
 cat << 'EOF' >> "$HOME/.bashrc"
-# Aurora Flatpak --user logic
+# Flatpak --user logic
 flatpak() {
   case "$1" in
     --help|-h|help|""|--version)
