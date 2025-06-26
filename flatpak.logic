@@ -35,7 +35,6 @@ fi
 
 export TMPDIR="$HOME/tmp"
 mkdir -p "$XDG_RUNTIME_DIR" "$TMPDIR"
-chmod 700 "$XDG_RUNTIME_DIR"
 
 if [ -z "$XDG_RUNTIME_DIR" ]; then
   export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
