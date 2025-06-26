@@ -184,7 +184,10 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
-export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+if [ -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
+  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')
+fi
+
 
 # env paths
 export PATH="$HOME/opt/flatpak-deps/usr/bin:$HOME/opt/flatpak/usr/bin:$PATH"
