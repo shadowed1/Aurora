@@ -24,7 +24,8 @@ echo "${BLUE}0: Quit${RESET}"
 echo "${MAGENTA}1: Download and install Aurora + Flatpak to ~/ and ~/opt${RESET}"
 echo ""
 if [ ! -d "$HOME/.local/share/Steam" ]; then
-  echo "${RED}This installer must be run inside Borealis. Aborting.${RESET}"
+  echo "${RED}Aurora needs Borealis.${RESET}"
+  echo "${MAGENTA}vsh borealis${RESET}
   exit 1
 fi
 read -rp "Enter (0-1): " choice
