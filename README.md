@@ -82,7 +82,7 @@ Brave browser might need to append '&' at the end to run:
 flatpak search Brave
 flatpak install com.brave.Browser
 flatpak run --command=sh com.brave.Browser
-/app/bin/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &
+/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &
 
 - Apps and their data are saved in ~/.local/share/flatpak and Aurora + Flatpak are stored in~/opt/.
 - --user argument is built-in for this Flatpak since we have no root access.
