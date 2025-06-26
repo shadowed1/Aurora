@@ -106,10 +106,10 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 To do: Broke dbus logic but significantly cleaned up scripts.`<br>
 
 ### Acknowledgments
-- Saragon making great suggestions like using .bashrc, improving readme, finding bugs, and working on making Steam shortcuts a reality:
+- Saragon making great suggestions, educating me about .bashrc, improving readme, finding bugs, and working on making Steam shortcuts a reality:
 https://github.com/Saragon4005
 
-- Thanks to DennisLfromGA for finding bugs, making great suggestions, and fixing issue to run certain apps:
+- Thanks to DennisLfromGA for finding bugs, making great suggestions, and fixing issues to running certain apps:
 https://github.com/DennisLfromGA
   
 
