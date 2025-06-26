@@ -98,7 +98,7 @@ aurora_uninstall() {
     echo "${BLUE}${BOLD}Select an option:${RESET}"
     echo "${BLUE}[0] Quit${RESET}"
     echo "${CYAN}{[1] Remove ~/opt (Aurora + Flatpak only; keep Flatpak apps and data)${RESET}"
-    echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, entries created in ~/.bashcr, and runtime directory)${RESET}"
+    echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, entries created in ~/.bashcr, and dependencies)${RESET}"
     echo ""
     read -rp "Enter your choice [0-2]: " CHOICE
 
@@ -115,10 +115,10 @@ aurora_uninstall() {
             else
                 echo "${YELLOW}$HOME/opt not found.${RESET}"
             fi
-            echo "${CYAN}Aurora Flatpak runtime removed, but Flatpak apps/data are still installed.${RESET}"
+            echo "${CYAN}Delete Aurora + Flatpak, but keep Flatpak apps/data.${RESET}"
             ;;
         2)
-            echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, and ~/.xdg-runtime-dir ...${RESET}"
+            echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashcr entries and ~/.xdg-runtime-dir${RESET}"
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
                     rm -rf "$DIR"
