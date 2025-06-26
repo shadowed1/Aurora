@@ -50,7 +50,7 @@
 
 ### How to use:
 
-- Apps and their data are saved in ~/opt/
+- Apps and their data are saved in ~/.local/share/flatpak and Aurora + Flatpak are stored in~/opt/.
 - --user argument is built-in for this Flatpak since we have no root access.
 - Some apps will not run the conventional way. Brave or Visual Studio are good examples.<br>
 
