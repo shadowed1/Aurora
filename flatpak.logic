@@ -7,6 +7,8 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
+export USER="${USER:-$(id -un)}"
+
 if [ -f "$HOME/opt/flatpak.env" ]; then
     . "$HOME/opt/flatpak.env"
 fi
@@ -36,10 +38,10 @@ fi
 
 export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
 
-if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
+if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
   "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
 fi
-if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" ] && ! pgrep -u "$USER" -f xdg-desktop-portal$ > /dev/null; then
+if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal$ > /dev/null; then
   "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" &
 fi
 
