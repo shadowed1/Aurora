@@ -90,7 +90,7 @@ show_help() {
     echo "flatpak search Brave"
     echo "flatpak install com.brave.Browser"
     echo "flatpak run --command=sh com.brave.Browser"
-    echo "/app/bin/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &"
+    echo "/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &"
     echo "${RESET}"
 }
 
