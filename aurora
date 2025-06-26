@@ -121,7 +121,7 @@ aurora_uninstall() {
        2)
             echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashrc entries and ~/.xdg-runtime-dir${RESET}"
             echo "${RED}${BOLD}Are you sure? This full uninstall will also delete your Flatpak apps' data.${RESET}"
-            read -rp "Type 'yes' or 'no' to confirm: " FULL_CONFIRM
+            read -rp "Type 'yes' to confirm: " FULL_CONFIRM
             if [ "$FULL_CONFIRM" != "yes" ]; then
                 echo "${GREEN}Full uninstall aborted. No changes made.${RESET}"
                 return 1
