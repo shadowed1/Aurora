@@ -95,7 +95,9 @@ When running Brave:
 
 ### Limitations:
 - Currently lacking Crostini's integration with the shelf
-- To do: Default web browser support
+
+- To do:
+`Default web browser support, proper d-bus implementation, steam shortcuts`
 
 ### Changelog:
 0.01: `Release` <br>
