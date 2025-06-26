@@ -20,6 +20,9 @@ fi
 
 echo "${MAGENTA}Aurora initializing Flatpak!${RESET}${BLUE}"
 
+
+
+
 if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   dbus-daemon --session \
     --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
@@ -28,6 +31,10 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
+
+export TMPDIR="$HOME/tmp"
+mkdir -p "$XDG_RUNTIME_DIR" "$TMPDIR"
+chmod 700 "$XDG_RUNTIME_DIR"
 
 if [ -z "$XDG_RUNTIME_DIR" ]; then
   export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
@@ -66,7 +73,3 @@ EOF
 echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Please open another new terminal run:${RESET}"
 echo "${CYAN}source ~/.bashrc ${RESET}"
 fi
-
-
-
-
