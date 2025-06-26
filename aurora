@@ -117,8 +117,15 @@ aurora_uninstall() {
             fi
             echo "${CYAN}Delete Aurora + Flatpak, but keep Flatpak apps/data.${RESET}"
             ;;
-        2)
-            echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashcr entries and ~/.xdg-runtime-dir${RESET}"
+       2)
+            echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashrc entries and ~/.xdg-runtime-dir${RESET}"
+            echo "${RED}${BOLD}Are you sure? This full uninstall will also delete your Flatpak apps' data.${RESET}"
+            read -rp "Type 'yes' or 'no' to confirm: " FULL_CONFIRM
+            if [ "$FULL_CONFIRM" != "yes" ]; then
+                echo "${GREEN}Full uninstall aborted. No changes made.${RESET}"
+                return 1
+            fi
+
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
                     rm -rf "$DIR"
@@ -128,7 +135,6 @@ aurora_uninstall() {
                 fi
             done
 
-           
             if grep -q "# Aurora Flatpak --user logic" "$HOME/.bashrc"; then
                 # Delete from marker to the closing "}" of the function
                 sed -i '/# Aurora Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
@@ -138,7 +144,7 @@ aurora_uninstall() {
             sed -i '/flatpak\.env/d' "$HOME/.bashrc"
             sed -i '/flatpak\.logic/d' "$HOME/.bashrc"
             
-            echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, and data removed. ~/.bashcr entries removed. ${RESET}"
+            echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, and data removed. ~/.bashrc entries removed. ${RESET}"
             ;;
         *)
             echo "${RED}Invalid choice. Exiting.${RESET}"
