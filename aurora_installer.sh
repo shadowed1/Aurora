@@ -44,11 +44,12 @@ sleep 3
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
  mkdir -p ~/opt/bin
-
-mkdir -p "$HOME/.xdg-runtime-dir"
-chmod 700 "$HOME/.xdg-runtime-dir"
+ 
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
-export PATH="/bin:/usr/bin:$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:$HOME:$PATH"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+
+export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:/bin:/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 
 if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
@@ -59,6 +60,10 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
+export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+
+mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
+echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
 download_and_extract()
 {
@@ -131,6 +136,7 @@ curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.logic -o
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/flatpak.env -o ~/opt/flatpak.env
 chmod +x ~/opt/bin/aurora
+
 
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 
