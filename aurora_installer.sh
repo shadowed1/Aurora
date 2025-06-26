@@ -60,9 +60,8 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
-if [ -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
-  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')Add commentMore actions
-fi
+export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
@@ -169,37 +168,6 @@ fi
 
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
 sleep 3
-
-PORTAL_ENV_BLOCK='
-# ----- Flatpak Portal & D-Bus env setup -----
-export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
-mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
-touch "$XDG_RUNTIME_DIR/doc/portal/version"
-chmod 700 "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal" "$XDG_RUNTIME_DIR/doc/portal/version"
-echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
-
-if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
-  dbus-daemon --session \
-    --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
-    --print-address=1 \
-    --nopidfile \
-    --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
-  sleep 1
-fi
-# export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
-export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n 1)
-
-
-# env paths
-export PATH="$HOME/opt/flatpak-deps/usr/bin:$HOME/opt/flatpak/usr/bin:$PATH"
-export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-
-# ------------------------------------------------------------
-'
-
-if ! grep -q 'Flatpak Portal & D-Bus env setup' "$HOME/.bashrc"; then
-  echo "$PORTAL_ENV_BLOCK" >> "$HOME/.bashrc"
-fi
 
 /bin/bash ~/opt/bin/aurora help
 
