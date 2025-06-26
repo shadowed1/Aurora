@@ -185,6 +185,11 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
   sleep 1
 fi
 export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+
+# env paths
+export PATH="$HOME/opt/flatpak-deps/usr/bin:$HOME/opt/flatpak/usr/bin:$PATH"
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
+
 # ------------------------------------------------------------
 '
 
