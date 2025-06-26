@@ -25,7 +25,7 @@ echo "${MAGENTA}1: Download and install Aurora + Flatpak to ~/ and ~/opt${RESET}
 echo ""
 if [ ! -d "$HOME/.local/share/Steam" ]; then
   echo "${RED}Aurora needs Borealis.${RESET}"
-  echo "${CYAN}Open Steam -> ${RESET}${BLUE}Open Crosh (ctrl-alt-t) -> ${RESET}${MAGENTA}vsh borealis${RESET}
+  echo "${CYAN}Open Steam -> ${RESET}${BLUE}Open Crosh (ctrl-alt-t) -> ${RESET}${MAGENTA}vsh borealis${RESET}"
   exit 1
 fi
 read -rp "Enter (0-1): " choice
