@@ -2,7 +2,7 @@
   <img src="https://i.imgur.com/vhqBIyM.png" alt="logo" width="5000" />
 </p>  
 
-
+## Under active development. Bugs do exist.
 
 ## *Run apps and games in Borealis using Flatpak for signficantly higher performance than Crostini!*
 ### Requirements: 
