@@ -184,9 +184,8 @@ if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
     --nofork > "$XDG_RUNTIME_DIR/dbus-session.address" &
   sleep 1
 fi
-if [ -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
-  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')
-fi
+# export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
+export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
 
 
 # env paths
