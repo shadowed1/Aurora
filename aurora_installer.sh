@@ -173,7 +173,8 @@ PORTAL_ENV_BLOCK='
 # ----- Flatpak Portal & D-Bus env setup -----
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
-chmod 700 "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal"
+touch "$XDG_RUNTIME_DIR/doc/portal/version"
+chmod 700 "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal" "$XDG_RUNTIME_DIR/doc/portal/version"
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
 if [ ! -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
