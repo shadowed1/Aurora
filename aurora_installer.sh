@@ -197,7 +197,7 @@ export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 # ------------------------------------------------------------
 '
 
-if ! grep -q 'Aurora Flatpak Borealis Portal & D-Bus env setup' "$HOME/.bashrc"; then
+if ! grep -q 'Flatpak Portal & D-Bus env setup' "$HOME/.bashrc"; then
   echo "$PORTAL_ENV_BLOCK" >> "$HOME/.bashrc"
 fi
 
