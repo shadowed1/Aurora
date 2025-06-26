@@ -13,9 +13,13 @@ fi
 
 echo "${MAGENTA}Aurora initializing Flatpak!${RESET}${BLUE}"
 
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+  export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
+fi
 export TMPDIR="$HOME/tmp"
 mkdir -p "$XDG_RUNTIME_DIR" "$TMPDIR"
 chmod 700 "$XDG_RUNTIME_DIR"
+
 
 if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   dbus-daemon --session \
