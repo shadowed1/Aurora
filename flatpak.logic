@@ -66,6 +66,8 @@ flatpak() {
   esac
 }
 EOF
+echo "${BOLD}${CYAN}Aurora has successfully set up Flatpak! Please open a new terminal or run:${RESET}"
+echp "${CYAN}source ~/.bashrc ${RESET}"
 fi
 
 
