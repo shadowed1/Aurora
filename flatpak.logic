@@ -44,10 +44,10 @@ flatpak --user update --appstream
 
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
-# Add Aurora Flatpak --user function to ~/.bashrc if missing
+# Add Flatpak --user function to ~/.bashrc if missing:
 MARKER="# Aurora Flatpak --user logic"
 if ! grep -q "$MARKER" "$HOME/.bashrc"; then
- cat << 'EOF' >> "$HOME/.bashrc"
+cat << 'EOF' >> "$HOME/.bashrc"
 # Aurora Flatpak --user logic
 flatpak() {
   case "$1" in
@@ -60,7 +60,7 @@ flatpak() {
   esac
 }
 EOF
-echo "Flatpak initialized!"
+echo "Flatpak initialized! Please open a new terminal or run: source ~/.bashrc"
 fi
 
 
