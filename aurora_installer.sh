@@ -144,9 +144,13 @@ else
   echo "D-Bus socket not found."
 fi
 
-if ! grep -q 'flatpak.env' ~/.bashrc; then
-  echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> ~/.bashrc
+if [ ! -f "$HOME/.bashrc" ]; then
+  touch "$HOME/.bashrc"
 fi
+if ! grep -q 'flatpak.env' "$HOME/.bashrc"; then
+  echo '[ -f "$HOME/opt/flatpak.env" ] && . "$HOME/opt/flatpak.env"' >> "$HOME/.bashrc"
+fi
+
 
 if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
   echo "libostree-1.so.1 missing from deps!"
