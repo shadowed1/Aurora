@@ -130,9 +130,6 @@ aurora_uninstall() {
                 sed -i '/flatpak\.env/d' "$HOME/.bashrc"
                 sed -i '/flatpak\.logic/d' "$HOME/.bashrc"
                 
-                if grep -q '# ----- Flatpak Portal & D-Bus env setup -----' "$HOME/.bashrc"; then
-                  sed -i '/# ----- Flatpak Portal & D-Bus env setup -----/,/# ------------------------------------------------------------/d' "$HOME/.bashrc"
-                fi
 
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
@@ -143,9 +140,9 @@ aurora_uninstall() {
                 fi
             done
 
-            if grep -q "# Aurora Flatpak --user logic" "$HOME/.bashrc"; then
+            if grep -q "# Flatpak --user logic" "$HOME/.bashrc"; then
                 # Delete from marker to the closing "}" of the function
-                sed -i '/# Aurora Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
+                sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
                 echo "${CYAN}Removed Aurora Flatpak function from .bashrc${RESET}"
             fi
 
