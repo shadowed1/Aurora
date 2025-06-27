@@ -125,7 +125,7 @@ aurora_uninstall() {
             else
                 echo "${YELLOW}$HOME/opt not found.${RESET}"
             fi
-            echo "${CYAN}Delete Aurora + Flatpak, but keep Flatpak apps/data.${RESET}"
+            echo "${CYAN}Deletes Aurora + Flatpak, but kept Flatpak apps/data.${RESET}"
             ;;
        2)
             echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashrc entries and ~/.xdg-runtime-dir${RESET}"
