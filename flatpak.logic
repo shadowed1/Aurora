@@ -33,12 +33,14 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
 fi
 
 export TMPDIR="$HOME/tmp"
+mkdir -p "$XDG_RUNTIME_DIR" "$TMPDIR"
+chmod 700 "$XDG_RUNTIME_DIR"
 
 if [ -z "$XDG_RUNTIME_DIR" ]; then
   export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 fi
 
-export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
+  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')
 
 if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
   "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
@@ -68,5 +70,6 @@ flatpak() {
   esac
 }
 EOF
-echo "${BOLD}${CYAN}Aurora has successfully installed Flatpak. For .bashrc to update, open another vsh borealis tab and apps will be ready to be installed and run!${RESET}"
+echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Please open another new terminal run:${RESET}"
+echo "${CYAN}source ~/.bashrc ${RESET}"
 fi
