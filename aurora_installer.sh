@@ -161,7 +161,7 @@ fi
 if ! grep -Fxq '[ -f "$HOME/opt/flatpak.logic" ] && . "$HOME/opt/flatpak.logic"' "$HOME/.bashrc"; then
   echo '[ -f "$HOME/opt/flatpak.logic" ] && . "$HOME/opt/flatpak.logic"' >> "$HOME/.bashrc"
 fi
-
+echo ""
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
 sleep 3
 
