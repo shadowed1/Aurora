@@ -180,8 +180,6 @@ echo "╚═══════════════════════�
 echo "${RESET}"
 echo ""
 
-${RESET}${BOLD}${MAGENTA} ${RESET}${MAGENTA}
-
         ;;
     *)
         echo "${RED}Invalid option.$RESET"
