@@ -9,7 +9,7 @@ RESET=$(tput sgr0)
 
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.xdg-runtime-dir}"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
-chmod 700 "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal" "$XDG_RUNTIME_DIR/doc/portal/version"
+chmod 700 "$XDG_RUNTIME_DIR"
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
 export USER="${USER:-$(id -un)}"
@@ -34,10 +34,11 @@ fi
 
 export TMPDIR="$HOME/tmp"
 
-
-if [ -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
-  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+  export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 fi
+
+export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | tr -d '\n')
 
 if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
   "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
@@ -52,10 +53,10 @@ flatpak --user update --appstream
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
 # Add Flatpak --user function to ~/.bashrc if missing:
-MARKER="# Flatpak --user logic"
+MARKER="# Aurora Flatpak --user logic"
 if ! grep -q "$MARKER" "$HOME/.bashrc"; then
 cat << 'EOF' >> "$HOME/.bashrc"
-# Flatpak --user logic
+# Aurora Flatpak --user logic
 flatpak() {
   case "$1" in
     --help|-h|help|""|--version)
