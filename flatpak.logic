@@ -9,7 +9,6 @@ RESET=$(tput sgr0)
 
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.xdg-runtime-dir}"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
-touch "$XDG_RUNTIME_DIR/doc/portal/version"
 chmod 700 "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR/doc" "$XDG_RUNTIME_DIR/doc/portal" "$XDG_RUNTIME_DIR/doc/portal/version"
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
@@ -34,11 +33,7 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
 fi
 
 export TMPDIR="$HOME/tmp"
-mkdir -p "$XDG_RUNTIME_DIR" "$TMPDIR"
 
-if [ -z "$XDG_RUNTIME_DIR" ]; then
-  export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
-fi
 
 if [ -f "$XDG_RUNTIME_DIR/dbus-session.address" ]; then
   export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')
