@@ -67,6 +67,5 @@ flatpak() {
   esac
 }
 EOF
-echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Please open another new terminal run:${RESET}"
-echo "${CYAN}source ~/.bashrc ${RESET}"
+echo "${BOLD}${CYAN}Aurora has successfully installed Flatpak. For .bashrc to update, open another vsh borealis tab and apps will be ready to be installed and run!${RESET}"
 fi
