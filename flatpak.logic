@@ -66,6 +66,6 @@ flatpak() {
   esac
 }
 EOF
-echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Please open another new terminal run:${RESET}"
-echo "${CYAN}source ~/.bashrc ${RESET}"
+echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Reinitializing .bashrc to enable --user shortcut${RESET}"
+source ~/.bashrc
 fi
