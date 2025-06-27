@@ -29,7 +29,12 @@ set_display_scaling() {
         fi
 
         export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
-        echo "${GREEN}Display scaling set to $DISPLAY_SCALING${RESET}" >&2
+
+        # Remove old entry and append new one
+        sed -i '/^export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=/d' "$HOME/opt/flatpak.env"
+        echo "export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=\"$DISPLAY_SCALING\"" >> "$HOME/opt/flatpak.env"
+
+        echo "${GREEN}Display scaling set to ${DISPLAY_SCALING}x${RESET}" >&2
     else
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}" >&2
         return 1
@@ -53,7 +58,11 @@ set_cursor_scaling() {
     fi
 
     export XCURSOR_SIZE=$CURSOR_SIZE
-    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
+
+    sed -i '/^export XCURSOR_SIZE=/d' "$HOME/opt/flatpak.env"
+    echo "export XCURSOR_SIZE=\"$CURSOR_SIZE\"" >> "$HOME/opt/flatpak.env"
+
+    echo "${GREEN}Cursor size set to ${CURSOR_SIZE}px${RESET}" >&2
 }
 
 show_help() {
@@ -169,17 +178,20 @@ case "$1" in
         show_help
         ;;
     ""|status)
-        if [[ -z "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" && -z "$XCURSOR_SIZE" ]]; then
-            echo "${CYAN}ELECTRON_FORCE_DEVICE_SCALE_FACTOR and XCURSOR_SIZE remain default.${RESET}"
-        else
-            [[ -n "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" ]] && \
-                echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $ELECTRON_FORCE_DEVICE_SCALE_FACTOR${RESET}" || \
-                echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR remain default.${RESET}"
-
-            [[ -n "$XCURSOR_SIZE" ]] && \
-                echo "${MAGENTA}XCURSOR_SIZE = $XCURSOR_SIZE${RESET}" || \
-                echo "${BLUE}XCURSOR_SIZE remain default.${RESET}"
-        fi
+        DISPLAY_SCALE=$(grep '^export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=' "$HOME/opt/flatpak.env" | cut -d= -f2- | tr -d '"')
+        CURSOR_VAL=$(grep '^export XCURSOR_SIZE=' "$HOME/opt/flatpak.env" | cut -d= -f2- | tr -d '"')
+    
+            if [[ -z "$DISPLAY_SCALE" && -z "$CURSOR_VAL" ]]; then
+                echo "${CYAN}ELECTRON_FORCE_DEVICE_SCALE_FACTOR and XCURSOR_SIZE remain default.${RESET}"
+            else
+                [[ -n "$DISPLAY_SCALE" ]] && \
+                    echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $DISPLAY_SCALE${RESET}" || \
+                    echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR remains default.${RESET}"
+        
+                [[ -n "$CURSOR_VAL" ]] && \
+                    echo "${MAGENTA}XCURSOR_SIZE = $CURSOR_VAL${RESET}" || \
+                    echo "${BLUE}XCURSOR_SIZE remains default.${RESET}"
+            fi
         ;;
         reinstall)
         bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
