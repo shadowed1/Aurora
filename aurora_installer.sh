@@ -175,12 +175,12 @@ sleep 3
 echo "${MAGENTA}"
 echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
 echo "║                                       ${RESET}${BOLD}${MAGENTA}DOWNLOAD COMPLETE!${RESET}${MAGENTA}                                      ║"
-echo "║          ${RESET}${BOLD}${MAGENTA}OPEN A NEW CROSH TAB AND RUN VSH BOREALIS TO CONTINUE SETTING UP FLATPAK${RESET}${MAGENTA}             ║"
+echo "║           Open a new Crosh tab and run ${RESET}${BOLD}${MAGENTA}vsh borealis${RESET}${MAGENTA} to continue setting up Flatpak            ║"
 echo "╚═══════════════════════════════════════════════════════════════════════════════════════════════╝"
 echo "${RESET}"
 echo ""
 
-
+${RESET}${BOLD}${MAGENTA} ${RESET}${MAGENTA}
 
         ;;
     *)
