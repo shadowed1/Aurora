@@ -49,40 +49,39 @@
 
 
 ### How to use:
-
 Commands with examples:
 
-aurora                     # Show current display and cursor values
-source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)
-source aurora cursor 32    # Set cursor size (8 - 200)
-aurora help                # Show help
-aurora_debug               # echo a list of paths that flatpak will use
-aurora reinstall           # Redownload Aurora from Github
-aurora uninstall           # Launch uninstaller
+`aurora                     # Show current display and cursor values` <br>
+`source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)` <br>
+`source aurora cursor 32    # Set cursor size (8 - 200)` <br>
+`aurora help                # Show help` <br>
+`aurora_debug               # echo a list of paths that flatpak will use` <br>
+`aurora reinstall           # Redownload Aurora from Github` <br>
+`aurora uninstall           # Launch uninstaller` <br>
 
-flatpak list               # Show list of installed apps
-flatpak --help              # flatpak has a lot of commands!
+`flatpak list               # Show list of installed apps` <br>
+`flatpak --help             # flatpak has a lot of commands!` <br>
 
 NORMAL FLATPAK EXAMPLE:
 
-flatpak search Discord
-flatpak install com.discordapp.Discord
-flatpak run com.discordapp.Discord
+`flatpak search Discord
+`flatpak install com.discordapp.Discord
+`flatpak run com.discordapp.Discord
 
 Failed to connect to bus error it must be run like example below:
 
-flatpak search visualstudio
-flatpak install com.visualstudio.code
-flatpak run --command=sh com.visualstudio.code
-/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal
+`flatpak search visualstudio` <br>
+`flatpak install com.visualstudio.code` <br>
+`flatpak run --command=sh com.visualstudio.code` <br>
+`/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
 
 Use ls /app/bin to help find the app in these situations.
 
 Brave browser might need to append '&' at the end to run:
-flatpak search Brave
-flatpak install com.brave.Browser
-flatpak run --command=sh com.brave.Browser
-/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &
+`flatpak search Brave`
+`flatpak install com.brave.Browser`
+`flatpak run --command=sh com.brave.Browser`
+`/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &`
 
 - Apps and their data are saved in ~/.local/share/flatpak and Aurora + Flatpak are stored in~/opt/.
 - --user argument is built-in for this Flatpak since we have no root access.
@@ -136,21 +135,14 @@ When running Brave:
 ### Changelog:
 0.01: `Release` <br>
 0.02: `Removed .bashrc file and added append capability. Added check to make sure not to install anywhere but Borealis.
-Added uninstall and reinstall commands. Thanks to Saragon for the suggestions and teachimg me more about .bashrc. 
-To do: Broke dbus logic but significantly cleaned up scripts.`<br>
+Added uninstall and reinstall commands. Thanks to Saragon for the suggestions and teachimg me more about .bashrc.` <br>
 
-debug an app:
- 
-`export G_MESSAGES_DEBUG=all
-flatpak run com.brave.Browser`
-`xdg-desktop-portal-gtk &
-xdg-desktop-portal &`
 
 ### Acknowledgments
 - Saragon making great suggestions, educating me about .bashrc, improving readme, finding bugs, and working on making Steam shortcuts a reality:
 https://github.com/Saragon4005
 
-- Thanks to DennisLfromGA for finding bugs, making great suggestions, and fixing issues to running certain apps:
+- Thanks to DennisLfromGA for finding bugs, making great suggestions, and finding issues to running certain apps:
 https://github.com/DennisLfromGA
   
 
