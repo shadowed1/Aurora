@@ -22,7 +22,7 @@
 - Copy Paste in borealis shell: <br>
 `bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")` <br>
 
-*Do not install Aurora anywhere else but Borealis; it won't work elsewhere.*
+*Aurora needs Borealis; it won't work elsewhere.*
 
 <br>
 <br>
@@ -64,9 +64,9 @@ Commands with examples:
 
 NORMAL FLATPAK EXAMPLE:
 
-`flatpak search Discord
-`flatpak install com.discordapp.Discord
-`flatpak run com.discordapp.Discord
+`flatpak search Discord` <br>
+`flatpak install com.discordapp.Discord` <br>
+`flatpak run com.discordapp.Discord` <br>
 
 Failed to connect to bus error it must be run like example below:
 
@@ -77,11 +77,11 @@ Failed to connect to bus error it must be run like example below:
 
 Use ls /app/bin to help find the app in these situations.
 
-Brave browser might need to append '&' at the end to run:
-`flatpak search Brave`
-`flatpak install com.brave.Browser`
-`flatpak run --command=sh com.brave.Browser`
-`/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &`
+Brave browser example:
+`flatpak search Brave` <br>
+`flatpak install com.brave.Browser` <br>
+`flatpak run --command=sh com.brave.Browser` <br>
+`/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &` <br>
 
 - Apps and their data are saved in ~/.local/share/flatpak and Aurora + Flatpak are stored in~/opt/.
 - --user argument is built-in for this Flatpak since we have no root access.
