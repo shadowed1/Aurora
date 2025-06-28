@@ -104,6 +104,7 @@ show_help() {
 }
 
 aurora_uninstall() {
+    echo ""
     echo "${MAGENTA}${BOLD}Aurora Uninstaller${RESET}"
     echo "${BLUE}${BOLD}Select an option:${RESET}"
     echo "${BLUE}[0] Quit${RESET}"
