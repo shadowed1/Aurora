@@ -30,7 +30,6 @@ set_display_scaling() {
 
         export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
 
-        # Remove old entry and append new one
         sed -i '/^export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=/d' "$HOME/opt/flatpak.env"
         echo "export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=\"$DISPLAY_SCALING\"" >> "$HOME/opt/flatpak.env"
 
