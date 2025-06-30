@@ -189,7 +189,15 @@ set_default_app() {
                 mime_type="x-scheme-handler/$ext"
                 ;;
             *)
-                mime_type=$(xdg-mime query filetype "file.$ext")
+                local tmpfile
+                tmpfile="$(mktemp --suffix=.$ext)"
+                mime_type=$(xdg-mime query filetype "$tmpfile")
+                rm -f "$tmpfile"
+
+                if [[ -z "$mime_type" ]]; then
+                    mime_type=$(grep -h "^[^#].*:\\*\\.$ext\$" ~/.local/share/mime/globs /usr/share/mime/globs 2>/dev/null | cut -d: -f1 | head -n1)
+                fi
+
                 if [[ -z "$mime_type" ]]; then
                     echo "Warning: Could not determine MIME type for .$ext, skipping."
                     continue
@@ -203,6 +211,7 @@ set_default_app() {
 
     echo "Done."
 }
+
 
 case "$1" in
     starman)
