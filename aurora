@@ -104,7 +104,7 @@ shortcut() {
                 continue
                 ;;
         esac
-
+        # Saragon shortcut syntax
         BIN_DIR="$HOME/opt/bin"
         BIN_FILE="$BIN_DIR/${APPID##*.}.sh"
         mkdir -p "$BIN_DIR"
