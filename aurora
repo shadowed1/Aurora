@@ -67,13 +67,17 @@ shortcut() {
     fi
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
-        BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
-        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-               \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null | sort | grep -Ei '256x256.*\.(png|jpg|jpeg|svg)$' | head -n1)
+        SEARCH_ROOT="$HOME/.local/share/flatpak/app/$APPID/current/active"
+
+        ICON=$(find "$SEARCH_ROOT" -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+               -ipath "*/hicolor/*" \
+               \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" -o -ipath "*/scalable/*" \) \
+               -mindepth 1 -maxdepth 10 2>/dev/null | \
+               sort | grep -Ei '(256x256|scalable).*\.((png|jpe?g|svg))$' | head -n1)
 
         if [[ -z "$ICON" ]]; then
-            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-                   -ipath "*/128x128/*" 2>/dev/null | head -n1)
+            ICON=$(find "$SEARCH_ROOT" -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+                   -ipath "*/hicolor/*" -mindepth 1 -maxdepth 10 2>/dev/null | head -n1)
         fi
 
         if [[ -z "$ICON" ]]; then
@@ -114,13 +118,16 @@ EOF
         chmod +x "$BIN_FILE"
         echo "${CYAN}Launcher script saved to $BIN_FILE${RESET}"
 
+        RAW_NAME="${APPID##*.}"
+        DISPLAY_NAME="$(tr '[:lower:]' '[:upper:]' <<< "${RAW_NAME:0:1}")${RAW_NAME:1}"
+
         DESKTOP_DIR="$HOME/.local/share/applications"
         DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
         mkdir -p "$DESKTOP_DIR"
 
         cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
-Name=${APPID##*.}
+Name=$DISPLAY_NAME
 Exec=$BIN_FILE
 Icon=$APPID
 Terminal=false
