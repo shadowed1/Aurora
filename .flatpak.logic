@@ -94,9 +94,9 @@ echo "."
 sleep 1
 echo ".${RESET}"
 echo ""
-/bin/bash ~/opt/usr/bin/fastfetch
+~/opt/usr/bin/fastfetch
 echo ""
 source ~/.bashrc
 echo ""
-/bin/bash ~opt/bin/aurora help
+~/opt/bin/aurora help
 fi
