@@ -277,6 +277,7 @@ case "$1" in
         uninstall)
         aurora_uninstall
         ;;
+        # DennyL version checker
         version)
         if [[ -f "$HOME/opt/bin/version" ]]; then
             CURRENT_VER=$(cat "$HOME/opt/bin/version")
