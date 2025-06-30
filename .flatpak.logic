@@ -94,9 +94,9 @@ echo "."
 sleep 1
 echo ".${RESET}"
 echo ""
-/home/chronos/opt/usr/bin/fastfetch
+/bin/bash ~/opt/usr/bin/fastfetch
 echo ""
 source ~/.bashrc
 echo ""
-/home/chronos/opt/bin/aurora help
+/bin/bash ~opt/bin/aurora help
 fi
