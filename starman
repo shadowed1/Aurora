@@ -85,8 +85,8 @@ zenity_launcher() {
     local APP_LIST_FILE="$HOME/.starman_flatpak_cache"
     local MENU_ENTRIES=()
 
-    MENU_ENTRIES+=("open_file" "Open File - Browse or open a file")
-    MENU_ENTRIES+=("download_archive" "Download Archive - Download and extract .tar.* file (starman)")
+    MENU_ENTRIES+=("Browse Directories" "Browse Folders - Copy directories to terminal")
+    MENU_ENTRIES+=("Steam Tar Manager" "Starman - Automatically detects compression type and extracts tar file. Append your directory choice at the end of link or blank for default. (starman)")
 
 
     update_app_list_cache
@@ -112,13 +112,13 @@ zenity_launcher() {
     MENU_ENTRIES+=("Exit" "Close this menu")
 
     local CHOICE
-    CHOICE=$(zenity --list --title="Starman App Launcher" \
+    CHOICE=$(zenity --list --title="Steam Tar Manager" \
       --width=800 --height=600 \
       --column="Action" --column="Description" \
       "${MENU_ENTRIES[@]}")
        case "$CHOICE" in
         open_file)
-            zenity --file-selection --title="Browse"
+            zenity --file-selection --directory --title="Select a Folder "Browser"
             ;;
         download_archive)
             FILE_URL=$(zenity --entry --title="Starman Archive Downloader:" --text="Enter the URL of the .tar archive and your path of choice:")
