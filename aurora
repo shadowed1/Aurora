@@ -68,12 +68,11 @@ shortcut() {
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active"
-        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 10 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-               \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" -o -ipath "*/scalable/*" \) 2>/dev/null | \
-               sort | grep -Ei '(256x256|scalable).*\.((png|jpe?g|svg))$' | head -n1)
+        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 10zen \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+               \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null | sort | grep -Ei '256x256.*\.(png|jpg|jpeg|svg)$' | head -n1)
 
         if [[ -z "$ICON" ]]; then
-            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 8 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
                    -ipath "*/128x128/*" 2>/dev/null | head -n1)
         fi
 
@@ -133,6 +132,7 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 }
+
 
 show_help() {
     echo "${MAGENTA}${BOLD}"
