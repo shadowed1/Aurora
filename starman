@@ -130,14 +130,17 @@ zenity_launcher() {
             APPIMAGE_URL=$(zenity --entry --title="Download AppImage" --text="Paste the URL of the .AppImage file:")
             if [[ -n "$APPIMAGE_URL" ]]; then
                 mkdir -p "$HOME/opt/appimages"
-                FILENAME=$(basename "$APPIMAGE_URL")
-                DEST="$HOME/opt/appimages/$FILENAME"
+                cd "$HOME/opt/appimages" || exit 1
 
-                echo "${YELLOW}Downloading to: $DEST${RESET}"
-                if curl -L "$APPIMAGE_URL" -o "$DEST"; then
-                    chmod +x "$DEST"
-                    "$DEST" &
-                    echo "${GREEN}Launched: $DEST${RESET}"
+                echo "${YELLOW}Downloading to: $PWD${RESET}"
+                if curl -L -J -O "$APPIMAGE_URL"; then
+                    # Try to determine actual filename from header or fallback to URL basename
+                    FILENAME=$(basename "$(curl -s -L -I "$APPIMAGE_URL" | grep -i 'filename=' | sed -E 's/.*filename="?([^"]+)"?/\1/')")
+                    [[ -z "$FILENAME" || ! -f "$FILENAME" ]] && FILENAME=$(basename "${APPIMAGE_URL%%\?*}")
+
+                    chmod +x "$FILENAME"
+                    "./$FILENAME" &
+                    echo "${GREEN}Launched: $FILENAME${RESET}"
                 else
                     zenity --error --title="Download Failed" --text="Failed to download AppImage from:\n$APPIMAGE_URL"
                 fi
@@ -151,6 +154,7 @@ zenity_launcher() {
             ;;
     esac
 }
+
 
 
 
