@@ -152,6 +152,7 @@ chmod +x ~/opt/bin/starman
 chmod +x ~/opt/usr/bin/fastfetch
 chmod +x ~/opt/usr/bin/nano
 touch /home/chronos/.starman_flatpak_cache
+echo ""
 
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 
@@ -166,23 +167,22 @@ fi
 
 [ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
 
-sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
-sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
+FLATPAK_ENV_LINE='[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"'
+FLATPAK_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
 
-grep -q '\.flatpak\.env' "$HOME/.bashrc" || echo '[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"' >> "$HOME/.bashrc"
-grep -q '\.flatpak\.logic' "$HOME/.bashrc" || echo '[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"' >> "$HOME/.bashrc"
+grep -Fxq "$FLATPAK_ENV_LINE" "$HOME/.bashrc" || echo "$FLATPAK_ENV_LINE" >> "$HOME/.bashrc"
+grep -Fxq "$FLATPAK_LOGIC_LINE" "$HOME/.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "$HOME/.bashrc"
+
 
 if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
   echo "libostree-1.so.1 missing from deps!"
   exit 1
 fi
 
-
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
 sleep 3
 
 echo ""
-
 
 /bin/bash ~/opt/bin/aurora help
 
