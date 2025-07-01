@@ -67,17 +67,21 @@ shortcut() {
     fi
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
-        BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active"
-        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 10 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" -o -ipath "*/scalable/*" \) 2>/dev/null | \
-            sort | grep -Ei '(256x256|128x128|scalable).*\.((png|jpe?g|svg))$' | head -n1)
+        BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
+        ICON=""
+        for SIZE in 256x256 128x128 scalable; do
+            ICON=$(find "$BASE_PATH/$SIZE/apps" -maxdepth 1 -type f \
+                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
+            [[ -n "$ICON" ]] && break
+        done
 
+        # Fallback: any icon anywhere under hicolor
         if [[ -z "$ICON" ]]; then
-            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 10 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
+            ICON=$(find "$BASE_PATH" -type f \
+                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
         fi
 
         if [[ -z "$ICON" ]]; then
-            echo "${YELLOW}No icon found for $APPID, skipping.${RESET}"
             continue
         fi
 
@@ -98,7 +102,6 @@ shortcut() {
                 flatpak --user run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON"
                 ;;
             *)
-                echo "${YELLOW}Unknown icon format for $APPID: $ICON${RESET}"
                 continue
                 ;;
         esac
