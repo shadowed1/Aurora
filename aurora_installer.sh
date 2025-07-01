@@ -178,6 +178,53 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/core/x86_64/libcurl-gnutls/download"
 download_and_extract "$URL" "$HOME/opt/"
 
+URL="https://archlinux.org/packages/core/x86_64/zstd/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/lz4/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/gmp/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/leancrypto/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/libidn2/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/libp11-kit/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/libffi/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/glibc/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/libtasn1/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/libunistring/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/nettle/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/gmp/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/zlib/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/gcc-libs/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/zlib-ng/download"
+download_and_extract "$URL" "$HOME/opt/"
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
