@@ -66,11 +66,6 @@ shortcut() {
         }
     fi
 
-    BIN_DIR="$HOME/opt/bin"
-    DESKTOP_DIR="$HOME/.local/share/applications"
-    ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
-    mkdir -p "$BIN_DIR" "$DESKTOP_DIR"
-
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
         ICON=""
@@ -98,6 +93,7 @@ shortcut() {
         ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | head -n1 | cut -d'x' -f1)
         [[ -z "$ICON_SIZE" ]] && ICON_SIZE=256
 
+        ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
         OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
         OUTFILE="$OUTDIR/$APPID.png"
         mkdir -p "$OUTDIR"
@@ -119,16 +115,23 @@ shortcut() {
                 ;;
         esac
 
+        BIN_DIR="$HOME/opt/bin"
         BIN_FILE="$BIN_DIR/${APPID##*.}.sh"
+        mkdir -p "$BIN_DIR"
+
         cat > "$BIN_FILE" <<EOF
 #!/bin/bash
 source "\$HOME/.bashrc"
 flatpak run $APPID
 EOF
+
         chmod +x "$BIN_FILE"
         echo "${CYAN}Launcher script saved to $BIN_FILE${RESET}"
 
+        DESKTOP_DIR="$HOME/.local/share/applications"
         DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
+        mkdir -p "$DESKTOP_DIR"
+
         cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Name=${APPID##*.}
@@ -138,72 +141,11 @@ Terminal=false
 Type=Application
 Categories=Utility;
 EOF
+
         chmod +x "$DESKTOP_FILE"
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
-
-    APPDIR="$HOME/opt/appimages"
-    find "$APPDIR" -maxdepth 1 -type f -iname "*.AppImage" | while read -r APP; do
-        FILENAME="$(basename "$APP")"
-        APPNAME="${FILENAME%.AppImage}"
-        APPID="appimage.$APPNAME"
-        ICON_SIZE=256
-        ICON_PATH=""
-
-        TMP_EXTRACT_DIR="$HOME/tmp/appimage_extract_$(date +%s%N)"
-        mkdir -p "$TMP_EXTRACT_DIR"
-        (
-            cd "$TMP_EXTRACT_DIR" || exit 1
-            "$APP" --appimage-extract &>/dev/null
-        )
-
-        ICON_SRC=$(find "$TMP_EXTRACT_DIR/squashfs-root" -type f \( -iname "*.png" -o -iname "*.svg" \) | head -n1)
-        if [[ -n "$ICON_SRC" ]]; then
-            EXT="${ICON_SRC##*.}"
-            OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
-            OUTFILE="$OUTDIR/$APPID.png"
-            mkdir -p "$OUTDIR"
-
-            echo "${GREEN}Processing icon for AppImage: $APPNAME...${RESET}"
-            case "$EXT" in
-                png|jpg|jpeg)
-                    cp "$ICON_SRC" "$OUTFILE"
-                    ;;
-                svg)
-                    flatpak --user run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON_SRC" &>/dev/null
-                    ;;
-            esac
-            ICON_PATH="$OUTFILE"
-        else
-            ICON_PATH="application-x-executable"
-        fi
-
-        rm -rf "$TMP_EXTRACT_DIR"
-
-        BIN_FILE="$BIN_DIR/$APPNAME.sh"
-        cat > "$BIN_FILE" <<EOF
-#!/bin/bash
-source "\$HOME/.bashrc"
-"$APP"
-EOF
-        chmod +x "$BIN_FILE"
-        echo "${CYAN}AppImage launcher script saved to $BIN_FILE${RESET}"
-
-        DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
-        cat > "$DESKTOP_FILE" <<EOF
-[Desktop Entry]
-Name=$APPNAME
-Exec=$BIN_FILE
-Icon=$APPID
-Terminal=false
-Type=Application
-Categories=Utility;
-EOF
-        chmod +x "$DESKTOP_FILE"
-        echo "${CYAN}AppImage shortcut saved to $DESKTOP_FILE${RESET}"
-    done
 }
-
 
 show_help() {
     echo "${MAGENTA}${BOLD}"
