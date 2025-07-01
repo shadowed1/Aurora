@@ -75,7 +75,6 @@ shortcut() {
             [[ -n "$ICON" ]] && break
         done
 
-        # Fallback: any icon anywhere under hicolor
         if [[ -z "$ICON" ]]; then
             ICON=$(find "$BASE_PATH" -type f \
                 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
