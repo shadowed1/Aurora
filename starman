@@ -87,6 +87,7 @@ zenity_launcher() {
 
     MENU_ENTRIES+=("browse_files" "Browse - Copy directories to terminal")
     MENU_ENTRIES+=("download_archive" "Automatically detects compression type and extracts tar file. Append your path at the end of link or blank for default")
+    MENU_ENTRIES+=("download_appimage" "Download AppImage: Paste URL, save to ~/opt/appimages, and run it")
 
     update_app_list_cache
 
@@ -105,7 +106,6 @@ zenity_launcher() {
         if [[ -n "$ICON_PATH" ]]; then
             MENU_ENTRIES+=("$APPID" "Launch $NAME via Flatpak")
         fi
-
     done < "$APP_LIST_FILE"
 
     MENU_ENTRIES+=("Exit" "Close this menu")
@@ -115,14 +115,32 @@ zenity_launcher() {
       --width=800 --height=600 \
       --column="Action" --column="Description" \
       "${MENU_ENTRIES[@]}")
-       case "$CHOICE" in
+
+    case "$CHOICE" in
         browse_files)
-            zenity --file-selection --directory --title="Select a Folder "Browser""
+            zenity --file-selection --directory --title="Select a Folder to Browse"
             ;;
         download_archive)
-            FILE_URL=$(zenity --entry --title="Starman Archive Downloader:" --text="Enter the URL of the .tar archive and your path of choice:")
+            FILE_URL=$(zenity --entry --title="Starman Archive Downloader" --text="Enter the URL of the .tar archive and your path of choice (optional):")
             if [[ -n "$FILE_URL" ]]; then
                 starman "$FILE_URL"
+            fi
+            ;;
+        download_appimage)
+            APPIMAGE_URL=$(zenity --entry --title="Download AppImage" --text="Paste the URL of the .AppImage file:")
+            if [[ -n "$APPIMAGE_URL" ]]; then
+                mkdir -p "$HOME/opt/appimages"
+                FILENAME=$(basename "$APPIMAGE_URL")
+                DEST="$HOME/opt/appimages/$FILENAME"
+
+                echo "${YELLOW}Downloading to: $DEST${RESET}"
+                if curl -L "$APPIMAGE_URL" -o "$DEST"; then
+                    chmod +x "$DEST"
+                    "$DEST" &
+                    echo "${GREEN}Launched: $DEST${RESET}"
+                else
+                    zenity --error --title="Download Failed" --text="Failed to download AppImage from:\n$APPIMAGE_URL"
+                fi
             fi
             ;;
         Exit|"")
@@ -132,8 +150,8 @@ zenity_launcher() {
             flatpak --user run "$CHOICE" &
             ;;
     esac
-
 }
+
 
 
 reset_app_list() {
