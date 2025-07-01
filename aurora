@@ -57,6 +57,7 @@ set_cursor_scaling() {
     export XCURSOR_SIZE=$CURSOR_SIZE
     echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
 }
+
 shortcut() {
     if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
         echo "${BLUE}Inkscape is required. Installing...${RESET}" >&2
@@ -67,29 +68,51 @@ shortcut() {
     fi
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
-        ICON=""
-        ICON_PATHS=(
+        # Search export path first (current logic)
+        BASE_PATHS=(
             "$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
             "$HOME/.local/share/flatpak/app/$APPID/current/active/files/share/icons/hicolor"
         )
-        for BASE_PATH in "${ICON_PATHS[@]}"; do
-            for SIZE in 256x256 128x128 scalable; do
-                ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
-                    \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) \
-                    -ipath "*/${SIZE}/*" 2>/dev/null | head -n1)
+        ICON=""
+
+        for BASE_PATH in "${BASE_PATHS[@]}"; do
+            if [[ -d "$BASE_PATH" ]]; then
+                for SIZE in 256x256 128x128 scalable; do
+                    # Use -maxdepth 3 for export, but unlimited for files path
+                    if [[ "$BASE_PATH" == *"/files/share/icons/hicolor" ]]; then
+                        ICON=$(find "$BASE_PATH" \
+                            \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) \
+                            -ipath "*/${SIZE}/*" 2>/dev/null | head -n1)
+                    else
+                        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
+                            \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) \
+                            -ipath "*/${SIZE}/*" 2>/dev/null | head -n1)
+                    fi
+                    [[ -n "$ICON" ]] && break 2
+                done
                 [[ -n "$ICON" ]] && break
-            done
-            [[ -n "$ICON" ]] && break
-            if [[ -z "$ICON" ]]; then
-                ICON=$(find "$BASE_PATH" -type f \
-                    \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) 2>/dev/null | head -n1)
             fi
-            if [[ -z "$ICON" ]]; then
-                ICON=$(find "$BASE_PATH" -type f \
-                    \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
-            fi
-            [[ -n "$ICON" ]] && break
         done
+
+        if [[ -z "$ICON" ]]; then
+            for BASE_PATH in "${BASE_PATHS[@]}"; do
+                if [[ -d "$BASE_PATH" ]]; then
+                    ICON=$(find "$BASE_PATH" \
+                        \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) 2>/dev/null | head -n1)
+                    [[ -n "$ICON" ]] && break
+                fi
+            done
+        fi
+
+        if [[ -z "$ICON" ]]; then
+            for BASE_PATH in "${BASE_PATHS[@]}"; do
+                if [[ -d "$BASE_PATH" ]]; then
+                    ICON=$(find "$BASE_PATH" \
+                        \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
+                    [[ -n "$ICON" ]] && break
+                fi
+            done
+        fi
 
         if [[ -z "$ICON" ]]; then
             continue
