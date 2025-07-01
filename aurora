@@ -69,7 +69,6 @@ shortcut() {
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
         ICON=""
-        # Improved icon selection: look for icon file matching the AppID in preferred sizes (256, 128, scalable)
         for SIZE in 256x256 128x128 scalable; do
             ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
                 \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) \
@@ -77,13 +76,11 @@ shortcut() {
             [[ -n "$ICON" ]] && break
         done
 
-        # If not found, try to find any icon file matching the AppID (any size)
         if [[ -z "$ICON" ]]; then
             ICON=$(find "$BASE_PATH" -type f \
                 \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) 2>/dev/null | head -n1)
         fi
 
-        # Fallback: any image file if AppID match not found
         if [[ -z "$ICON" ]]; then
             ICON=$(find "$BASE_PATH" -type f \
                 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
