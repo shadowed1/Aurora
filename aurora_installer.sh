@@ -169,8 +169,8 @@ fi
 sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
 sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
 
-echo '[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"' >> "$HOME/.bashrc"
-echo '[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"' >> "$HOME/.bashrc"
+grep -q '\.flatpak\.env' "$HOME/.bashrc" || echo '[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"' >> "$HOME/.bashrc"
+grep -q '\.flatpak\.logic' "$HOME/.bashrc" || echo '[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"' >> "$HOME/.bashrc"
 
 if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
   echo "libostree-1.so.1 missing from deps!"
