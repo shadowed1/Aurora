@@ -57,6 +57,7 @@ set_cursor_scaling() {
     export XCURSOR_SIZE=$CURSOR_SIZE
     echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
 }
+
 shortcut() {
     if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
         echo "${BLUE}Inkscape is required. Installing...${RESET}" >&2
@@ -68,42 +69,41 @@ shortcut() {
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
         ICON=""
-        ICON_PATHS=(
-            "$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
-            "$HOME/.local/share/flatpak/app/$APPID/current/active/files/share/icons/hicolor"
+        APPDIR="$HOME/.local/share/flatpak/app/$APPID/current/active"
+        APPID_HYPHENS="${APPID//./-}"
+        APPID_SUFFIX="${APPID##*.}"
+        PREFERRED_SIZES=(256 128 96 64 48 32 24 22 16)
+
+        # Gather all candidate images loosely matching APPID
+        mapfile -t CANDIDATES < <(
+            find "$APPDIR" -type f \( -iname "*.png" -o -iname "*.svg" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.xpm" \) 2>/dev/null |
+            grep -Ei "$APPID|$APPID_HYPHENS|$APPID_SUFFIX"
         )
-        for BASE_PATH in "${ICON_PATHS[@]}"; do
-            for SIZE in 256x256 128x128 scalable; do
-                ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
-                    \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) \
-                    -ipath "*/${SIZE}/*" 2>/dev/null | head -n1)
-                [[ -n "$ICON" ]] && break
+
+        for size in "${PREFERRED_SIZES[@]}"; do
+            for img in "${CANDIDATES[@]}"; do
+                if [[ "$img" =~ (^|/)$size[xX]$size(/|/) ]]; then
+                    ICON="$img"
+                    ICON_SIZE=$size
+                    break 2
+                fi
             done
-            [[ -n "$ICON" ]] && break
-            if [[ -z "$ICON" ]]; then
-                ICON=$(find "$BASE_PATH" -type f \
-                    \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) 2>/dev/null | head -n1)
-            fi
-            if [[ -z "$ICON" ]]; then
-                ICON=$(find "$BASE_PATH" -type f \
-                    \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
-            fi
-            [[ -n "$ICON" ]] && break
         done
 
-        if [[ -z "$ICON" ]]; then
-            continue
+        if [[ -z "$ICON" && ${#CANDIDATES[@]} -gt 0 ]]; then
+            ICON="${CANDIDATES[0]}"
+            ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | head -n1 | cut -d'x' -f1)
+            [[ -z "$ICON_SIZE" ]] && ICON_SIZE=256
         fi
 
-        ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | head -n1 | cut -d'x' -f1)
-        [[ -z "$ICON_SIZE" ]] && ICON_SIZE=256
+        [[ -z "$ICON" ]] && continue
+
+        echo "${GREEN}Processing icon for $APPID...${RESET}"
 
         ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
         OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
         OUTFILE="$OUTDIR/$APPID.png"
         mkdir -p "$OUTDIR"
-
-        echo "${GREEN}Processing icon for $APPID...${RESET}"
 
         EXT="${ICON##*.}"
         EXT_LOWER=$(echo "$EXT" | tr 'A-Z' 'a-z')
