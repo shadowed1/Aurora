@@ -68,7 +68,6 @@ shortcut() {
     fi
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
-        # Search export path first (current logic)
         BASE_PATHS=(
             "$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
             "$HOME/.local/share/flatpak/app/$APPID/current/active/files/share/icons/hicolor"
