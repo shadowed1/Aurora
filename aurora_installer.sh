@@ -130,6 +130,7 @@ download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 URL="https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal-gtk/download"
 download_and_extract "$URL" "$HOME/opt/flatpak-deps"
 
+############################################################## 
 # Fastfetch
 URL="https://archlinux.org/packages/extra/x86_64/fastfetch/download"
 download_and_extract "$URL" "$HOME/opt/"
@@ -137,9 +138,43 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/extra/x86_64/yyjson/download"
 download_and_extract "$URL" "$HOME/opt/"
 
+############################################################## 
 # Nano
 URL="https://archlinux.org/packages/core/x86_64/nano/download"
 download_and_extract "$URL" "$HOME/opt/"
+
+############################################################## 
+# Git
+URL="https://archlinux.org/packages/extra/x86_64/git/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/expat/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/pcre2/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/openssl/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/perl/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/perl/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/any/perl-error/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/any/perl-mailtools/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/shadow/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/zlib-ng/download"
+download_and_extract "$URL" "$HOME/opt/"
+
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
