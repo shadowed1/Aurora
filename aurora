@@ -70,9 +70,9 @@ shortcut() {
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
         ICON=""
         for SIZE in 256x256 128x128 scalable; do
-            ICON=$(find "$BASE_PATH/$SIZE/apps" -maxdepth 1 -type f \
-                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
-            [[ -n "$ICON" ]] && break
+            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+               \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null | sort | grep -Ei '256x256.*\.(png|jpg|jpeg|svg)$' | head -n1)
+
         done
 
         if [[ -z "$ICON" ]]; then
@@ -98,7 +98,7 @@ shortcut() {
                 cp "$ICON" "$OUTFILE"
                 ;;
             svg)
-                flatpak --user run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON"
+                flatpak --user run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON" &>/dev/null
                 ;;
             *)
                 continue
