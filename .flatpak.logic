@@ -14,8 +14,8 @@ echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
 export USER="${USER:-$(id -un)}"
 
-if [ -f "$HOME/opt/flatpak.env" ]; then
-    . "$HOME/opt/flatpak.env"
+if [ -f "$HOME/opt/.flatpak.env" ]; then
+    . "$HOME/opt/.flatpak.env"
 fi
 
 echo "${MAGENTA}Aurora initializing Flatpak!${RESET}${BLUE}"
