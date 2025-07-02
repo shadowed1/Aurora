@@ -68,7 +68,7 @@ shortcut() {
     fi
 
     flatpak override --user org.inkscape.Inkscape \
-        --filesystem=/home/chronos/.local/share/
+        --filesystem=/home/chronos/
 
     ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
 
@@ -76,26 +76,22 @@ shortcut() {
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
         ICON=""
         ICON_SIZE=""
-        APPNAME="${APPID##*.}"
 
-        # Prefer 256x256 or 128x128 icons matching app name
+        # Prefer 256x256 or 128x128 icons
         ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
             \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) \
-            -iname "*${APPNAME}*" 2>/dev/null \
-            | sort | head -n1)
+            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null \
+            | sort | grep -Ei '(256x256|128x128).*\.((png|jpg|jpeg|svg))$' | head -n1)
 
         if [[ -n "$ICON" ]]; then
             ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
         fi
 
-        # Fallback to scalable icons matching app name
+        # Fallback to scalable
         if [[ -z "$ICON" ]]; then
             ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
                 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-                -ipath "*/scalable/apps/*" \
-                -iname "*${APPNAME}*" \
-                -type f 2>/dev/null | head -n1)
+                -ipath "*/scalable/apps/*" -type f 2>/dev/null | head -n1)
             ICON_SIZE=256
         fi
 
@@ -127,7 +123,7 @@ shortcut() {
         esac
 
         BIN_DIR="$HOME/opt/bin"
-        BIN_FILE="$BIN_DIR/$APPNAME.sh"
+        BIN_FILE="$BIN_DIR/${APPID##*.}.sh"
         mkdir -p "$BIN_DIR"
 
         cat > "$BIN_FILE" <<EOF
@@ -145,7 +141,7 @@ EOF
 
         cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
-Name=$APPNAME
+Name=${APPID##*.}
 Exec=$BIN_FILE
 Icon=$APPID
 Terminal=false
@@ -156,50 +152,6 @@ EOF
         chmod +x "$DESKTOP_FILE"
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
-}
-
-
-
-
-show_help() {
-    echo "${MAGENTA}${BOLD}"
-    echo "Commands with examples:"
-    echo "${RESET}${MAGENTA}"
-    echo "aurora                     # Show current display and cursor values"
-    echo "source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)"
-    echo "source aurora cursor 32    # Set cursor size (8 - 200)"
-    echo "aurora help                # Show help"
-    echo "aurora shortcut            # Create desktop shortcuts"
-    echo "aurora_debug               # echo a list of paths that flatpak can use"
-    echo "aurora reinstall           # Redownload Aurora from Github"
-    echo "aurora uninstall           # Launch uninstaller"
-    echo "${RESET}${YELLOW}"
-    echo "starman                    # Launch starman menu"
-    echo "${RESET}"
-    echo "${GREEN}flatpak list               # Show list of installed apps"
-    echo "flatpak --help             # flatpak has a lot of commands!${RESET}"
-    echo "${BLUE}${BOLD}"
-    echo "Normal flatpak example:${RESET}${BLUE}"
-    echo ""
-    echo "flatpak search Discord"
-    echo "flatpak install com.discordapp.Discord"
-    echo "flatpak run com.discordapp.Discord${RESET}"
-    echo "${BLUE}${BOLD}"
-    echo "Failed to connect to bus error - run like examples below:"
-    echo "${RESET}${CYAN}"
-    echo "Visual Studio:"
-    echo ""
-    echo "flatpak search visualstudio"
-    echo "flatpak install com.visualstudio.code"
-    echo "flatpak run --command=sh com.visualstudio.code"
-    echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
-    echo ""
-    echo "Brave Browser:"
-    echo "flatpak run --command=sh com.brave.Browser"
-    echo "/app/brave/brave --no-sandbox --no-zygote &"
-    echo ""
-    echo "${RESET}${CYAN}${BOLD}Use ls /app/ to help find the app in these situations."
-    echo "${RESET}"
 }
 
 show_help() {
