@@ -67,39 +67,33 @@ shortcut() {
         }
     fi
 
-    flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
-        ICON=""
-        ICON_PATHS=(
-            "$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
-            "$HOME/.local/share/flatpak/app/$APPID/current/active/files/share/icons/hicolor"
-        )
-        for BASE_PATH in "${ICON_PATHS[@]}"; do
-            for SIZE in 256x256 128x128 scalable; do
-                ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
-                    \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) \
-                    -ipath "*/${SIZE}/*" 2>/dev/null | head -n1)
-                [[ -n "$ICON" ]] && break
-            done
-            [[ -n "$ICON" ]] && break
-            if [[ -z "$ICON" ]]; then
-                ICON=$(find "$BASE_PATH" -type f \
-                    \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) 2>/dev/null | head -n1)
-            fi
-            if [[ -z "$ICON" ]]; then
-                ICON=$(find "$BASE_PATH" -type f \
-                    \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
-            fi
-            [[ -n "$ICON" ]] && break
-        done
+    ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
 
-        if [[ -z "$ICON" ]]; then
-            continue
+    flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
+        BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
+        ICON=""
+        ICON_SIZE=""
+
+        # 256x256 or 128x128 first
+        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
+            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null \
+            | sort | grep -Ei '(256x256|128x128).*\.((png|jpg|jpeg|svg))$' | head -n1)
+
+        if [[ -n "$ICON" ]]; then
+            ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
         fi
 
-        ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | head -n1 | cut -d'x' -f1)
-        [[ -z "$ICON_SIZE" ]] && ICON_SIZE=256
+       # Fallback - scalable folder
+        if [[ -z "$ICON" ]]; then
+            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
+                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+                -ipath "*/scalable/apps/*" -type f 2>/dev/null | head -n1)
+            ICON_SIZE=256  # Use fallback size for scalable
+        fi
 
-        ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
+        [[ -z "$ICON" ]] && continue
+
         OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
         OUTFILE="$OUTDIR/$APPID.png"
         mkdir -p "$OUTDIR"
@@ -114,7 +108,7 @@ shortcut() {
                 cp "$ICON" "$OUTFILE"
                 ;;
             svg)
-                flatpak --user --no-sandbox run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON" &>/dev/null
+                flatpak --user --no-sandbox run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON"
                 ;;
             *)
                 continue
@@ -271,9 +265,7 @@ aurora_uninstall() {
 
                 sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
                 sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
-
                 
-
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
                     rm -rf "$DIR"
@@ -288,8 +280,6 @@ aurora_uninstall() {
                 echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
             fi
 
-            sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
-            sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
             
             echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, and data removed. ~/.bashrc entries removed. ${RESET}"
             ;;
