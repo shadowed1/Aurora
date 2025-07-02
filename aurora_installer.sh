@@ -18,7 +18,7 @@ echo "${BLUE}************ ************ ****  ****   ****    **** ****  ****   **
 echo "${CYAN}----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----${RESET}" 
 echo "${CYAN}${BOLD}****    **** ************ ****    ****   ********   ****    **** ****    ****${RESET}"
 echo ""
-echo "${RESET}${CYAN}Run apps and games in Borealis using Flatpak for signficantly higher performance than Crostini!${RESET}"
+echo "${RESET}${CYAN}Run apps and games in Borealis using Flatpak, AppImages, git, gcc, and .tar extraction for signficantly higher performance than Crostini!${RESET}"
 echo "${RESET}"
 echo "${BLUE}0: Quit${RESET}"
 echo "${MAGENTA}1: Download and install Aurora + Flatpak to ~/ and ~/opt${RESET}"
@@ -38,7 +38,7 @@ case "$choice" in
         ;;
     1)
 echo ""
-echo "${CYAN}${BOLD}About to start downloading Flatpak and its dependencies!${RESET}"
+echo "${CYAN}${BOLD}About to start downloading Flatpak, git, gcc, and their dependencies!${RESET}"
 sleep 3
 
  mkdir -p ~/opt/flatpak
