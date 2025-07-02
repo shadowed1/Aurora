@@ -108,7 +108,7 @@ shortcut() {
                 cp "$ICON" "$OUTFILE"
                 ;;
             svg)
-                flatpak --user run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON"
+                flatpak --user --no-sandbox run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON"
                 ;;
             *)
                 continue
