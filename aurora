@@ -68,7 +68,7 @@ shortcut() {
     fi
 
     flatpak override --user org.inkscape.Inkscape \
-        --filesystem=/home/chronos/
+        --filesystem=/home/chronos/.local/share/
 
     ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
 
@@ -76,22 +76,26 @@ shortcut() {
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
         ICON=""
         ICON_SIZE=""
+        APPNAME="${APPID##*.}"
 
-        # Prefer 256x256 or 128x128 icons
+        # Prefer 256x256 or 128x128 icons matching app name
         ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
             \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null \
-            | sort | grep -Ei '(256x256|128x128).*\.((png|jpg|jpeg|svg))$' | head -n1)
+            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) \
+            -iname "*${APPNAME}*" 2>/dev/null \
+            | sort | head -n1)
 
         if [[ -n "$ICON" ]]; then
             ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
         fi
 
-        # Fallback to scalable
+        # Fallback to scalable icons matching app name
         if [[ -z "$ICON" ]]; then
             ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
                 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-                -ipath "*/scalable/apps/*" -type f 2>/dev/null | head -n1)
+                -ipath "*/scalable/apps/*" \
+                -iname "*${APPNAME}*" \
+                -type f 2>/dev/null | head -n1)
             ICON_SIZE=256
         fi
 
@@ -123,7 +127,7 @@ shortcut() {
         esac
 
         BIN_DIR="$HOME/opt/bin"
-        BIN_FILE="$BIN_DIR/${APPID##*.}.sh"
+        BIN_FILE="$BIN_DIR/$APPNAME.sh"
         mkdir -p "$BIN_DIR"
 
         cat > "$BIN_FILE" <<EOF
@@ -141,7 +145,7 @@ EOF
 
         cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
-Name=${APPID##*.}
+Name=$APPNAME
 Exec=$BIN_FILE
 Icon=$APPID
 Terminal=false
@@ -153,6 +157,8 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 }
+
+
 
 show_help() {
     echo "${MAGENTA}${BOLD}"
