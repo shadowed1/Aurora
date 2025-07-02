@@ -69,16 +69,12 @@ shortcut() {
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
-        ICON=""
-        for SIZE in 256x256 128x128 scalable; do
-            ICON=$(find "$BASE_PATH/$SIZE/apps" -maxdepth 1 -type f \
-                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
-            [[ -n "$ICON" ]] && break
-        done
+        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+               \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null | sort | grep -Ei '256x256.*\.(png|jpg|jpeg|svg)$' | head -n1)
 
         if [[ -z "$ICON" ]]; then
-            ICON=$(find "$BASE_PATH" -type f \
-                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
+            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+                   -ipath "*/128x128/*" 2>/dev/null | head -n1)
         fi
 
         if [[ -z "$ICON" ]]; then
@@ -137,6 +133,7 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 }
+
 
 show_help() {
     echo "${MAGENTA}${BOLD}"
