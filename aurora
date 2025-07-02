@@ -68,59 +68,23 @@ shortcut() {
     fi
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
-        BASE_PATHS=(
-            "$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
-            "$HOME/.local/share/flatpak/app/$APPID/current/active/files/share/icons/hicolor"
-        )
+        BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
         ICON=""
-
-        for BASE_PATH in "${BASE_PATHS[@]}"; do
-            if [[ -d "$BASE_PATH" ]]; then
-                for SIZE in 256x256 128x128 scalable; do
-                    # Use -maxdepth 3 for export, but unlimited for files path
-                    if [[ "$BASE_PATH" == *"/files/share/icons/hicolor" ]]; then
-                        ICON=$(find "$BASE_PATH" \
-                            \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) \
-                            -ipath "*/${SIZE}/*" 2>/dev/null | head -n1)
-                    else
-                        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
-                            \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) \
-                            -ipath "*/${SIZE}/*" 2>/dev/null | head -n1)
-                    fi
-                    [[ -n "$ICON" ]] && break 2
-                done
-                [[ -n "$ICON" ]] && break
-            fi
+        for SIZE in 256x256 128x128 scalable; do
+            ICON=$(find "$BASE_PATH/$SIZE/apps" -maxdepth 1 -type f \
+                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
+            [[ -n "$ICON" ]] && break
         done
 
         if [[ -z "$ICON" ]]; then
-            for BASE_PATH in "${BASE_PATHS[@]}"; do
-                if [[ -d "$BASE_PATH" ]]; then
-                    ICON=$(find "$BASE_PATH" \
-                        \( -iname "${APPID}.png" -o -iname "${APPID}.jpg" -o -iname "${APPID}.jpeg" -o -iname "${APPID}.svg" \) 2>/dev/null | head -n1)
-                    [[ -n "$ICON" ]] && break
-                fi
-            done
-        fi
-
-        if [[ -z "$ICON" ]]; then
-            for BASE_PATH in "${BASE_PATHS[@]}"; do
-                if [[ -d "$BASE_PATH" ]]; then
-                    ICON=$(find "$BASE_PATH" \
-                        \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
-                    [[ -n "$ICON" ]] && break
-                fi
-            done
+            ICON=$(find "$BASE_PATH" -type f \
+                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
         fi
 
         if [[ -z "$ICON" ]]; then
             continue
         fi
 
-        ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | head -n1 | cut -d'x' -f1)
-        [[ -z "$ICON_SIZE" ]] && ICON_SIZE=256
-
-        ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
         OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
         OUTFILE="$OUTDIR/$APPID.png"
         mkdir -p "$OUTDIR"
@@ -135,7 +99,7 @@ shortcut() {
                 cp "$ICON" "$OUTFILE"
                 ;;
             svg)
-                flatpak --user run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON" &>/dev/null
+                flatpak --user run org.inkscape.Inkscape --export-type="png" -w "$ICON_SIZE" -o "$OUTFILE" "$ICON"
                 ;;
             *)
                 continue
@@ -172,6 +136,47 @@ EOF
         chmod +x "$DESKTOP_FILE"
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
+}
+
+show_help() {
+    echo "${MAGENTA}${BOLD}"
+    echo "Commands with examples:"
+    echo "${RESET}${MAGENTA}"
+    echo "aurora                     # Show current display and cursor values"
+    echo "source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)"
+    echo "source aurora cursor 32    # Set cursor size (8 - 200)"
+    echo "aurora help                # Show help"
+    echo "aurora shortcut            # Create desktop shortcuts"
+    echo "aurora_debug               # echo a list of paths that flatpak can use"
+    echo "aurora reinstall           # Redownload Aurora from Github"
+    echo "aurora uninstall           # Launch uninstaller"
+    echo "${RESET}${YELLOW}"
+    echo "starman                    # Launch starman menu"
+    echo "${RESET}"
+    echo "${GREEN}flatpak list               # Show list of installed apps"
+    echo "flatpak --help             # flatpak has a lot of commands!${RESET}"
+    echo "${BLUE}${BOLD}"
+    echo "Normal flatpak example:${RESET}${BLUE}"
+    echo ""
+    echo "flatpak search Discord"
+    echo "flatpak install com.discordapp.Discord"
+    echo "flatpak run com.discordapp.Discord${RESET}"
+    echo "${BLUE}${BOLD}"
+    echo "Failed to connect to bus error - run like examples below:"
+    echo "${RESET}${CYAN}"
+    echo "Visual Studio:"
+    echo ""
+    echo "flatpak search visualstudio"
+    echo "flatpak install com.visualstudio.code"
+    echo "flatpak run --command=sh com.visualstudio.code"
+    echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
+    echo ""
+    echo "Brave Browser:"
+    echo "flatpak run --command=sh com.brave.Browser"
+    echo "/app/brave/brave --no-sandbox --no-zygote &"
+    echo ""
+    echo "${RESET}${CYAN}${BOLD}Use ls /app/ to help find the app in these situations."
+    echo "${RESET}"
 }
 
 show_help() {
