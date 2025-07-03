@@ -1,7 +1,4 @@
 #!/bin/bash
-# Aurora Parallel Installer: Download and extract multiple files in parallel, safely
-
-# Color setup (unchanged)
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
@@ -11,7 +8,6 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
-# Logo and intro (unchanged)
 echo "${MAGENTA}${BOLD}"
 echo ""
 echo "   ------    ----    ---- -----------    --------   -----------     ------${RESET}"    
@@ -188,7 +184,7 @@ files=(
 "https://archlinux.org/packages/extra/any/nvm/download|$HOME/opt/"
 )
 
-max_jobs=6
+max_jobs=2
 active_jobs=0
 
 for entry in "${files[@]}"; do
@@ -240,7 +236,6 @@ if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
   exit 1
 fi
 
-echo ""
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
 sleep 3
 
