@@ -67,13 +67,17 @@ shortcut() {
         }
     fi
 
-    flatpak override --user org.inkscape.Inkscape \
-        --filesystem=home
-
     ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
+
+        if [[ -d "$BASE_PATH" ]]; then
+            echo "${YELLOW}Granting override for icon path of $APPID...${RESET}"
+            flatpak override --user org.inkscape.Inkscape \
+                --filesystem="$BASE_PATH"
+        fi
+
         ICON=""
         ICON_SIZE=""
 
@@ -153,6 +157,7 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 }
+
 
 show_help() {
     echo "${MAGENTA}${BOLD}"
