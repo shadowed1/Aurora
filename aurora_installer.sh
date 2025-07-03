@@ -69,13 +69,13 @@ download_and_extract() {
     local target_dir="$2"
     local tmpfile
     tmpfile=$(mktemp)
-    echo "${MAGENTA}Downloading: $url"
+    echo "${MAGENTA}Downloading: $url${RESET}"
     wget --content-disposition --trust-server-names "$url" -O "$tmpfile"
-    echo "${RESET}${BLUE}Extracting to $target_dir"
+    echo "${BLUE}Extracting to $target_dir${RESET}"
     mkdir -p "$target_dir"
     tar --use-compress-program=unzstd -xvf "$tmpfile" -C "$target_dir"
     rm -f "$tmpfile"
-    echo "${RESET}${CYAN}Extracted to $target_dir${RESET}"
+    echo "${CYAN}Extracted to $target_dir${RESET}"
 }
 
 files=(
@@ -188,7 +188,7 @@ files=(
 "https://archlinux.org/packages/extra/any/nvm/download|$HOME/opt/"
 )
 
-max_jobs=6
+max_jobs=3
 active_jobs=0
 
 for entry in "${files[@]}"; do
