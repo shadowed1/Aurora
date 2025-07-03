@@ -185,6 +185,7 @@ files=(
 "https://archlinux.org/packages/extra/any/nodejs-nopt/download|$HOME/opt/"
 "https://archlinux.org/packages/extra/any/python-sphinxcontrib-applehelp/download|$HOME/opt/"
 "https://archlinux.org/packages/extra/any/python-sphinxcontrib-devhelp/download|$HOME/opt/"
+"https://archlinux.org/packages/extra/any/nvm/download|$HOME/opt/"
 )
 
 max_jobs=6
