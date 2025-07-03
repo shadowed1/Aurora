@@ -240,6 +240,7 @@ if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
   exit 1
 fi
 
+echo ""
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
 sleep 3
 
