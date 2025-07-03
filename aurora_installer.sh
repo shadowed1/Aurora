@@ -188,7 +188,7 @@ files=(
 "https://archlinux.org/packages/extra/any/nvm/download|$HOME/opt/"
 )
 
-max_jobs=3
+max_jobs=6
 active_jobs=0
 
 for entry in "${files[@]}"; do
