@@ -18,7 +18,7 @@ echo "${BLUE}************ ************ ****  ****   ****    **** ****  ****   **
 echo "${CYAN}----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----${RESET}" 
 echo "${CYAN}${BOLD}****    **** ************ ****    ****   ********   ****    **** ****    ****${RESET}"
 echo ""
-echo "${RESET}${CYAN}Run apps and games in Borealis using Flatpak, AppImages, git, gcc, and .tar extraction for signficantly higher performance than Crostini!${RESET}"
+echo "${RESET}${CYAN}Run apps and games in Borealis using Flatpak, AppImages, git, gcc, python, + automated .tar extraction for signficantly higher performance than Crostini!${RESET}"
 echo "${RESET}"
 echo "${BLUE}0: Quit${RESET}"
 echo "${MAGENTA}1: Download and install Aurora + Flatpak to ~/ and ~/opt${RESET}"
@@ -226,6 +226,36 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/extra/x86_64/zlib-ng/download"
 download_and_extract "$URL" "$HOME/opt/"
 
+URL="https://archlinux.org/packages/extra/any/npm/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/jq/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/any/npm/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/oniguruma/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/any/node-gyp/download"
+download_and_extract "$URL" "$HOME/opt/flatpak-deps"
+
+URL="https://archlinux.org/packages/extra/any/semver/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/nodejs/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/oniguruma/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/oniguruma/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/oniguruma/download"
+download_and_extract "$URL" "$HOME/opt/"
+
 # gcc
 URL="https://archlinux.org/packages/core/x86_64/gcc/download"
 download_and_extract "$URL" "$HOME/opt/"
@@ -244,6 +274,25 @@ download_and_extract "$URL" "$HOME/opt/"
 
 URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
 download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/brotli/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
+download_and_extract "$URL" "$HOME/opt/"
+URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
+download_and_extract "$URL" "$HOME/opt/"
+URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
+download_and_extract "$URL" "$HOME/opt/"
+URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
+download_and_extract "$URL" "$HOME/opt/"
+URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
+download_and_extract "$URL" "$HOME/opt/"
+URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
+download_and_extract "$URL" "$HOME/opt/"
+URL="https://archlinux.org/packages/core/x86_64/tzdata/download"
+download_and_extract "$URL" "$HOME/opt/"
+
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
