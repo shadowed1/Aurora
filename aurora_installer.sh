@@ -69,13 +69,13 @@ download_and_extract() {
     local target_dir="$2"
     local tmpfile
     tmpfile=$(mktemp)
-    echo "${MAGENTA}Downloading: $url${RESET}"
+    echo "${MAGENTA}Downloading: $url"
     wget --content-disposition --trust-server-names "$url" -O "$tmpfile"
-    echo "${BLUE}Extracting to $target_dir${RESET}"
+    echo "${RESET}${BLUE}Extracting to $target_dir"
     mkdir -p "$target_dir"
     tar --use-compress-program=unzstd -xvf "$tmpfile" -C "$target_dir"
     rm -f "$tmpfile"
-    echo "${CYAN}Extracted to $target_dir${RESET}"
+    echo "${RESET}${CYAN}Extracted to $target_dir${RESET}"
 }
 
 files=(
