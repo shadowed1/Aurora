@@ -119,7 +119,7 @@ shortcut() {
                     --export-type=png \
                     --export-filename="$OUTFILE" \
                     -w "$ICON_SIZE" \
-                    "$ICON"
+                    "$ICON" 2>/dev/null
                 ;;
             *)
                 continue
