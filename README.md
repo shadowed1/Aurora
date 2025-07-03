@@ -79,13 +79,15 @@ Failed to connect to bus error it must be run like example below: <br>
 `flatpak search visualstudio` <br>
 `flatpak install com.visualstudio.code` <br>
 `flatpak run --command=sh com.visualstudio.code` <br>
-`/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
+`/app/bin/code --no-sandbox  2>/dev/null` <br>
 <br>
 `Brave browser:` <br>
 `flatpak search Brave` <br>
 `flatpak install com.brave.Browser` <br>
 `flatpak run --command=sh com.brave.Browser` <br>
 `/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &` <br>
+`Various Options:` <br>
+`--no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
 
 
 Use ls /app/bin to help find the app in these situations.
