@@ -17,6 +17,32 @@ update_app_list_cache() {
 }
 
 starman() {
+    if [[ "$1" =~ ^-S ]]; then
+        local pkg=""
+        for arg in "$@"; do
+            case "$arg" in
+                -S|-Sy|--needed|--noconfirm)
+                    ;; # Ignore known options
+                *)
+                    pkg="$arg"
+                    ;;
+            esac
+        done
+
+        if [[ -z "$pkg" ]]; then
+            echo "${RED}No package specified.${RESET}"
+            return 1
+        fi
+
+        echo "${CYAN}[starman yay spoof] Pretending to install: $pkg${RESET}"
+        if [[ "$pkg" == "brave-bin" ]]; then
+            starman "https://github.com/brave/brave-browser/releases/latest/download/brave-browser.tar.xz"
+        else
+            echo "${YELLOW}Warning: No handler for $pkg in starman.${RESET}"
+        fi
+        return 0
+    fi
+
     local URL="$1"
     if [[ -z "$URL" ]]; then
         echo "${RED}Error: You must provide a URL to download.${RESET}" >&2
@@ -24,7 +50,6 @@ starman() {
         return 1
     fi
 
-    # Get final redirected URL
     local real_url
     real_url=$(curl -Ls -o /dev/null -w %{url_effective} "$URL")
 
@@ -63,6 +88,7 @@ starman() {
         *.tar.Z)            decompress_cmd="uncompress" ;;
         *.tar)              decompress_cmd="" ;;
         *)
+
             echo "${RED}Unknown compression format: $FILE${RESET}" >&2
             return 1
             ;;
