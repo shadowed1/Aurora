@@ -17,12 +17,12 @@ update_app_list_cache() {
 }
 
 starman() {
+    local pkg=""
     if [[ "$1" =~ ^-S ]]; then
-        local pkg=""
         for arg in "$@"; do
             case "$arg" in
                 -S|-Sy|--needed|--noconfirm)
-                    ;;
+                    ;; # skip flags
                 *)
                     pkg="$arg"
                     ;;
@@ -33,66 +33,47 @@ starman() {
             echo "${RED}No package specified.${RESET}"
             return 1
         fi
-
-        if [[ "$pkg" =~ ^https?://.*\.tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?$ ]]; then
-            echo "${CYAN}[starman] Installing from archive URL: $pkg${RESET}"
-            starman "$pkg"
-        else
-            echo "${YELLOW}Warning: '$pkg' is not a valid archive URL. No handler yet for this format.${RESET}"
-        fi
-        return 0
+    else
+        pkg="$1"
     fi
 
-      case "$pkg" in
-    *.tar.*|*.tgz|*.txz|*.tbz2)
-        echo "${CYAN}[starman] Installing from archive URL: $pkg${RESET}"
-        starman "$pkg"
-        ;;
-    http*.*tar*)
-        echo "${CYAN}[starman] Installing from remote tarball: $pkg${RESET}"
-        starman "$pkg"
-        ;;
-    *)
-        echo "${YELLOW}Warning: '$pkg' is not a known binary name or archive URL.${RESET}"
-        ;;
-esac
-
-    fi
-
-    local URL="$1"
-    if [[ -z "$URL" ]]; then
-        echo "${RED}Error: You must provide a URL to download.${RESET}" >&2
-        echo "Usage: starman https://archlinux.org/packages/extra/x86_64/composefs/download ~/opt/flatpak-deps"
+    if [[ -z "$pkg" ]]; then
+        echo "${RED}Error: You must provide a package name or archive URL.${RESET}" >&2
+        echo "Usage: starman -S https://example.com/file.tar.xz"
+        echo "   or: starman /path/to/file.tar.gz"
         return 1
     fi
 
-    local real_url
-    real_url=$(curl -Ls -o /dev/null -w %{url_effective} "$URL")
-
-    local filename
-    filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
-
-    if [[ -z "$filename" ]]; then
-        filename=$(basename "$real_url")
-    fi
-
-    local FILE="$HOME/$filename"
+    local FILE=""
     local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
+    local downloaded=0
 
-    echo "${YELLOW}Downloading to: $FILE${RESET}"
-    curl -L "$URL" -o "$FILE"
+    if [[ "$pkg" =~ ^https?://.*\.tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?$ ]]; then
+        local real_url
+        real_url=$(curl -Ls -o /dev/null -w %{url_effective} "$pkg")
+        local filename
+        filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+        [[ -z "$filename" ]] && filename=$(basename "$real_url")
 
-    if [[ ! -f "$FILE" ]]; then
-        echo "${RED}Failed to download file.${RESET}" >&2
+        FILE="$HOME/$filename"
+        echo "${YELLOW}Downloading to: $FILE${RESET}"
+        curl -L "$pkg" -o "$FILE" || {
+            echo "${RED}Failed to download file.${RESET}" >&2
+            return 1
+        }
+        downloaded=1
+    elif [[ -f "$pkg" && "$pkg" == *.tar.* ]]; then
+        FILE="$pkg"
+        echo "${CYAN}[starman] Installing from local archive: $FILE${RESET}"
+    else
+        echo "${YELLOW}Warning: '$pkg' is not a valid archive URL or local file.${RESET}"
         return 1
     fi
 
     mkdir -p "$EXPORT_PATH"
     echo "${YELLOW}Extracting to: $EXPORT_PATH${RESET}"
 
-    local ext="${FILE##*.}"
     local decompress_cmd=""
-
     case "$FILE" in
         *.tar.gz|*.tgz)     decompress_cmd="gzip -d" ;;
         *.tar.bz2|*.tbz2)   decompress_cmd="bzip2 -d" ;;
@@ -104,8 +85,8 @@ esac
         *.tar.Z)            decompress_cmd="uncompress" ;;
         *.tar)              decompress_cmd="" ;;
         *)
-
             echo "${RED}Unknown compression format: $FILE${RESET}" >&2
+            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
             return 1
             ;;
     esac
@@ -116,10 +97,14 @@ esac
         tar -xvf "$FILE" -C "$EXPORT_PATH"
     fi
 
-    echo "Cleaning up..."
-    rm -f "$FILE"
+    if [[ "$downloaded" -eq 1 ]]; then
+        echo "Cleaning up..."
+        rm -f "$FILE"
+    fi
+
     echo "${GREEN}Done.${RESET}"
 }
+
 
 
 
