@@ -496,6 +496,7 @@ ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
 
 chmod +x "$NPM_BASE/bin/"*.js
 
+
 echo ""
 
 /bin/bash ~/opt/bin/aurora help
