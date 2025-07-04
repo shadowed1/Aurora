@@ -22,7 +22,7 @@ starman() {
         for arg in "$@"; do
             case "$arg" in
                 -S|-Sy|--needed|--noconfirm)
-                    ;; # Ignore known options
+                    ;;
                 *)
                     pkg="$arg"
                     ;;
