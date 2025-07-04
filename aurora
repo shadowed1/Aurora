@@ -59,104 +59,98 @@ set_cursor_scaling() {
 }
 
 shortcut() {
-    if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
-        echo "${BLUE}Inkscape is required. Installing...${RESET}" >&2
-        flatpak --user install flathub org.inkscape.Inkscape || {
-            echo "${RED}Failed to install Inkscape.${RESET}" >&2
-            exit 1
-        }
-    fi
+    local EXEC=""
+    local ICON=""
+    local NAME=""
+    local FLATPAK_APPID=""
+    local DESKTOP_DIR="$HOME/.local/share/applications"
+    local BIN_DIR="$HOME/opt/bin"
 
-    ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
-
-    flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
-        BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
-
-        if [[ -d "$BASE_PATH" ]]; then
-            echo "${YELLOW}Granting override for icon path of $APPID...${RESET}"
-            flatpak override --user org.inkscape.Inkscape \
-                --filesystem="$BASE_PATH"
-        fi
-
-        ICON=""
-        ICON_SIZE=""
-
-        # Prefer 256x256 or 128x128 icons
-        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
-            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null \
-            | sort | grep -Ei '(256x256|128x128).*\.((png|jpg|jpeg|svg))$' | head -n1)
-
-        if [[ -n "$ICON" ]]; then
-            ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
-        fi
-
-        # Fallback to scalable
-        if [[ -z "$ICON" ]]; then
-            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
-                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-                -ipath "*/scalable/apps/*" -type f 2>/dev/null | head -n1)
-            ICON_SIZE=256
-        fi
-
-        [[ -z "$ICON" ]] && continue
-
-        OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
-        OUTFILE="$OUTDIR/$APPID.png"
-        mkdir -p "$OUTDIR"
-
-        echo "${GREEN}Processing icon for $APPID...${RESET}"
-
-        EXT="${ICON##*.}"
-        EXT_LOWER=$(echo "$EXT" | tr 'A-Z' 'a-z')
-
-        case "$EXT_LOWER" in
-            png|jpg|jpeg)
-                cp "$ICON" "$OUTFILE"
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --bin|--exec)
+                EXEC="$2"
+                shift 2
                 ;;
-            svg)
-                flatpak --user run org.inkscape.Inkscape \
-                    --export-type=png \
-                    --export-filename="$OUTFILE" \
-                    -w "$ICON_SIZE" \
-                    "$ICON" 2>/dev/null
+            --icon)
+                ICON="$2"
+                shift 2
+                ;;
+            --name)
+                NAME="$2"
+                shift 2
+                ;;
+            --flatpak)
+                FLATPAK_APPID="$2"
+                shift 2
                 ;;
             *)
-                continue
+                echo "Unknown option: $1"
+                return 1
                 ;;
         esac
+    done
 
-        BIN_DIR="$HOME/opt/bin"
-        BIN_FILE="$BIN_DIR/${APPID##*.}.sh"
-        mkdir -p "$BIN_DIR"
+    if [[ -n "$FLATPAK_APPID" ]]; then
+        # Existing flatpak shortcut logic...
+        local BASE_PATH="$HOME/.local/share/flatpak/app/$FLATPAK_APPID/current/active/export/share/icons/hicolor"
+        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \( -iname "*.png" -o -iname "*.svg" \) -ipath "*/256x256/*" | head -n1)
+        NAME="${FLATPAK_APPID##*.}"
+        EXEC="flatpak run $FLATPAK_APPID"
+    fi
 
-        cat > "$BIN_FILE" <<EOF
+    # Require exec and name
+    [[ -z "$EXEC" || -z "$NAME" ]] && {
+        echo "${RED}Missing --bin and/or --name. Cannot create shortcut.${RESET}"
+        return 1
+    }
+
+    local BIN_FILE="$BIN_DIR/$NAME.sh"
+    mkdir -p "$BIN_DIR"
+
+    cat > "$BIN_FILE" <<EOF
 #!/bin/bash
 source "\$HOME/.bashrc"
-flatpak run $APPID
+exec $EXEC "\$@"
 EOF
 
-        chmod +x "$BIN_FILE"
-        echo "${CYAN}Launcher script saved to $BIN_FILE${RESET}"
+    chmod +x "$BIN_FILE"
+    echo "${CYAN}Launcher script saved to $BIN_FILE${RESET}"
 
-        DESKTOP_DIR="$HOME/.local/share/applications"
-        DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
-        mkdir -p "$DESKTOP_DIR"
+    local ICON_NAME="$NAME"
+    if [[ "$ICON" == *.svg ]]; then
+        OUTDIR="$HOME/.local/share/icons/hicolor/256x256/apps"
+        mkdir -p "$OUTDIR"
+        ICON_OUTPUT="$OUTDIR/$ICON_NAME.png"
+        flatpak run org.inkscape.Inkscape --export-type=png --export-filename="$ICON_OUTPUT" -w 256 "$ICON" 2>/dev/null
+        ICON="$ICON_OUTPUT"
+    fi
 
-        cat > "$DESKTOP_FILE" <<EOF
+    if [[ "$ICON" =~ \.(png|jpg|jpeg)$ ]]; then
+        OUTDIR="$HOME/.local/share/icons/hicolor/256x256/apps"
+        mkdir -p "$OUTDIR"
+        ICON_OUTPUT="$OUTDIR/$ICON_NAME.png"
+        cp "$ICON" "$ICON_OUTPUT"
+        ICON="$ICON_OUTPUT"
+    fi
+
+    local DESKTOP_FILE="$DESKTOP_DIR/$NAME.desktop"
+    mkdir -p "$DESKTOP_DIR"
+
+    cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
-Name=${APPID##*.}
+Name=$NAME
 Exec=$BIN_FILE
-Icon=$APPID
+Icon=${ICON%.*}
 Terminal=false
 Type=Application
 Categories=Utility;
 EOF
 
-        chmod +x "$DESKTOP_FILE"
-        echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
-    done
+    chmod +x "$DESKTOP_FILE"
+    echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
 }
+
 
 
 show_help() {
