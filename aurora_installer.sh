@@ -357,9 +357,6 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/extra/x86_64/rhash/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL="https://archlinux.org/packages/extra/x86_64/emacs/download"
-download_and_extract "$URL" "$HOME/opt/"
-
 URL="https://archlinux.org/packages/extra/x86_64/lcms2/download"
 download_and_extract "$URL" "$HOME/opt/"
 
