@@ -34,13 +34,29 @@ starman() {
             return 1
         fi
 
-        echo "${CYAN}[starman yay spoof] Pretending to install: $pkg${RESET}"
-        if [[ "$pkg" == "brave-bin" ]]; then
-            starman "https://github.com/brave/brave-browser/releases/latest/download/brave-browser.tar.xz"
+        if [[ "$pkg" =~ ^https?://.*\.tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?$ ]]; then
+            echo "${CYAN}[starman] Installing from archive URL: $pkg${RESET}"
+            starman "$pkg"
         else
-            echo "${YELLOW}Warning: No handler for $pkg in starman.${RESET}"
+            echo "${YELLOW}Warning: '$pkg' is not a valid archive URL. No handler yet for this format.${RESET}"
         fi
         return 0
+    fi
+
+      case "$pkg" in
+    *.tar.*|*.tgz|*.txz|*.tbz2)
+        echo "${CYAN}[starman] Installing from archive URL: $pkg${RESET}"
+        starman "$pkg"
+        ;;
+    http*.*tar*)
+        echo "${CYAN}[starman] Installing from remote tarball: $pkg${RESET}"
+        starman "$pkg"
+        ;;
+    *)
+        echo "${YELLOW}Warning: '$pkg' is not a known binary name or archive URL.${RESET}"
+        ;;
+esac
+
     fi
 
     local URL="$1"
