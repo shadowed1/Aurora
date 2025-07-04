@@ -46,6 +46,35 @@ case "$choice" in
         sleep 3
 
         mkdir -p ~/opt/flatpak ~/opt/flatpak-deps ~/opt/bin
+                echo ""
+        echo "${YELLOW}${BOLD}Select manpage language to keep:${RESET}"
+        echo "  1) English"
+        echo "  2) German (de)"
+        echo "  3) French (fr)"
+        echo "  4) Polish (pl)"
+        echo "  5) Portuguese (pt_BR)"
+        echo "  6) Romanian (ro)"
+        echo "  7) Swedish (sv)"
+        echo "  8) Ukrainian (uk)"
+        echo "  9) Chinese (zh_CN)"
+        echo "  0) All languages (no removal)"
+        echo ""
+        read -rp "Enter your choice [0-9]: " lang_choice
+
+        case "$lang_choice" in
+            1) KEEP_LANGS=("man1" "man3" "man5" "man8") ;;
+            2) KEEP_LANGS=("de") ;;
+            3) KEEP_LANGS=("fr") ;;
+            4) KEEP_LANGS=("pl") ;;
+            5) KEEP_LANGS=("pt_BR") ;;
+            6) KEEP_LANGS=("ro") ;;
+            7) KEEP_LANGS=("sv") ;;
+            8) KEEP_LANGS=("uk") ;;
+            9) KEEP_LANGS=("zh_CN") ;;
+            0) KEEP_LANGS=() ;;  # Keep all
+            *) echo "${RED}Invalid selection. Defaulting to English.${RESET}"; KEEP_LANGS=("man1" "man3" "man5" "man8") ;;
+        esac
+
         export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
         mkdir -p "$XDG_RUNTIME_DIR"
         chmod 700 "$XDG_RUNTIME_DIR"
@@ -73,7 +102,6 @@ case "$choice" in
                 local arch="${BASH_REMATCH[2]}"
                 local pkgname="${BASH_REMATCH[3]}"
                 local dir_url="${MIRROR_BASE}/${repo}/os/${arch}"
-                # Fetch directory listing and find latest filename
                 local filename
                 filename=$(curl -s "$dir_url/" | grep -oP "${pkgname}-[0-9].*?\.pkg\.tar\.zst" | sort -V | tail -n1)
                 if [[ -z "$filename" ]]; then
@@ -98,6 +126,34 @@ case "$choice" in
             mkdir -p "$target_dir"
             tar --use-compress-program=unzstd -xvf "$tmpfile" -C "$target_dir"
             rm -f "$tmpfile"
+            if [[ "${#KEEP_LANGS[@]}" -gt 0 ]]; then
+                echo "${YELLOW}Removing unused manpage translations...${RESET}"
+                local manpath="$target_dir/usr/share/man"
+                if [[ -d "$manpath" ]]; then
+                    for d in "$manpath"/*; do
+                        name=$(basename "$d")
+                        if [[ ! " ${KEEP_LANGS[*]} " =~ " ${name} " ]]; then
+                            rm -rf "$d"
+                        fi
+                    done
+                fi
+            fi
+
+        local mkspecs="$target_dir/usr/lib/qt6/mkspecs"
+        if [[ -d "$mkspecs" ]]; then
+            echo "${YELLOW}Removing unsupported Qt6 mkspecs...${RESET}"
+            find "$mkspecs" -mindepth 1 -maxdepth 1 -type d \
+                ! -name "linux-g++" \
+                ! -name "linux-clang" \
+                ! -name "common" \
+                ! -name "features" \
+                ! -name "modules" \
+                ! -name "qmodule.pri" \
+                ! -name "qconfig.pri" \
+                -exec rm -rf {} +
+        fi
+
+
             echo "${RESET}${CYAN}Extracted to $target_dir${RESET}"
         }
 
