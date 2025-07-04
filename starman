@@ -171,7 +171,6 @@ zenity_launcher() {
 
                 echo "${YELLOW}Downloading to: $PWD${RESET}"
                 if curl -L -J -O "$APPIMAGE_URL"; then
-                    # Try to determine actual filename from header or fallback to URL basename
                     FILENAME=$(basename "$(curl -s -L -I "$APPIMAGE_URL" | grep -i 'filename=' | sed -E 's/.*filename="?([^"]+)"?/\1/')")
                     [[ -z "$FILENAME" || ! -f "$FILENAME" ]] && FILENAME=$(basename "${APPIMAGE_URL%%\?*}")
 
