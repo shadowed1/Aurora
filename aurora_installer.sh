@@ -237,15 +237,6 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/extra/x86_64/nodejs/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL="https://archlinux.org/packages/extra/x86_64/oniguruma/download"
-download_and_extract "$URL" "$HOME/opt/"
-
-URL="https://archlinux.org/packages/extra/x86_64/oniguruma/download"
-download_and_extract "$URL" "$HOME/opt/"
-
-URL="https://archlinux.org/packages/extra/x86_64/oniguruma/download"
-download_and_extract "$URL" "$HOME/opt/"
-
 # gcc
 URL="https://archlinux.org/packages/core/x86_64/gcc/download"
 download_and_extract "$URL" "$HOME/opt/"
