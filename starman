@@ -18,15 +18,26 @@ update_app_list_cache() {
 
 starman() {
     local URL="$1"
-
     if [[ -z "$URL" ]]; then
         echo "${RED}Error: You must provide a URL to download.${RESET}" >&2
         echo "Usage: starman https://archlinux.org/packages/extra/x86_64/composefs/download ~/opt/flatpak-deps"
         return 1
     fi
 
-    local FILE="$HOME/$(basename "$URL")"
+    # Get final redirected URL
+    local real_url
+    real_url=$(curl -Ls -o /dev/null -w %{url_effective} "$URL")
+
+    local filename
+    filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+
+    if [[ -z "$filename" ]]; then
+        filename=$(basename "$real_url")
+    fi
+
+    local FILE="$HOME/$filename"
     local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
+
     echo "${YELLOW}Downloading to: $FILE${RESET}"
     curl -L "$URL" -o "$FILE"
 
