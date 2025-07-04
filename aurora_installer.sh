@@ -13,7 +13,7 @@ echo "   ------    ----    ---- -----------    --------   -----------     ------
 echo "${MAGENTA}${BOLD}  ********   ****    **** ***********   **********  ***********    ********${RESET}"   
 echo "${MAGENTA} ----------  ----    ---- ----    ---  ----    ---- ----    ---   ----------${RESET}" 
 echo "${MAGENTA}****    **** ****    **** *********    ***      *** *********    ****    ****${RESET}" 
-echo "${BLUE}------------ ----    ---- ---------    ---      --- ---------    ------------${RESET}" 
+echo "${BLUE}------------ ----    ---- ---------    ---      --- ---------    ----------oniguruma--${RESET}" 
 echo "${BLUE}************ ************ ****  ****   ****    **** ****  ****   ************${RESET}" 
 echo "${CYAN}----    ---- ------------ ----   ----   ----------  ----   ----  ----    ----${RESET}" 
 echo "${CYAN}${BOLD}****    **** ************ ****    ****   ********   ****    **** ****    ****${RESET}"
@@ -372,9 +372,6 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/core/x86_64/make/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL="https://archlinux.org/packages/core/x86_64/guile/download"
-download_and_extract "$URL" "$HOME/opt/"
-
 URL="https://archlinux.org/packages/core/x86_64/gc/download"
 download_and_extract "$URL" "$HOME/opt/"
 
@@ -418,9 +415,6 @@ URL="https://archlinux.org/packages/extra/any/nvm/download"
 download_and_extract "$URL" "$HOME/opt/"
 
 URL="https://archlinux.org/packages/extra/x86_64/giflib/download"
-download_and_extract "$URL" "$HOME/opt/"
-
-URL="https://archlinux.org/packages/extra/x86_64/guile2.2/download"
 download_and_extract "$URL" "$HOME/opt/"
 
 URL="https://archlinux.org/packages/core/x86_64/libisl/download"
