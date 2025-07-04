@@ -423,7 +423,36 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/extra/any/node-gyp/download"
 download_and_extract "$URL" "$HOME/opt/"
 
+#xfce4
+URL="https://archlinux.org/packages/extra/x86_64/exo/download"
+download_and_extract "$URL" "$HOME/opt/"
 
+URL="https://archlinux.org/packages/extra/x86_64/garcon/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/xfce4-session/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/xfconf/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="http://archlinux.org/packages/extra/x86_64/xfce4-session/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/libxfce4util/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/libxfce4ui/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/xfce4-panel/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/xfdesktop/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/gvfs/download"
+download_and_extract "$URL" "$HOME/opt/"
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
