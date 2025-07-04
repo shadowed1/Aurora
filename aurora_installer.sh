@@ -438,9 +438,6 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/core/x86_64/libisl/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL="https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-x64.tar.xz"
-download_and_extract "$URL" "$HOME/opt/"
-
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
