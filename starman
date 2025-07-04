@@ -48,20 +48,26 @@ starman() {
     local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
     local downloaded=0
 
-    if [[ "$pkg" =~ ^https?://.*\.tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?$ ]]; then
+    if [[ "$pkg" =~ ^https?:// ]]; then
         local real_url
-        real_url=$(curl -Ls -o /dev/null -w %{url_effective} "$pkg")
-        local filename
-        filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
-        [[ -z "$filename" ]] && filename=$(basename "$real_url")
+        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
 
-        FILE="$HOME/$filename"
-        echo "${YELLOW}Downloading to: $FILE${RESET}"
-        curl -L "$pkg" -o "$FILE" || {
-            echo "${RED}Failed to download file.${RESET}" >&2
+        if [[ "$real_url" =~ \.tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?$ || "$real_url" =~ \.tgz$ ]]; then
+            local filename
+            filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+            [[ -z "$filename" ]] && filename=$(basename "$real_url")
+
+            FILE="$HOME/$filename"
+            echo "${YELLOW}Downloading to: $FILE${RESET}"
+            curl -L "$real_url" -o "$FILE" || {
+                echo "${RED}Failed to download file.${RESET}" >&2
+                return 1
+            }
+            downloaded=1
+        else
+            echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
             return 1
-        }
-        downloaded=1
+        fi
     elif [[ -f "$pkg" && "$pkg" == *.tar.* ]]; then
         FILE="$pkg"
         echo "${CYAN}[starman] Installing from local archive: $FILE${RESET}"
@@ -104,6 +110,7 @@ starman() {
 
     echo "${GREEN}Done.${RESET}"
 }
+
 
 
 
