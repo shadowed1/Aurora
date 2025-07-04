@@ -436,9 +436,6 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/extra/x86_64/xfconf/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL="http://archlinux.org/packages/extra/x86_64/xfce4-session/download"
-download_and_extract "$URL" "$HOME/opt/"
-
 URL="https://archlinux.org/packages/extra/x86_64/libxfce4util/download"
 download_and_extract "$URL" "$HOME/opt/"
 
@@ -453,6 +450,45 @@ download_and_extract "$URL" "$HOME/opt/"
 
 URL="https://archlinux.org/packages/extra/x86_64/gvfs/download"
 download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/libxfce4windowing/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/gdk-pixbuf2/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/glib2/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/util-linux-libs/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/sqlite/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/gtk3/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/libdisplay-info/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/libwnck3/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/libx11/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/gobject-introspection/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/x86_64/xfce4-dev-tools/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/extra/any/gtk-doc/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+
+
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
