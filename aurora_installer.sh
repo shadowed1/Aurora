@@ -94,7 +94,7 @@ download_and_extract()
     echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
-    sleep 0.2
+    sleep 1
 }
 
 # Flatpak Core
