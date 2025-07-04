@@ -438,6 +438,10 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/core/x86_64/libisl/download"
 download_and_extract "$URL" "$HOME/opt/"
 
+URL="https://archlinux.org/packages/extra/any/node-gyp/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+
 
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
@@ -479,6 +483,18 @@ fi
 
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
 sleep 3
+
+NPM_BASE="$HOME/opt/usr/lib/node_modules/npm"
+BIN_DIR="$HOME/opt/usr/bin"
+
+mkdir -p "$BIN_DIR"
+
+rm -f "$BIN_DIR/npm" "$BIN_DIR/npx"
+
+ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
+ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
+
+chmod +x "$NPM_BASE/bin/"*.js
 
 echo ""
 
