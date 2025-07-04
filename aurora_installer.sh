@@ -90,6 +90,8 @@ download_and_extract()
     echo "Extracting $FILE to $target_dir"
     tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
     rm -f "$FILE"
+    chmod +x "$target_dir/usr/bin"/* 2>/dev/null
+    chmod +x "$HOME/opt/usr/bin"/* 2>/dev/null
     echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$HOME/opt/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
@@ -431,6 +433,9 @@ URL="https://archlinux.org/packages/extra/x86_64/giflib/download"
 download_and_extract "$URL" "$HOME/opt/"
 
 URL="https://archlinux.org/packages/extra/x86_64/guile2.2/download"
+download_and_extract "$URL" "$HOME/opt/"
+
+URL="https://archlinux.org/packages/core/x86_64/libisl/download"
 download_and_extract "$URL" "$HOME/opt/"
 
 
