@@ -198,6 +198,41 @@ zenity_launcher() {
                 fi
             fi
             ;;
+    run_installer)
+        INSTALLER_PATH=$(zenity --entry --title="Run Installer" --text="Enter URL or local path of the .sh installer script:")
+        if [[ -z "$INSTALLER_PATH" ]]; then
+            break
+        fi
+
+        if [[ "$INSTALLER_PATH" =~ ^https?:// ]]; then
+            TMP_INSTALLER="$HOME/tmp/installer_$(date +%s).sh"
+            mkdir -p "$HOME/tmp"
+            echo "${YELLOW}Downloading installer to $TMP_INSTALLER...${RESET}"
+            if curl -L -o "$TMP_INSTALLER" "$INSTALLER_PATH"; then
+                chmod +x "$TMP_INSTALLER"
+                echo "${GREEN}Running installer...${RESET}"
+                bash "$TMP_INSTALLER"
+                rm -f "$TMP_INSTALLER"
+            else
+                zenity --error --title="Download Failed" --text="Failed to download installer script."
+            fi
+        else
+            if [[ -f "$INSTALLER_PATH" && "$INSTALLER_PATH" == *.sh ]]; then
+                chmod +x "$INSTALLER_PATH"
+                echo "${GREEN}Running local installer...${RESET}"
+                bash "$INSTALLER_PATH"
+            else
+                zenity --error --title="Invalid File" --text="The specified file is not a valid .sh script."
+            fi
+        fi
+        ;;
+    Exit|"")
+        exit 0
+        ;;
+    *)
+        flatpak --user run "$CHOICE" &
+        ;;
+esac
         Exit|"")
             exit 0
             ;;
