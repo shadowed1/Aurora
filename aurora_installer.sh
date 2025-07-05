@@ -552,8 +552,10 @@ download_and_extract "$URL" "$HOME/opt/"
 
 URL="https://archlinux.org/packages/extra/x86_64/xcb-util-renderutil/download"
 download_and_extract "$URL" "$HOME/opt/"
+
 URL="https://archlinux.org/packages/extra/any/xorgproto/download"
 download_and_extract "$URL" "$HOME/opt/"
+
 URL="https://archlinux.org/packages/extra/any/xcb-proto/download"
 download_and_extract "$URL" "$HOME/opt/"
 
