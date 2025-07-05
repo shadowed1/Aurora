@@ -83,23 +83,6 @@ aurora() {
   esac
 }
 
-BIN_DIR="$HOME/opt/usr/bin"
-NVM_DIR="$HOME/opt/usr/share/nvm"
-NVM_WRAPPER="$BIN_DIR/nvm"
-
-if [ ! -f "$NVM_WRAPPER" ]; then
-  mkdir -p "$BIN_DIR"
-  cat > "$NVM_WRAPPER" <<EOF
-#!/bin/bash
-export NVM_DIR="$NVM_DIR"
-[ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
-exec nvm "\$@"
-EOF
-  chmod +x "$NVM_WRAPPER"
-  echo "${GREEN}NVM wrapper installed to: $NVM_WRAPPER${RESET}"
-fi
-
-
 flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
 
 
