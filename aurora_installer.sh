@@ -601,6 +601,7 @@ fi
 sleep 3
 
 NPM_BASE="$HOME/opt/usr/lib/node_modules/npm"
+NVM_DIR="$HOME/opt/usr/share/nvm"
 BIN_DIR="$HOME/opt/usr/bin"
 
 mkdir -p "$BIN_DIR"
