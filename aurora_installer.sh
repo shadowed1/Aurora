@@ -92,6 +92,7 @@ download_and_extract()
     rm -f "$FILE"
     chmod +x "$target_dir/usr/bin"/* 2>/dev/null
     chmod +x "$HOME/opt/usr/bin"/* 2>/dev/null
+    chmod +x "$HOME/opt/usr/share"/* 2>/dev/null
     echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$HOME/opt/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
