@@ -233,13 +233,6 @@ zenity_launcher() {
         flatpak --user run "$CHOICE" &
         ;;
 esac
-        Exit|"")
-            exit 0
-            ;;
-        *)
-            flatpak --user run "$CHOICE" &
-            ;;
-    esac
 }
 
 
