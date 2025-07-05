@@ -236,9 +236,6 @@ zenity_launcher() {
 esac
 }
 
-
-
-
 reset_app_list() {
     rm -f "$HOME/.starman_flatpak_cache"
     echo "${YELLOW}Flatpak app list cache cleared.${RESET}"
@@ -313,7 +310,6 @@ set_default_app() {
 
     echo "Done."
 }
-
 
 case "$1" in
     starman)
