@@ -288,6 +288,7 @@ case "$1" in
         ;;
     reinstall)
         CHOICE=$(zenity --list --radiolist \
+            --width=800 --height=600 \
             --title="Aurora Reinstall" \
             --text="Choose reinstall option:" \
             --column="Select" --column="Option" \
@@ -307,6 +308,10 @@ case "$1" in
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
+                chmod +x ~/opt/bin/aurora
+                chmod +x ~/opt/bin/starman
+                chmod +x ~/opt/usr/bin/fastfetch
+                chmod +x ~/opt/usr/bin/nano
                 echo "Quick reinstall completed."
                 ;;
             "Full reinstall")
