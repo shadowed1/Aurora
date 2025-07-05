@@ -286,8 +286,39 @@ case "$1" in
                 echo "${BLUE}XCURSOR_SIZE remain default.${RESET}"
         fi
         ;;
-        reinstall)
-        bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
+       reinstall)
+            CHOICE=$(zenity --list --radiolist \
+                --title="Aurora Reinstall" \
+                --text="Choose reinstall option:" \
+                --column="Select" --column="Option" \
+                FALSE "Quit" \
+                TRUE "Quick reinstall" \
+                FALSE "Full reinstall")
+        
+            case "$CHOICE" in
+                "Quit"|"")
+                    echo "Cancelled."
+                    exit 0
+                    ;;
+                "Quick reinstall")
+                    mkdir -p ~/opt/bin
+                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
+                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
+                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
+                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
+                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
+                    echo "Quick reinstall completed."
+                    ;;
+                "Full reinstall")
+                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
+            ;;
+        *)
+            echo "Invalid choice."
+            exit 1
+            ;;
+    esac
+    ;;
+
         ;;
         uninstall)
         aurora_uninstall
