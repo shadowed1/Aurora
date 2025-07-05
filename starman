@@ -115,10 +115,6 @@ starman() {
     echo "${GREEN}Done.${RESET}"
 }
 
-
-
-
-
 show_help() {
     echo "${YELLOW}"
     echo "Commands with examples:"
