@@ -293,8 +293,8 @@ case "$1" in
             --text="Choose reinstall option:" \
             --column="Select" --column="Option" \
             FALSE "Quit" \
-            TRUE "Quick reinstall" \
-            FALSE "Full reinstall")
+            TRUE "Quick reinstall - only download core Aurora files" \
+            FALSE "Full reinstall" - download all files and dependencies)
         
         case "$CHOICE" in
             "Quit"|"")
