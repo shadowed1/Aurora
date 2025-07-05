@@ -286,45 +286,42 @@ case "$1" in
                 echo "${BLUE}XCURSOR_SIZE remain default.${RESET}"
         fi
         ;;
-       reinstall)
-            CHOICE=$(zenity --list --radiolist \
-                --title="Aurora Reinstall" \
-                --text="Choose reinstall option:" \
-                --column="Select" --column="Option" \
-                FALSE "Quit" \
-                TRUE "Quick reinstall" \
-                FALSE "Full reinstall")
+    reinstall)
+        CHOICE=$(zenity --list --radiolist \
+            --title="Aurora Reinstall" \
+            --text="Choose reinstall option:" \
+            --column="Select" --column="Option" \
+            FALSE "Quit" \
+            TRUE "Quick reinstall" \
+            FALSE "Full reinstall")
         
-            case "$CHOICE" in
-                "Quit"|"")
-                    echo "Cancelled."
-                    exit 0
-                    ;;
-                "Quick reinstall")
-                    mkdir -p ~/opt/bin
-                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
-                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
-                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
-                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
-                    curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
-                    echo "Quick reinstall completed."
-                    ;;
-                "Full reinstall")
-                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
-            ;;
-        *)
-            echo "Invalid choice."
-            exit 1
-            ;;
-    esac
-    ;;
-
+        case "$CHOICE" in
+            "Quit"|"")
+                echo "Cancelled."
+                exit 0
+                ;;
+            "Quick reinstall")
+                mkdir -p ~/opt/bin
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
+                echo "Quick reinstall completed."
+                ;;
+            "Full reinstall")
+                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
+                ;;
+            *)
+                echo "Invalid choice."
+                exit 1
+                ;;
+        esac
         ;;
-        uninstall)
+    uninstall)
         aurora_uninstall
         ;;
-        # DennyL version checker
-        version)
+    version)
         if [[ -f "$HOME/opt/bin/version" ]]; then
             CURRENT_VER=$(cat "$HOME/opt/bin/version")
             CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g')
@@ -355,3 +352,4 @@ case "$1" in
         exit 1
         ;;
 esac
+
