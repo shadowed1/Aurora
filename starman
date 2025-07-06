@@ -66,9 +66,22 @@ starman() {
         FILE="$pkg"
         echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
     else
-        echo "${YELLOW}Warning: '$pkg' is not a valid URL or local file.${RESET}"
-        return 1
-    fi
+        if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+            echo "${BLUE}[starman] Assuming AUR package name: $pkg${RESET}"
+            AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
+            FILE="$HOME/$pkg.tar.gz"
+
+            echo "${YELLOW}[starman] Downloading from AUR: $AUR_URL${RESET}"
+            curl -fsSL "$AUR_URL" -o "$FILE" || {
+                echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
+                return 1
+            }
+
+            downloaded=1
+        else
+            echo "${YELLOW}Warning: '$pkg' is not a valid URL, local file, or AUR package.${RESET}"
+            return 1
+        fi
 
     case "$FILE" in
         *.tar.gz|*.tgz)     tar --use-compress-program="gzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
