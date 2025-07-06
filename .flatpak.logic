@@ -83,6 +83,11 @@ aurora() {
   esac
 }
 
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
+
+
 flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
 
 
