@@ -286,22 +286,21 @@ case "$1" in
                 echo "${BLUE}XCURSOR_SIZE remain default.${RESET}"
         fi
         ;;
-    reinstall)
-        CHOICE=$(zenity --list --radiolist \
-            --width=800 --height=600 \
-            --title="Aurora Reinstall" \
-            --text="Choose reinstall option:" \
-            --column="Select" --column="Option" \
-            FALSE "Quit" \
-            TRUE "Quick reinstall - only download core Aurora files" \
-            FALSE "Full reinstall - download all files and dependencies")
-        
+      reinstall)
+        echo "${MAGENTA}${BOLD}Aurora Reinstall Options:${RESET}"
+        echo "${CYAN}[0] Quit${RESET}"
+        echo "${BLUE}[1] Quick reinstall - only download core Aurora files${RESET}"
+        echo "${MAGENTA}${BOLD}[2] Full reinstall - download all files and dependencies${RESET}"
+        echo ""
+        read -rp "Enter your choice [0-2]: " CHOICE
+
         case "$CHOICE" in
-            "Quit"|"")
-                echo "Cancelled."
+            0)
+                echo "${BLUE}Cancelled.${RESET}"
                 exit 0
                 ;;
-            "Quick reinstall")
+            1)
+                echo "${GREEN}Performing quick reinstall...${RESET}"
                 mkdir -p ~/opt/bin
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
@@ -312,13 +311,14 @@ case "$1" in
                 chmod +x ~/opt/bin/starman
                 chmod +x ~/opt/usr/bin/fastfetch
                 chmod +x ~/opt/usr/bin/nano
-                echo "Quick reinstall completed."
+                echo "${GREEN}Quick reinstall completed.${RESET}"
                 ;;
-            "Full reinstall")
+            2)
+                echo "${YELLOW}Launching full reinstall...${RESET}"
                 bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
                 ;;
             *)
-                echo "Invalid choice."
+                echo "${RED}Invalid choice. Please enter 0, 1, or 2.${RESET}"
                 exit 1
                 ;;
         esac
