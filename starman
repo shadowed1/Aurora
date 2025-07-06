@@ -16,6 +16,69 @@ update_app_list_cache() {
     flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
 }
 
+lookup_flatpak_alias() {
+  local name="$1"
+  grep -i "$name" "$HOME/.starman_flatpak_cache" | head -n1 | cut -f1
+}
+
+cmd_name=$(basename "$0")
+
+if [[ "$cmd_name" =~ ^(yay|paru|pacaur)$ ]]; then
+  echo "${MAGENTA}[starman] Acting as: $cmd_name${RESET}"
+
+  declare -a packages=()
+  for arg in "$@"; do
+    case "$arg" in
+      -S|-Sy|-Syu|-Syyu|--noconfirm|--needed)
+        # Skip handled flags
+        ;;
+      -Rns)
+        shift
+        for pkg in "$@"; do
+          local found=""
+          for dir in "$HOME/opt/bin" "$HOME/opt/flatpak-deps" "$HOME/opt/usr/bin"; do
+            found=$(find "$dir" -maxdepth 1 -type f -name "$pkg" 2>/dev/null | head -n1)
+            if [[ -n "$found" ]]; then
+              echo "${YELLOW}[starman] Removing $found${RESET}"
+              rm -f "$found"
+            fi
+          done
+          if [[ -z "$found" ]]; then
+            echo "${RED}[starman] Could not find installed file for '$pkg'.${RESET}"
+          fi
+        done
+        update_app_list_cache
+        return
+        ;;
+      -Qi)
+        echo "${CYAN}[starman] Dummy info for package $2:${RESET}"
+        echo "Name            : $2"
+        echo "Version         : 1.0.0"
+        echo "Description     : Fake AUR package for compatibility"
+        echo "Install Date    : $(date)"
+        return
+        ;;
+      -*)
+        echo "${RED}[starman] Unsupported flag: $arg${RESET}"
+        return 1
+        ;;
+      *)
+        packages+=("$arg")
+        ;;
+    esac
+  done
+
+  if [ "${#packages[@]}" -eq 0 ]; then
+    echo "${RED}[starman] No packages specified.${RESET}"
+    return 1
+  fi
+
+  for pkg in "${packages[@]}"; do
+    starman "$pkg"
+  done
+  return
+fi
+
 starman() {
     local pkg=""
     if [[ "$1" =~ ^-S ]]; then
