@@ -143,7 +143,7 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur)$ ]]; then
           fi
         done
         update_app_list_cache
-        return
+        exit 1
         ;;
       -Qi)
         echo "${CYAN}[starman] Dummy info for package $2:${RESET}"
@@ -151,11 +151,11 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur)$ ]]; then
         echo "Version         : 1.0.0"
         echo "Description     : Fake AUR package for compatibility"
         echo "Install Date    : $(date)"
-        return
+        exit 1
         ;;
       -*)
         echo "${RED}[starman] Unsupported flag: $arg${RESET}"
-        return 1
+        exit 1
         ;;
       *)
         packages+=("$arg")
@@ -171,7 +171,7 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur)$ ]]; then
   for pkg in "${packages[@]}"; do
     starman "$pkg"
   done
-  return
+  exit 1
 fi
 
 show_help() {
@@ -316,7 +316,7 @@ set_default_app() {
     read -rp "Enter the number of the app to set as default: " appnum
     if ! [[ "$appnum" =~ ^[0-9]+$ ]] || (( appnum < 0 || appnum >= ${#APPS[@]} )); then
         echo "Invalid selection."
-        return 1
+        exit 1
     fi
 
     local selected_app="${APPS[appnum]}"
@@ -370,30 +370,34 @@ set_default_app() {
     echo "Done."
 }
 
-case "$1" in
-    starman)
-        shift
-        starman "$@"
-        ;;
-    --h|-h|help)
-        show_help
-        ;;
-    default)
-        set_default_app
-        ;;
-    refresh)
-        update_app_list_cache
-        echo "${GREEN}Starman app list refreshed.${RESET}"
-        ;;
-    ""|status)
-        zenity_launcher
-        ;;
-     reset)
-        reset_app_list
-        ;;
-    *)
-        echo "${RED}Unknown command '$1'${RESET}"
-        show_help
-        exit 1
-        ;;
-esac
+main() {
+    case "$1" in
+        starman)
+            shift
+            starman "$@" || return 1
+            ;;
+        --h|-h|help)
+            show_help
+            ;;
+        default)
+            set_default_app || return 1
+            ;;
+        refresh)
+            update_app_list_cache
+            echo "${GREEN}Starman app list refreshed.${RESET}"
+            ;;
+        ""|status)
+            zenity_launcher || return 1
+            ;;
+        reset)
+            reset_app_list
+            ;;
+        *)
+            echo "${RED}Unknown command '$1'${RESET}"
+            show_help
+            return 1
+            ;;
+    esac
+}
+
+main "$@"
