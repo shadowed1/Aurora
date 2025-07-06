@@ -88,6 +88,9 @@ ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
+yay() { starman "$@"; }
+paru() { starman "$@"; }
+
 
 
 flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
