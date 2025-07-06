@@ -12,6 +12,98 @@ if [ -f "$HOME/opt/.flatpak.env" ]; then
     . "$HOME/opt/.flatpak.env"
 fi
 
+starman() {
+    local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
+    local pkg=""
+    local FILE=""
+    local downloaded=0
+
+    # Handle args like -S foo
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -S|--needed|--noconfirm|-Sy|-Syu|-Syyu)
+                shift ;; # skip flags
+            -*)
+                echo "${RED}Unsupported flag: $1${RESET}" >&2
+                return 1 ;;
+            *)
+                pkg="$1"
+                shift ;;
+        esac
+    done
+
+    if [[ -z "$pkg" ]]; then
+        echo "${RED}Error: You must provide a package name or archive URL.${RESET}" >&2
+        echo "Usage: starman -S https://example.com/file.tar.xz"
+        echo "   or: starman /path/to/file.sh"
+        return 1
+    fi
+
+    mkdir -p "$EXPORT_PATH"
+
+    if [[ "$pkg" =~ ^https?:// ]]; then
+        local real_url
+        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+
+        if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
+            local filename
+            filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+            [[ -z "$filename" ]] && filename=$(basename "$real_url")
+
+            FILE="$HOME/$filename"
+            echo "${YELLOW}Downloading to: $FILE${RESET}"
+            curl -L "$real_url" -o "$FILE" || {
+                echo "${RED}Failed to download file.${RESET}" >&2
+                return 1
+            }
+            downloaded=1
+        else
+            echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
+            return 1
+        fi
+
+    elif [[ -f "$pkg" ]]; then
+        FILE="$pkg"
+        echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
+    else
+        echo "${YELLOW}Warning: '$pkg' is not a valid URL or local file.${RESET}"
+        return 1
+    fi
+
+    case "$FILE" in
+        *.tar.gz|*.tgz)     tar --use-compress-program="gzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.bz2|*.tbz2)   tar --use-compress-program="bzip2 -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.xz|*.txz)     tar --use-compress-program="xz -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.zst|*.tzst)   tar --use-compress-program="unzstd" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lz4)          tar --use-compress-program="lz4 -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lzma)         tar --use-compress-program="lzma -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lz)           tar --use-compress-program="lzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.Z)            tar --use-compress-program="uncompress" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.sh|*.run|*.bin)
+            chmod +x "$FILE"
+            mv "$FILE" "$EXPORT_PATH/"
+            echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
+            downloaded=0 ;; # keep file
+        *.deb)
+            echo "${RED}.deb packages are not supported yet by starman.${RESET}"
+            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
+            return 1 ;;
+        *)
+            echo "${RED}Unknown file format: $FILE${RESET}" >&2
+            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
+            return 1 ;;
+    esac
+
+    if [[ "$downloaded" -eq 1 ]]; then
+        echo "Cleaning up..."
+        rm -f "$FILE"
+    fi
+
+    echo "${GREEN}Done.${RESET}"
+}
+
+
 update_app_list_cache() {
     flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
 }
@@ -78,105 +170,6 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur)$ ]]; then
   done
   return
 fi
-
-starman() {
-    local pkg=""
-    if [[ "$1" =~ ^-S ]]; then
-        for arg in "$@"; do
-            case "$arg" in
-                -S|-Sy|--needed|--noconfirm)
-                    ;; # skip flags
-                *)
-                    pkg="$arg"
-                    ;;
-            esac
-        done
-
-        if [[ -z "$pkg" ]]; then
-            echo "${RED}No package specified.${RESET}"
-            return 1
-        fi
-    else
-        pkg="$1"
-    fi
-
-    if [[ -z "$pkg" ]]; then
-        echo "${RED}Error: You must provide a package name or archive URL.${RESET}" >&2
-        echo "Usage: starman -S https://example.com/file.tar.xz"
-        echo "   or: starman /path/to/file.sh"
-        return 1
-    fi
-
-    local FILE=""
-    local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
-    local downloaded=0
-
-    if [[ "$pkg" =~ ^https?:// ]]; then
-        local real_url
-        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
-
-        if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
-            local filename
-            filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
-            [[ -z "$filename" ]] && filename=$(basename "$real_url")
-
-            FILE="$HOME/$filename"
-            echo "${YELLOW}Downloading to: $FILE${RESET}"
-            curl -L "$real_url" -o "$FILE" || {
-                echo "${RED}Failed to download file.${RESET}" >&2
-                return 1
-            }
-            downloaded=1
-        else
-            echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
-            return 1
-        fi
-
-    elif [[ -f "$pkg" ]]; then
-        FILE="$pkg"
-        echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
-    else
-        echo "${YELLOW}Warning: '$pkg' is not a valid URL or local file.${RESET}"
-        return 1
-    fi
-
-    mkdir -p "$EXPORT_PATH"
-
-    case "$FILE" in
-        *.tar.gz|*.tgz)     tar --use-compress-program="gzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.bz2|*.tbz2)   tar --use-compress-program="bzip2 -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.xz|*.txz)     tar --use-compress-program="xz -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.zst|*.tzst)   tar --use-compress-program="unzstd" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz4)          tar --use-compress-program="lz4 -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lzma)         tar --use-compress-program="lzma -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz)           tar --use-compress-program="lzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.Z)            tar --use-compress-program="uncompress" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.sh|*.run|*.bin)
-            chmod +x "$FILE"
-            mv "$FILE" "$EXPORT_PATH/"
-            echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")"
-            downloaded=0 # Keep the file
-            ;;
-        *.deb)
-            echo "${RED}.deb packages are not supported yet by starman.${RESET}"
-            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
-            return 1
-            ;;
-        *)
-            echo "${RED}Unknown file format: $FILE${RESET}" >&2
-            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
-            return 1
-            ;;
-    esac
-
-    if [[ "$downloaded" -eq 1 ]]; then
-        echo "Cleaning up..."
-        rm -f "$FILE"
-    fi
-
-    echo "${GREEN}Done.${RESET}"
-}
 
 show_help() {
     echo "${YELLOW}"
