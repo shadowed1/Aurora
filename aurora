@@ -312,6 +312,14 @@ case "$1" in
                 chmod +x ~/opt/bin/starman
                 chmod +x ~/opt/usr/bin/fastfetch
                 chmod +x ~/opt/usr/bin/nano
+                ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
+                ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
+                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
+                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
+                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
+                yay() { starman "$@"; }
+                paru() { starman "$@"; }
+
                 echo "${GREEN}Quick reinstall completed.${RESET}"
                 ;;
             2)
