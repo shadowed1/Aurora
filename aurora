@@ -287,10 +287,11 @@ case "$1" in
         fi
         ;;
       reinstall)
-        echo "${MAGENTA}Aurora Reinstall Options:${RESET}"
+        echo "${MAGENTA}${BOLD}Aurora Reinstall:${RESET}"
+        echo ""
         echo "${CYAN}[0] Quit${RESET}"
         echo "${BLUE}[1] Quick reinstall - only download core Aurora files${RESET}"
-        echo "${MAGENTA}${BOLD}[2] Full reinstall - download all files and dependencies${RESET}"
+        echo "${MAGENTA}[2] Full reinstall - download all files and dependencies${RESET}"
         echo ""
         read -rp "Enter your choice [0-2]: " CHOICE
 
