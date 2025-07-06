@@ -18,12 +18,11 @@ starman() {
     local FILE=""
     local downloaded=0
 
-    # Handle args like -S foo
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -S|--needed|--noconfirm|-Sy|-Syu|-Syyu)
-                shift ;; # skip flags
-            -*)
+                shift ;;
+            -*|--*)
                 echo "${RED}Unsupported flag: $1${RESET}" >&2
                 return 1 ;;
             *)
@@ -42,15 +41,13 @@ starman() {
     mkdir -p "$EXPORT_PATH"
 
     if [[ "$pkg" =~ ^https?:// ]]; then
-        local real_url
-        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+        local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
 
         if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
-            local filename
-            filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+            local filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^";]*\)"\?.*/\1/p' | tail -1)
             [[ -z "$filename" ]] && filename=$(basename "$real_url")
-
             FILE="$HOME/$filename"
+
             echo "${YELLOW}Downloading to: $FILE${RESET}"
             curl -L "$real_url" -o "$FILE" || {
                 echo "${RED}Failed to download file.${RESET}" >&2
@@ -76,28 +73,28 @@ starman() {
                 echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
                 return 1
             }
-
             downloaded=1
         else
             echo "${YELLOW}Warning: '$pkg' is not a valid URL, local file, or AUR package.${RESET}"
             return 1
         fi
+    fi
 
     case "$FILE" in
-        *.tar.gz|*.tgz)     tar --use-compress-program="gzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.bz2|*.tbz2)   tar --use-compress-program="bzip2 -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.xz|*.txz)     tar --use-compress-program="xz -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.zst|*.tzst)   tar --use-compress-program="unzstd" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz4)          tar --use-compress-program="lz4 -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lzma)         tar --use-compress-program="lzma -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz)           tar --use-compress-program="lzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.Z)            tar --use-compress-program="uncompress" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.xz|*.txz)     tar -xvJf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.zst|*.tzst)   tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lz4)          tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lzma)         tar --use-compress-program=lzma -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
         *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
         *.sh|*.run|*.bin)
             chmod +x "$FILE"
             mv "$FILE" "$EXPORT_PATH/"
             echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
-            downloaded=0 ;; # keep file
+            downloaded=0 ;;
         *.deb)
             echo "${RED}.deb packages are not supported yet by starman.${RESET}"
             [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
@@ -115,6 +112,8 @@ starman() {
 
     echo "${GREEN}Done.${RESET}"
 }
+
+main "$@"
 
 
 update_app_list_cache() {
