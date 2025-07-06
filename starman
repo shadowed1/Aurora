@@ -113,9 +113,6 @@ starman() {
     echo "${GREEN}Done.${RESET}"
 }
 
-main "$@"
-
-
 update_app_list_cache() {
     flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
 }
