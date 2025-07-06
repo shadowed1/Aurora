@@ -637,6 +637,7 @@ NVM_DIR="$HOME/opt/usr/share/nvm"
 BIN_DIR="$HOME/opt/usr/bin"
 
 mkdir -p "$BIN_DIR"
+mkdir -p ~/opt/etc/xdg/xfce4/xfwm4
 
 rm -f "$BIN_DIR/npm" "$BIN_DIR/npx"
 
