@@ -646,6 +646,10 @@ ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
 
 chmod +x "$NPM_BASE/bin/"*.js
 
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
+
 
 echo ""
 
