@@ -147,7 +147,8 @@ When running Brave:
 0.01: `Release` <br>
 0.02: `Removed .bashrc file and added append capability. Added check to make sure not to install anywhere but Borealis.
 Added uninstall and reinstall commands. Thanks to Saragon for the suggestions and teachimg me more about .bashrc.` <br>
-0.03: `Added command to auto-generate shortcuts and icons with pin support. Thanks to Saragon for helping find how to do that. Added starman (steam tar manager) - download and decompress files, quick access menu, and change default apps. Added ability to download AppImages and run them with starman. To do: Fix Shortcut script and implement git`
+0.03: `Added command to auto-generate shortcuts and icons with pin support. Thanks to Saragon for helping find how to do that. Added starman (steam tar manager) - download and decompress files, quick access menu, and change default apps. Added ability to download AppImages and run them with starman.`
+0.04: `Added quick reinstall option, AUR emulation, git, python, gcc, and their dependencies.`
 
 <br>
 
