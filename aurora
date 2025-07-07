@@ -139,9 +139,9 @@ EOF
         DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
         mkdir -p "$DESKTOP_DIR"
 
-        cat > "$DESKTOP_FILE" <<EOF
-raw_name="${APPID##*.}"
-Name="$(tr '[:lower:]' '[:upper:]' <<< ${raw_name:0:1})${raw_name:1}"
+       raw_name="${APPID##*.}"
+       Name="$(tr '[:lower:]' '[:upper:]' <<< ${raw_name:0:1})${raw_name:1}"
+
 cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Name=$Name
@@ -151,6 +151,7 @@ Terminal=false
 Type=Application
 Categories=Utility;
 EOF
+
         chmod +x "$DESKTOP_FILE"
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
