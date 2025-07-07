@@ -316,10 +316,11 @@ case "$1" in
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
                 yay() { starman "$@"; }
                 paru() { starman "$@"; }
-
+                echo ""
                 echo "${GREEN}Quick reinstall completed.${RESET}"
                 ;;
             2)
+                echo ""
                 echo "${YELLOW}Launching full reinstall...${RESET}"
                 bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
                 ;;
