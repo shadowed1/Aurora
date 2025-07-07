@@ -382,9 +382,14 @@ case "$1" in
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
                 chmod +x ~/opt/bin/aurora
                 chmod +x ~/opt/bin/starman
+                rm "$HOME/opt/bin/yay" 2>/dev/null
+                rm "$HOME/opt/bin/paru" 2>/dev/null
+                rm "$HOME/opt/bin/pacaur" 2>/dev/null
+                rm "$HOME/opt/bin/pacman" 2>/dev/null
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
+                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
                 yay() { starman "$@"; }
                 paru() { starman "$@"; }
                 echo ""
