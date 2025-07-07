@@ -4,7 +4,7 @@
 
 ### *Under active development. Bugs do exist.*
 
-## *Run apps and games in Borealis using Flatpak for signficantly higher performance than Crostini!*
+## *Run apps and games in Borealis using emulated AUR helpers, Flatpak, Git, Python, and GCC for signficantly higher performance than Crostini!*
 ### Requirements: 
 
 - ChromeOS
