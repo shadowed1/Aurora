@@ -375,27 +375,16 @@ case "$1" in
                 echo "${GREEN}Performing quick reinstall...${RESET}"
                 echo ""
                 mkdir -p ~/opt/bin
-                echo "${MAGENTA}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
-                echo "${RESET}${BLUE}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
-                echo "${RESET}${CYAN}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
-                echo "${RESET}${BLUE}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
-                echo "${RESET}${MAGENTA}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
-                echo "${RESET}"
                 chmod +x ~/opt/bin/aurora
                 chmod +x ~/opt/bin/starman
-                rm "$HOME/opt/bin/yay" 2>/dev/null
-                rm "$HOME/opt/bin/paru" 2>/dev/null
-                rm "$HOME/opt/bin/pacaur" 2>/dev/null
-                rm "$HOME/opt/bin/pacman" 2>/dev/null
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
-                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
                 yay() { starman "$@"; }
                 paru() { starman "$@"; }
                 echo ""
