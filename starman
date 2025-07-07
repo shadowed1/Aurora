@@ -48,14 +48,14 @@ starman() {
 
     elif [[ -f "$pkg" ]]; then
         FILE="$pkg"
-        echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
+        echo "${CYAN}starman installing from local file: $FILE${RESET}"
 
     elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
-        echo "${BLUE}[starman] Assuming AUR package name: $pkg${RESET}"
+        echo "${BLUE}starman assuming AUR package name: $pkg${RESET}"
         local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
         FILE="$HOME/$pkg.tar.gz"
         curl -fsSL "$AUR_URL" -o "$FILE" || {
-            echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
+            echo "${RED}starman failed to fetch AUR package: $pkg${RESET}" >&2
             return 1
         }
         downloaded=1
@@ -104,13 +104,13 @@ starman() {
 
         local PKGBUILD="$pkgdir/PKGBUILD"
         if [[ -f "$PKGBUILD" ]]; then
-            echo "${CYAN}[starman] Found PKGBUILD. Attempting to parse...${RESET}"
+            echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
             source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
             local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$PKGBUILD" | head -1)
 
             if [[ -n "$zip_url" ]]; then
                 local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
-                echo "${YELLOW}[starman] Downloading source from PKGBUILD: $zip_url${RESET}"
+                echo "${YELLOW}starman downloading source from PKGBUILD: $zip_url${RESET}"
                 curl -L "$zip_url" -o "$extfile" && {
                     case "$extfile" in
                         *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
@@ -121,7 +121,7 @@ starman() {
                         *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
                     esac
                     rm -f "$extfile"
-                    echo "${GREEN}[starman] Extracted archive to $EXPORT_PATH/$pkgname${RESET}"
+                    echo "${GREEN}starman extracted archive to $EXPORT_PATH/$pkgname${RESET}"
                 }
             fi
         fi
@@ -143,7 +143,7 @@ lookup_flatpak_alias() {
 cmd_name=$(basename "$0")
 
 if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
-  echo "${MAGENTA}[starman] Acting as: $cmd_name${RESET}"
+  echo "${MAGENTA}starman emulating: $cmd_name${RESET}"
 
   declare -a packages=()
   skip_next_arg=0
@@ -167,19 +167,19 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
           for dir in "$HOME/opt/bin" "$HOME/opt/flatpak-deps" "$HOME/opt/usr/bin"; do
             found=$(find "$dir" -maxdepth 1 -type f -name "$pkg" 2>/dev/null | head -n1)
             if [[ -n "$found" ]]; then
-              echo "${YELLOW}[starman] Removing $found${RESET}"
+              echo "${YELLOW}starman removing $found${RESET}"
               rm -f "$found"
             fi
           done
           if [[ -z "$found" ]]; then
-            echo "${RED}[starman] Could not find installed file for '$pkg'.${RESET}"
+            echo "${RED}starman could not find installed file for '$pkg'.${RESET}"
           fi
         done
         update_app_list_cache
         exit 1
         ;;
       -Qi)
-        echo "${CYAN}[starman] info for $2:${RESET}"
+        echo "${CYAN}starman info for $2:${RESET}"
         echo "Name            : $2"
         echo "Version         : 1.0.0"
         echo "Description     : AUR package for compatibility"
@@ -187,7 +187,7 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
         exit 1
         ;;
       -*)
-        echo "${RED}[starman] Unsupported flag: $arg${RESET}"
+        echo "${RED}starman unsupported flag: $arg${RESET}"
         exit 1
         ;;
       *)
