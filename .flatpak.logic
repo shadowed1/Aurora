@@ -14,14 +14,11 @@ echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
 export USER="${USER:-$(id -un)}"
 
-if [ -f "$HOME/opt/flatpak.env" ]; then
-    . "$HOME/opt/flatpak.env"
+if [ -f "$HOME/opt/.flatpak.env" ]; then
+    . "$HOME/opt/.flatpak.env"
 fi
 
 echo "${MAGENTA}Aurora initializing Flatpak!${RESET}${BLUE}"
-
-
-
 
 if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   dbus-daemon --session \
@@ -50,25 +47,66 @@ flatpak --user update --appstream
 
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
-# Add Flatpak --user function to ~/.bashrc if missing:
 MARKER="# Flatpak --user logic"
-if ! grep -q "$MARKER" "$HOME/.bashrc"; then
+if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
 cat << 'EOF' >> "$HOME/.bashrc"
 # Flatpak --user logic
 flatpak() {
   case "$1" in
-    --help|-h|help|""|--version)
+    ""|--help|-h|help|--version)
       command flatpak "$@"
+      ;;
+    install)
+      if [[ "$*" == *"com.valvesoftware.Steam"* ]]; then
+        echo "${RED}Installing com.valvesoftware.Steam is blocked to protect your Steam install.${RESET}"
+        return 1
+      fi
+      command flatpak --user "$@"
       ;;
     *)
       command flatpak --user "$@"
       ;;
   esac
 }
+
+aurora() {
+  local AURORA_SCRIPT="$HOME/opt/bin/aurora"
+
+  "$AURORA_SCRIPT" "$@"
+
+  case "$1" in
+    display|cursor)
+      if [ -x "$AURORA_SCRIPT" ]; then
+        source <("$AURORA_SCRIPT" print-env)
+      fi
+      ;;
+  esac
+
+
+ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
+ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
+ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
+yay() { starman "$@"; }
+paru() { starman "$@"; }
+
+
+
+flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
+
+
 EOF
 echo ""
-echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Reinitializing .bashrc to enable --user shortcut...${RESET}"
-sleep 2
+echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Reinitializing .bashrc to enable --user shortcut"
+sleep 1
+echo "."
+sleep 1
+echo ".${RESET}"
+echo ""
+~/opt/usr/bin/fastfetch
 echo ""
 source ~/.bashrc
+echo ""
+~/opt/bin/aurora help
 fi
