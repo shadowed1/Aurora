@@ -51,27 +51,13 @@ starman() {
         echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
 
     elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
-        echo "${BLUE}[starman] Attempting Arch package fetch for: $pkg${RESET}"
-        local ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/"
-        local ARCH_DL="${ARCH_URL}download"
-        FILE="$HOME/${pkg}.pkg.tar.zst"
-
-        if curl -fsSL "$ARCH_URL" -o /dev/null; then
-            echo "${YELLOW}[starman] Found Arch package. Trying /download redirect...${RESET}"
-            curl -L "$ARCH_DL" -o "$FILE" || {
-                echo "${RED}[starman] Failed to download Arch package: $pkg${RESET}" >&2
-                return 1
-            }
-        else
-            echo "${MAGENTA}[starman] Arch package not found. Falling back to AUR: $pkg${RESET}"
-            local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
-            FILE="$HOME/$pkg.tar.gz"
-            curl -fsSL "$AUR_URL" -o "$FILE" || {
-                echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
-                return 1
-            }
-        fi
-
+        echo "${BLUE}[starman] Assuming AUR package name: $pkg${RESET}"
+        local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
+        FILE="$HOME/$pkg.tar.gz"
+        curl -fsSL "$AUR_URL" -o "$FILE" || {
+            echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
+            return 1
+        }
         downloaded=1
     else
         echo "${RED}Unrecognized input: $pkg${RESET}"
@@ -111,33 +97,117 @@ starman() {
             ;;
     esac
 
-    if [[ "$FILE" == *.tar.gz && -f "$EXPORT_PATH/$pkg/PKGBUILD" ]]; then
-        echo "${CYAN}[starman] Found PKGBUILD. Attempting to parse...${RESET}"
+    if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         local pkgdir="$EXPORT_PATH/$pkg"
-        source <(grep -E '^(pkgname|pkgver)=' "$pkgdir/PKGBUILD")
-        local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$pkgdir/PKGBUILD" | head -1)
+        mkdir -p "$pkgdir"
+        tar -xf "$FILE" -C "$pkgdir"
 
-        if [[ -n "$zip_url" ]]; then
-            local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
-            echo "${YELLOW}[starman] Downloading source from PKGBUILD: $zip_url${RESET}"
-            curl -L "$zip_url" -o "$extfile" && {
-                case "$extfile" in
-                    *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
-                    *.tar.gz) tar -xzf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                    *.tar.xz) tar -xJf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                    *.tar.bz2) tar -xjf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                    *.tar.zst) tar --use-compress-program=unzstd -xvf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                    *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
-                esac
-                rm -f "$extfile"
-                echo "${GREEN}[starman] Extracted archive to $EXPORT_PATH/$pkgname${RESET}"
-            }
+        local PKGBUILD="$pkgdir/PKGBUILD"
+        if [[ -f "$PKGBUILD" ]]; then
+            echo "${CYAN}[starman] Found PKGBUILD. Attempting to parse...${RESET}"
+            source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
+            local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$PKGBUILD" | head -1)
+
+            if [[ -n "$zip_url" ]]; then
+                local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
+                echo "${YELLOW}[starman] Downloading source from PKGBUILD: $zip_url${RESET}"
+                curl -L "$zip_url" -o "$extfile" && {
+                    case "$extfile" in
+                        *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.gz) tar -xzf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.xz) tar -xJf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.bz2) tar -xjf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.zst) tar --use-compress-program=unzstd -xvf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
+                    esac
+                    rm -f "$extfile"
+                    echo "${GREEN}[starman] Extracted archive to $EXPORT_PATH/$pkgname${RESET}"
+                }
+            fi
         fi
     fi
 
     [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
     echo "${GREEN}Done.${RESET}"
 }
+
+update_app_list_cache() {
+    flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
+}
+
+lookup_flatpak_alias() {
+  local name="$1"
+  grep -i "$name" "$HOME/.starman_flatpak_cache" | head -n1 | cut -f1
+}
+
+cmd_name=$(basename "$0")
+
+if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
+  echo "${MAGENTA}[starman] Acting as: $cmd_name${RESET}"
+
+  declare -a packages=()
+  skip_next_arg=0
+  while [[ $# -gt 0 ]]; do
+    arg="$1"
+    shift
+
+    if [[ "$skip_next_arg" -eq 1 ]]; then
+        skip_next_arg=0
+        continue
+    fi
+
+    case "$arg" in
+      -S|-Sy|-Syu|-Syyu|--noconfirm|--needed)
+        # Supported install flags — ignore
+        ;;
+      -Rns)
+        shift
+        for pkg in "$@"; do
+          local found=""
+          for dir in "$HOME/opt/bin" "$HOME/opt/flatpak-deps" "$HOME/opt/usr/bin"; do
+            found=$(find "$dir" -maxdepth 1 -type f -name "$pkg" 2>/dev/null | head -n1)
+            if [[ -n "$found" ]]; then
+              echo "${YELLOW}[starman] Removing $found${RESET}"
+              rm -f "$found"
+            fi
+          done
+          if [[ -z "$found" ]]; then
+            echo "${RED}[starman] Could not find installed file for '$pkg'.${RESET}"
+          fi
+        done
+        update_app_list_cache
+        exit 1
+        ;;
+      -Qi)
+        echo "${CYAN}[starman] Dummy info for package $2:${RESET}"
+        echo "Name            : $2"
+        echo "Version         : 1.0.0"
+        echo "Description     : Fake AUR package for compatibility"
+        echo "Install Date    : $(date)"
+        exit 1
+        ;;
+      -*)
+        echo "${RED}[starman] Unsupported flag: $arg${RESET}"
+        exit 1
+        ;;
+      *)
+        packages+=("$arg")
+        ;;
+    esac
+  done
+
+  if [ "${#packages[@]}" -eq 0 ]; then
+    echo "${RED}[starman] No packages specified.${RESET}"
+    exit 1
+  fi
+
+  for pkg in "${packages[@]}"; do
+    echo "${CYAN}[starman] Downloading archive for: $pkg${RESET}"
+    STARMAN_EXPORT_PATH="$HOME/opt" starman "$pkg"
+  done
+  exit 0
+fi
+
 
 show_help() {
     echo "${YELLOW}"
@@ -155,7 +225,7 @@ zenity_launcher() {
     local MENU_ENTRIES=()
 
     MENU_ENTRIES+=("browse_files" "Browse - Copy directories to terminal")
-    MENU_ENTRIES+=("download_archive" "Paste in link and then select extract location!")
+    MENU_ENTRIES+=("download_archive" "Automatically detects compression type and extracts tar file. Append your path at the end of link or blank for default")
     MENU_ENTRIES+=("download_appimage" "Download AppImage: Paste URL, save to ~/opt/appimages, and run it")
 
     update_app_list_cache
