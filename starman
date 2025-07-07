@@ -7,6 +7,7 @@ MAGENTA=$(tput setaf 5)
 CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
+declare -A _STARMAN_PROCESSED
 
 if [ -f "$HOME/opt/.flatpak.env" ]; then
     . "$HOME/opt/.flatpak.env"
@@ -31,6 +32,12 @@ starman() {
         return 1
     fi
 
+    if [[ -n "${_STARMAN_PROCESSED[$pkg]}" ]]; then
+        echo "${YELLOW}Already processed: $pkg (skipping)${RESET}"
+        return 0
+    fi
+    _STARMAN_PROCESSED[$pkg]=1
+
     mkdir -p "$EXPORT_PATH"
 
     if [[ "$pkg" =~ ^https?:// ]]; then
@@ -38,16 +45,9 @@ starman() {
             pkg="$pkg/download"
         fi
         local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
-
-        if [[ ! "$real_url" =~ \.(tar\.(gz|xz|bz2|zst)|zip|deb|sh|run|bin)$ ]]; then
-            echo "${RED}Invalid or unsupported download URL: $real_url${RESET}" >&2
-            return 1
-        fi
-
         local filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^";]*\)"\?.*/\1/p' | tail -1)
         [[ -z "$filename" || "$filename" == "download" ]] && filename=$(basename "$real_url")
         FILE="$HOME/$filename"
-
         echo "${YELLOW}Downloading to: $FILE${RESET}"
         curl -L "$real_url" -o "$FILE" || {
             echo "${RED}Failed to download file.${RESET}" >&2
@@ -69,11 +69,11 @@ starman() {
             local depends=$(echo "$json_content" | jq -r '.depends[]?' 2>/dev/null)
             for dep in $depends; do
                 local dep_clean="${dep%%[<>=]*}"
-                if [[ ! -e "$HOME/opt/$dep_clean" ]]; then
+                if [[ -z "${_STARMAN_PROCESSED[$dep_clean]}" ]]; then
                     echo "${GREEN}starman downloading dependency: $dep_clean${RESET}"
-                    STARMAN_EXPORT_PATH="$HOME/opt" starman "$dep_clean"
+                    STARMAN_EXPORT_PATH="$EXPORT_PATH" starman "$dep_clean"
                 else
-                    echo "${YELLOW}Dependency already present: $dep_clean${RESET}"
+                    echo "${YELLOW}Dependency already processed: $dep_clean${RESET}"
                 fi
             done
         else
@@ -89,15 +89,14 @@ starman() {
             echo "${YELLOW}AUR package not found. Trying official Arch repo...${RESET}"
             local ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/download"
             local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
+            local filename=$(basename "$real_url")
 
-            if [[ ! "$real_url" =~ \.(tar\.(gz|xz|bz2|zst)|zip|deb|sh|run|bin)$ ]]; then
-                echo "${RED}Arch repo URL invalid or not an archive: $real_url${RESET}" >&2
+            if [[ ! "$filename" =~ \.tar\.(gz|xz|bz2|zst)$ && ! "$filename" =~ \.(zip|deb|gz|sh|run|bin)$ ]]; then
+                echo "${RED}Arch repo URL invalid or not an archive: $real_url${RESET}"
                 return 1
             fi
 
-            local filename=$(basename "$real_url")
             FILE="$HOME/$filename"
-
             echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
             curl -L "$real_url" -o "$FILE" || {
                 echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
@@ -122,6 +121,7 @@ starman() {
         *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
         *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
         *.zip)              unzip -o "$FILE" -d "$EXPORT_PATH" ;;
+        *.gz)               gunzip -c "$FILE" > "$EXPORT_PATH/$(basename "${FILE%.gz}")" ;;
         *.deb)
             local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
             mkdir -p "$DEB_DEST"
@@ -147,7 +147,7 @@ starman() {
     if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         local pkgdir="$EXPORT_PATH/$pkg"
         mkdir -p "$pkgdir"
-        tar -xf "$FILE" -C "$pkgdir"
+        tar -xf "$FILE" -C "$pkgdir" 2>/dev/null
 
         local PKGBUILD="$pkgdir/PKGBUILD"
         if [[ -f "$PKGBUILD" ]]; then
@@ -156,7 +156,8 @@ starman() {
             local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$PKGBUILD" | head -1)
 
             if [[ -n "$zip_url" ]]; then
-                local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
+                local ext="${zip_url##*.}"
+                local extfile="$HOME/${pkgname}-${pkgver}.${ext}"
                 echo "${YELLOW}starman downloading source from PKGBUILD: $zip_url${RESET}"
                 curl -L "$zip_url" -o "$extfile" && {
                     case "$extfile" in
