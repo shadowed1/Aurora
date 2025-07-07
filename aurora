@@ -73,7 +73,6 @@ shortcut() {
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
 
         if [[ -d "$BASE_PATH" ]]; then
-            echo "${YELLOW}Granting override for icon path of $APPID...${RESET}"
             flatpak override --user org.inkscape.Inkscape --filesystem="$BASE_PATH"
         fi
 
@@ -102,7 +101,7 @@ shortcut() {
         OUTFILE="$OUTDIR/$APPID.png"
         mkdir -p "$OUTDIR"
 
-        echo "${GREEN}Processing icon for $APPID...${RESET}"
+        echo "${MAGENTA}Processing icon for $APPID...${RESET}"
 
         EXT="${ICON##*.}"
         EXT_LOWER="${EXT,,}"
@@ -133,7 +132,7 @@ source "\$HOME/.bashrc"
 flatpak run $APPID
 EOF
         chmod +x "$BIN_FILE"
-        echo "${CYAN}Launcher script saved to $BIN_FILE${RESET}"
+        echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
 
         DESKTOP_DIR="$HOME/.local/share/applications"
         DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
@@ -194,7 +193,7 @@ find "$BIN_DIR" -mindepth 2 -maxdepth 3 -type f -executable ! -name "*.sh" | whi
     esac
 
     hash=$(echo "$pkgdir" | sha1sum | cut -c1-6)
-    uniquename="${appname}_${hash}"
+    uniquename="${appname}"
 
     icon=""
     icon_size=""
