@@ -155,64 +155,34 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
+#### STRICT .sh BIN SHORTCUTS BASED ON FOLDER NAME ####
 BIN_DIR="$HOME/opt/bin"
-
-declare -A processed_dirs=()
-
-find "$BIN_DIR" -mindepth 2 -maxdepth 3 -type f -executable ! -name "*.sh" | while read -r exe; do
-    pkgdir=$(dirname "$exe")
-
-    if [[ -n "${processed_dirs[$pkgdir]}" ]]; then
-        continue
-    fi
-
-    processed_dirs["$pkgdir"]=1
-
-    exe_name=$(basename "$exe")
+find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
     folder_name=$(basename "$pkgdir")
+    base="${folder_name%-bin}"  # brave-bin → brave
+    exe="$pkgdir/$base"
 
-    [[ "$exe_name" =~ ^_ ]] && continue
-    [[ "$exe_name" =~ ^[0-9]+$ ]] && continue
+    # Only continue if that exact file exists and is executable
+    [[ -x "$exe" ]] || continue
 
-    case "$folder_name" in
-        brave*|Brave*)
-            appname="Brave"
-            ;;
-        vivaldi*|Vivaldi*)
-            appname="Vivaldi"
-            ;;
-        chrome*|Chromium*|google-chrome*)
-            appname="Chrome"
-            ;;
-        *)
-            # Clean binary name
-            base="${exe_name%%_*}"
-            base="${base%%.*}"
-            appname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
-            ;;
-    esac
+    # Pretty name and unique ID
+    shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
+    hash=$(echo "$exe" | sha1sum | cut -c1-6)
+    uniquename="${shortname}_${hash}"
 
-    hash=$(echo "$pkgdir" | sha1sum | cut -c1-6)
-    uniquename="${appname}"
-
+    # Find best icon in pkgdir
     icon=""
-    icon_size=""
     for size in 256 128 64; do
         icon=$(find "$pkgdir" -maxdepth 1 -type f \
-            \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.jpeg" -o -iname "*${size}*.svg" \) \
-            ! -name "*.sh" | head -n1)
-        if [[ -n "$icon" ]]; then
-            icon_size="$size"
-            break
-        fi
+            \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) | head -n1)
+        [[ -n "$icon" ]] && break
     done
-
     [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
-        \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) ! -name "*.sh" | head -n1)
-
+        \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) | head -n1)
     [[ -z "$icon" ]] && continue
 
-    icon_size="${icon_size:-256}"
+    icon_size=$(echo "$icon" | grep -oE '256|128|64' | head -n1)
+    icon_size=${icon_size:-256}
     outdir="$ICON_OUTPUT_BASE/${icon_size}x${icon_size}/apps"
     mkdir -p "$outdir"
 
@@ -229,7 +199,6 @@ find "$BIN_DIR" -mindepth 2 -maxdepth 3 -type f -executable ! -name "*.sh" | whi
     else
         cp "$icon" "$outfile"
     fi
-
     [[ ! -f "$outfile" ]] && continue
 
     binlauncher="$BIN_DIR/${uniquename}.sh"
@@ -240,10 +209,11 @@ exec "$exe" "\$@"
 EOF
     chmod +x "$binlauncher"
 
+    # Create .desktop shortcut
     desktop_file="$HOME/.local/share/applications/${uniquename}.desktop"
     cat > "$desktop_file" <<EOF
 [Desktop Entry]
-Name=$appname
+Name=$shortname
 Exec=$binlauncher
 Icon=$uniquename
 Terminal=false
@@ -252,7 +222,7 @@ Categories=Utility;
 EOF
     chmod +x "$desktop_file"
 
-    echo "${CYAN}Created shortcut for $appname ($uniquename)${RESET}"
+    echo "${CYAN}Created shortcut for $shortname ($uniquename)${RESET}"
 done
 
 }
