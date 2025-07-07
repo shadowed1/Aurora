@@ -373,6 +373,7 @@ case "$1" in
             1)
                 echo ""
                 echo "${GREEN}Performing quick reinstall...${RESET}"
+                echo ""
                 mkdir -p ~/opt/bin
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
@@ -388,6 +389,7 @@ case "$1" in
                 paru() { starman "$@"; }
                 echo ""
                 echo "${GREEN}Quick reinstall completed.${RESET}"
+                echo ""
                 ;;
             2)
                 echo ""
