@@ -424,6 +424,9 @@ download_and_extract "$URL" "$HOME/opt/"
 URL="https://archlinux.org/packages/extra/any/node-gyp/download"
 download_and_extract "$URL" "$HOME/opt/"
 
+URL="https://archlinux.org/packages/extra/x86_64/unzip/download"
+download_and_extract "$URL" "$HOME/opt/"
+
 #xfce4
 #URL"https://archlinux.org/packages/extra/x86_64/exo/download"
 #download_and_extract "$URL" "$HOME/opt/"
