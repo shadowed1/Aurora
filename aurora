@@ -140,8 +140,11 @@ EOF
         mkdir -p "$DESKTOP_DIR"
 
         cat > "$DESKTOP_FILE" <<EOF
+raw_name="${APPID##*.}"
+Name="$(tr '[:lower:]' '[:upper:]' <<< ${raw_name:0:1})${raw_name:1}"
+cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
-Name=${APPID##*.}
+Name=$Name
 Exec=$BIN_FILE
 Icon=$APPID
 Terminal=false
