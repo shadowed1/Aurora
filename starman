@@ -41,10 +41,10 @@ starman() {
         [[ -z "$filename" ]] && filename=$(basename "$real_url")
         FILE="$HOME/$filename"
 
-        echo "${YELLOW}starman Downloading to: $FILE${RESET}"
+        echo "${YELLOW}[starman] Downloading to: $FILE${RESET}"
         curl -L "$real_url" -o "$FILE" || {
             if [[ "$url" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
-                echo "${YELLOW}starman Retrying with /download appended...${RESET}"
+                echo "${YELLOW}[starman] Retrying with /download appended...${RESET}"
                 real_url="${url}/download"
                 curl -L "$real_url" -o "$FILE" || {
                     echo "${RED}Failed to download even with /download appended.${RESET}" >&2
@@ -59,14 +59,14 @@ starman() {
 
     elif [[ -f "$pkg" ]]; then
         FILE="$pkg"
-        echo "${CYAN}starman Installing from local file: $FILE${RESET}"
+        echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
 
     elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
-        echo "${BLUE}starman Assuming AUR package name: $pkg${RESET}"
+        echo "${BLUE}[starman] Assuming AUR package name: $pkg${RESET}"
         local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
         FILE="$HOME/$pkg.tar.gz"
         curl -fsSL "$AUR_URL" -o "$FILE" || {
-            echo "${RED}starman failed to fetch AUR package: $pkg${RESET}" >&2
+            echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
             return 1
         }
         downloaded=1
@@ -115,13 +115,13 @@ starman() {
 
         local PKGBUILD="$pkgdir/PKGBUILD"
         if [[ -f "$PKGBUILD" ]]; then
-            echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
+            echo "${CYAN}[starman] Found PKGBUILD. Attempting to parse...${RESET}"
             source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
             local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$PKGBUILD" | head -1)
 
             if [[ -n "$zip_url" ]]; then
                 local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
-                echo "${YELLOW}starman downloading source from PKGBUILD: $zip_url${RESET}"
+                echo "${YELLOW}[starman] Downloading source from PKGBUILD: $zip_url${RESET}"
                 curl -L "$zip_url" -o "$extfile" && {
                     case "$extfile" in
                         *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
@@ -132,7 +132,7 @@ starman() {
                         *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
                     esac
                     rm -f "$extfile"
-                    echo "${GREEN}starman extracted archive to $EXPORT_PATH/$pkgname${RESET}"
+                    echo "${GREEN}[starman] Extracted archive to $EXPORT_PATH/$pkgname${RESET}"
                 }
             fi
         fi
@@ -141,6 +141,7 @@ starman() {
     [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
     echo "${GREEN}Done.${RESET}"
 }
+
 
 update_app_list_cache() {
     flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
