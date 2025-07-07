@@ -17,6 +17,7 @@ starman() {
     local pkg=""
     local FILE=""
     local downloaded=0
+    local is_tar_archive=0
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -65,15 +66,15 @@ starman() {
     fi
 
     case "$FILE" in
-        *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.xz|*.txz)     tar -xvJf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.zst|*.tzst)   tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz4)          tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lzma)         tar --use-compress-program=lzma -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
+        *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
+        *.tar.xz|*.txz)     tar -xvJf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
+        *.tar.zst|*.tzst)   tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
+        *.tar.lz4)          tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
+        *.tar.lzma)         tar --use-compress-program=lzma -xvf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
+        *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
+        *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
+        *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH"; is_tar_archive=1 ;;
         *.zip)              unzip -o "$FILE" -d "$EXPORT_PATH" ;;
         *.deb)
             local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
@@ -97,10 +98,10 @@ starman() {
             ;;
     esac
 
-    if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+    if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ && "$is_tar_archive" -eq 1 ]]; then
         local pkgdir="$EXPORT_PATH/$pkg"
         mkdir -p "$pkgdir"
-        tar -xf "$FILE" -C "$pkgdir"
+        tar -xf "$FILE" -C "$pkgdir" || true
 
         local PKGBUILD="$pkgdir/PKGBUILD"
         if [[ -f "$PKGBUILD" ]]; then
