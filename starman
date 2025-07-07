@@ -207,7 +207,7 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
         ;;
     esac
   done
-}
+
 
   if [ "${#packages[@]}" -eq 0 ]; then
     echo "${RED}starman no packages specified.${RESET}"
