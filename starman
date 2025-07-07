@@ -28,35 +28,45 @@ starman() {
     done
 
     if [[ -z "$pkg" ]]; then
-        echo "${RED}Error: You must provide a package name or archive URL.${RESET}" >&2
+        echo "${RED}Error: You must provide a package name, local file, or URL.${RESET}" >&2
         return 1
     fi
 
     mkdir -p "$EXPORT_PATH"
 
     if [[ "$pkg" =~ ^https?:// ]]; then
-        local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+        local url="$pkg"
+        local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$url")
         local filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^";]*\)"\?.*/\1/p' | tail -1)
         [[ -z "$filename" ]] && filename=$(basename "$real_url")
         FILE="$HOME/$filename"
 
-        echo "${YELLOW}Downloading to: $FILE${RESET}"
+        echo "${YELLOW}starman Downloading to: $FILE${RESET}"
         curl -L "$real_url" -o "$FILE" || {
-            echo "${RED}Failed to download file.${RESET}" >&2
-            return 1
+            if [[ "$url" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
+                echo "${YELLOW}starman Retrying with /download appended...${RESET}"
+                real_url="${url}/download"
+                curl -L "$real_url" -o "$FILE" || {
+                    echo "${RED}Failed to download even with /download appended.${RESET}" >&2
+                    return 1
+                }
+            else
+                echo "${RED}Failed to download file.${RESET}" >&2
+                return 1
+            fi
         }
         downloaded=1
 
     elif [[ -f "$pkg" ]]; then
         FILE="$pkg"
-        echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
+        echo "${CYAN}starman Installing from local file: $FILE${RESET}"
 
     elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
-        echo "${BLUE}[starman] Assuming AUR package name: $pkg${RESET}"
+        echo "${BLUE}starman Assuming AUR package name: $pkg${RESET}"
         local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
         FILE="$HOME/$pkg.tar.gz"
         curl -fsSL "$AUR_URL" -o "$FILE" || {
-            echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
+            echo "${RED}starman failed to fetch AUR package: $pkg${RESET}" >&2
             return 1
         }
         downloaded=1
@@ -105,13 +115,13 @@ starman() {
 
         local PKGBUILD="$pkgdir/PKGBUILD"
         if [[ -f "$PKGBUILD" ]]; then
-            echo "${CYAN}[starman] Found PKGBUILD. Attempting to parse...${RESET}"
+            echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
             source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
             local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$PKGBUILD" | head -1)
 
             if [[ -n "$zip_url" ]]; then
                 local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
-                echo "${YELLOW}[starman] Downloading source from PKGBUILD: $zip_url${RESET}"
+                echo "${YELLOW}starman downloading source from PKGBUILD: $zip_url${RESET}"
                 curl -L "$zip_url" -o "$extfile" && {
                     case "$extfile" in
                         *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
@@ -122,7 +132,7 @@ starman() {
                         *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
                     esac
                     rm -f "$extfile"
-                    echo "${GREEN}[starman] Extracted archive to $EXPORT_PATH/$pkgname${RESET}"
+                    echo "${GREEN}starman extracted archive to $EXPORT_PATH/$pkgname${RESET}"
                 }
             fi
         fi
@@ -172,22 +182,22 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
             fi
           done
           if [[ -z "$found" ]]; then
-            echo "${RED}[starman] Could not find installed file for '$pkg'.${RESET}"
+            echo "${RED}starman could not find installed file for '$pkg'.${RESET}"
           fi
         done
         update_app_list_cache
         exit 1
         ;;
       -Qi)
-        echo "${CYAN}[starman] Dummy info for package $2:${RESET}"
+        echo "${CYAN}starman info for package $2:${RESET}"
         echo "Name            : $2"
         echo "Version         : 1.0.0"
-        echo "Description     : Fake AUR package for compatibility"
+        echo "Description     : AUR package for compatibility"
         echo "Install Date    : $(date)"
         exit 1
         ;;
       -*)
-        echo "${RED}[starman] Unsupported flag: $arg${RESET}"
+        echo "${RED}starman Unsupported flag: $arg${RESET}"
         exit 1
         ;;
       *)
@@ -197,12 +207,12 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
   done
 
   if [ "${#packages[@]}" -eq 0 ]; then
-    echo "${RED}[starman] No packages specified.${RESET}"
+    echo "${RED}starman no packages specified.${RESET}"
     exit 1
   fi
 
   for pkg in "${packages[@]}"; do
-    echo "${CYAN}[starman] Downloading archive for: $pkg${RESET}"
+    echo "${CYAN}starman downloading archive for: $pkg${RESET}"
     STARMAN_EXPORT_PATH="$HOME/opt" starman "$pkg"
   done
   exit 0
