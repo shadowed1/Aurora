@@ -20,21 +20,14 @@ starman() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -S|--needed|--noconfirm|-Sy|-Syu|-Syyu)
-                shift ;;
-            -*|--*)
-                echo "${RED}Unsupported flag: $1${RESET}" >&2
-                return 1 ;;
-            *)
-                pkg="$1"
-                shift ;;
+            -S|--needed|--noconfirm|-Sy|-Syu|-Syyu) shift ;;
+            -*|--*) echo "${RED}Unsupported flag: $1${RESET}" >&2; return 1 ;;
+            *) pkg="$1"; shift ;;
         esac
     done
 
     if [[ -z "$pkg" ]]; then
         echo "${RED}Error: You must provide a package name or archive URL.${RESET}" >&2
-        echo "Usage: starman -S https://example.com/file.tar.xz"
-        echo "   or: starman /path/to/file.sh"
         return 1
     fi
 
@@ -42,42 +35,33 @@ starman() {
 
     if [[ "$pkg" =~ ^https?:// ]]; then
         local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+        local filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^";]*\)"\?.*/\1/p' | tail -1)
+        [[ -z "$filename" ]] && filename=$(basename "$real_url")
+        FILE="$HOME/$filename"
 
-        if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
-            local filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^";]*\)"\?.*/\1/p' | tail -1)
-            [[ -z "$filename" ]] && filename=$(basename "$real_url")
-            FILE="$HOME/$filename"
-
-            echo "${YELLOW}Downloading to: $FILE${RESET}"
-            curl -L "$real_url" -o "$FILE" || {
-                echo "${RED}Failed to download file.${RESET}" >&2
-                return 1
-            }
-            downloaded=1
-        else
-            echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
+        echo "${YELLOW}Downloading to: $FILE${RESET}"
+        curl -L "$real_url" -o "$FILE" || {
+            echo "${RED}Failed to download file.${RESET}" >&2
             return 1
-        fi
+        }
+        downloaded=1
 
     elif [[ -f "$pkg" ]]; then
         FILE="$pkg"
         echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
-    else
-        if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
-            echo "${BLUE}[starman] Assuming AUR package name: $pkg${RESET}"
-            AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
-            FILE="$HOME/$pkg.tar.gz"
 
-            echo "${YELLOW}[starman] Downloading from AUR: $AUR_URL${RESET}"
-            curl -fsSL "$AUR_URL" -o "$FILE" || {
-                echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
-                return 1
-            }
-            downloaded=1
-        else
-            echo "${YELLOW}Warning: '$pkg' is not a valid URL, local file, or AUR package.${RESET}"
+    elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+        echo "${BLUE}[starman] Assuming AUR package name: $pkg${RESET}"
+        local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
+        FILE="$HOME/$pkg.tar.gz"
+        curl -fsSL "$AUR_URL" -o "$FILE" || {
+            echo "${RED}[starman] Failed to fetch AUR package: $pkg${RESET}" >&2
             return 1
-        fi
+        }
+        downloaded=1
+    else
+        echo "${RED}Unrecognized input: $pkg${RESET}"
+        return 1
     fi
 
     case "$FILE" in
@@ -90,26 +74,60 @@ starman() {
         *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" ;;
         *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
         *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.zip)              unzip -o "$FILE" -d "$EXPORT_PATH" ;;
+        *.deb)
+            local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
+            mkdir -p "$DEB_DEST"
+            dpkg-deb -x "$FILE" "$DEB_DEST" || {
+                echo "${RED}Failed to extract .deb package.${RESET}" >&2
+                return 1
+            }
+            echo "${GREEN}Extracted .deb to $DEB_DEST${RESET}"
+            ;;
         *.sh|*.run|*.bin)
             chmod +x "$FILE"
             mv "$FILE" "$EXPORT_PATH/"
             echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
-            downloaded=0 ;;
-        *.deb)
-            echo "${RED}.deb packages are not supported yet by starman.${RESET}"
-            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
-            return 1 ;;
+            downloaded=0
+            ;;
         *)
-            echo "${RED}Unknown file format: $FILE${RESET}" >&2
+            echo "${RED}Unknown or unsupported file format: $FILE${RESET}"
             [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
-            return 1 ;;
+            return 1
+            ;;
     esac
 
-    if [[ "$downloaded" -eq 1 ]]; then
-        echo "Cleaning up..."
-        rm -f "$FILE"
+    if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+        local pkgdir="$EXPORT_PATH/$pkg"
+        mkdir -p "$pkgdir"
+        tar -xf "$FILE" -C "$pkgdir"
+
+        local PKGBUILD="$pkgdir/PKGBUILD"
+        if [[ -f "$PKGBUILD" ]]; then
+            echo "${CYAN}[starman] Found PKGBUILD. Attempting to parse...${RESET}"
+            source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
+            local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$PKGBUILD" | head -1)
+
+            if [[ -n "$zip_url" ]]; then
+                local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
+                echo "${YELLOW}[starman] Downloading source from PKGBUILD: $zip_url${RESET}"
+                curl -L "$zip_url" -o "$extfile" && {
+                    case "$extfile" in
+                        *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.gz) tar -xzf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.xz) tar -xJf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.bz2) tar -xjf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.zst) tar --use-compress-program=unzstd -xvf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
+                    esac
+                    rm -f "$extfile"
+                    echo "${GREEN}[starman] Extracted archive to $EXPORT_PATH/$pkgname${RESET}"
+                }
+            fi
+        fi
     fi
 
+    [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
     echo "${GREEN}Done.${RESET}"
 }
 
