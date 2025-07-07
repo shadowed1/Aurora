@@ -142,17 +142,23 @@ lookup_flatpak_alias() {
 
 cmd_name=$(basename "$0")
 
-if [[ "$cmd_name" =~ ^(yay|paru|pacaur)$ ]]; then
+if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
   echo "${MAGENTA}[starman] Acting as: $cmd_name${RESET}"
 
   declare -a packages=()
+  skip_next_arg=0
   while [[ $# -gt 0 ]]; do
     arg="$1"
     shift
 
+    if [[ "$skip_next_arg" -eq 1 ]]; then
+        skip_next_arg=0
+        continue
+    fi
+
     case "$arg" in
       -S|-Sy|-Syu|-Syyu|--noconfirm|--needed)
-        # Skip handled flags
+        # Supported install flags — ignore
         ;;
       -Rns)
         shift
@@ -196,10 +202,12 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur)$ ]]; then
   fi
 
   for pkg in "${packages[@]}"; do
-    starman "$pkg"
+    echo "${CYAN}[starman] Downloading archive for: $pkg${RESET}"
+    STARMAN_EXPORT_PATH="$HOME/opt" starman "$pkg"
   done
-  exit 1
+  exit 0
 fi
+
 
 show_help() {
     echo "${YELLOW}"
