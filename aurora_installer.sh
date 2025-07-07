@@ -594,12 +594,17 @@ download_and_extract "$URL" "$HOME/opt/"
 #download_and_extract "$URL" "$HOME/opt/"
 
 
+echo "${MAGENTA}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
+echo "${RESET}${BLUE}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
+echo "${RESET}${CYAN}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
+echo "${RESET}${BLUE}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
+echo "${RESET}${MAGENTA}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
-
+echo "${RESET}"
 chmod +x ~/opt/bin/aurora
 chmod +x ~/opt/bin/starman
 chmod +x ~/opt/usr/bin/fastfetch
