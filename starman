@@ -33,15 +33,19 @@ starman() {
 
     mkdir -p "$EXPORT_PATH"
 
-        if [[ "$pkg" =~ ^https?:// ]]; then
-            if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
+    if [[ "$pkg" =~ ^https?:// ]]; then
+        if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
             pkg="$pkg/download"
         fi
-        
         local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
         local filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^";]*\)"\?.*/\1/p' | tail -1)
         [[ -z "$filename" ]] && filename=$(basename "$real_url")
+        # Save with correct extension if possible
+        if [[ "$filename" == "download" || -z "$filename" ]]; then
+            filename=$(basename "$real_url")
+        fi
         FILE="$HOME/$filename"
+
 
         echo "${YELLOW}Downloading to: $FILE${RESET}"
         curl -L "$real_url" -o "$FILE" || {
@@ -54,9 +58,29 @@ starman() {
         FILE="$pkg"
         echo "${CYAN}starman installing from local file: $FILE${RESET}"
 
-        elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+    elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         echo "${BLUE}starman assuming package name: $pkg${RESET}"
-        
+
+        # 🌐 Try to fetch dependencies from Arch metadata JSON
+        local json_url="https://archlinux.org/packages/extra/x86_64/${pkg}/json/"
+        echo "${CYAN}Fetching metadata: $json_url${RESET}"
+        local json_content
+        if json_content=$(curl -fsSL "$json_url"); then
+            local depends=$(echo "$json_content" | jq -r '.depends[]?' 2>/dev/null)
+            for dep in $depends; do
+                local dep_clean="${dep%%[<>=]*}"
+                if [[ ! -e "$HOME/opt/$dep_clean" ]]; then
+                    echo "${GREEN}starman downloading dependency: $dep_clean${RESET}"
+                    STARMAN_EXPORT_PATH="$HOME/opt" starman "$dep_clean"
+                else
+                    echo "${YELLOW}Dependency already present: $dep_clean${RESET}"
+                fi
+            done
+        else
+            echo "${YELLOW}Warning: No Arch package JSON found for $pkg. Skipping dependency resolution.${RESET}"
+        fi
+
+        # Try AUR first
         local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
         FILE="$HOME/$pkg.tar.gz"
         if curl -fsSL "$AUR_URL" -o "$FILE"; then
@@ -76,6 +100,7 @@ starman() {
             }
             downloaded=1
         fi
+
     else
         echo "${RED}Unrecognized input: $pkg${RESET}"
         return 1
