@@ -144,7 +144,7 @@ lookup_flatpak_alias() {
 cmd_name=$(basename "$0")
 
 if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
-  echo "${MAGENTA}[starman] Acting as: $cmd_name${RESET}"
+  echo "${MAGENTA}starman emulating: $cmd_name${RESET}"
 
   declare -a packages=()
   skip_next_arg=0
