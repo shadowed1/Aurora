@@ -74,14 +74,12 @@ shortcut() {
 
         if [[ -d "$BASE_PATH" ]]; then
             echo "${YELLOW}Granting override for icon path of $APPID...${RESET}"
-            flatpak override --user org.inkscape.Inkscape \
-                --filesystem="$BASE_PATH"
+            flatpak override --user org.inkscape.Inkscape --filesystem="$BASE_PATH"
         fi
 
         ICON=""
         ICON_SIZE=""
 
-        # Prefer 256x256 or 128x128 icons
         ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
             \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
             \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null \
@@ -91,7 +89,6 @@ shortcut() {
             ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
         fi
 
-        # Fallback to scalable
         if [[ -z "$ICON" ]]; then
             ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
                 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
@@ -108,7 +105,7 @@ shortcut() {
         echo "${GREEN}Processing icon for $APPID...${RESET}"
 
         EXT="${ICON##*.}"
-        EXT_LOWER=$(echo "$EXT" | tr 'A-Z' 'a-z')
+        EXT_LOWER="${EXT,,}"
 
         case "$EXT_LOWER" in
             png|jpg|jpeg)
@@ -135,7 +132,6 @@ shortcut() {
 source "\$HOME/.bashrc"
 flatpak run $APPID
 EOF
-
         chmod +x "$BIN_FILE"
         echo "${CYAN}Launcher script saved to $BIN_FILE${RESET}"
 
@@ -152,12 +148,111 @@ Terminal=false
 Type=Application
 Categories=Utility;
 EOF
-
         chmod +x "$DESKTOP_FILE"
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
-}
 
+BIN_DIR="$HOME/opt/bin"
+
+declare -A processed_dirs=()
+
+find "$BIN_DIR" -mindepth 2 -maxdepth 3 -type f -executable ! -name "*.sh" | while read -r exe; do
+    pkgdir=$(dirname "$exe")
+
+    if [[ -n "${processed_dirs[$pkgdir]}" ]]; then
+        continue
+    fi
+
+    processed_dirs["$pkgdir"]=1
+
+    exe_name=$(basename "$exe")
+    folder_name=$(basename "$pkgdir")
+
+    [[ "$exe_name" =~ ^_ ]] && continue
+    [[ "$exe_name" =~ ^[0-9]+$ ]] && continue
+
+    case "$folder_name" in
+        brave*|Brave*)
+            appname="Brave"
+            ;;
+        vivaldi*|Vivaldi*)
+            appname="Vivaldi"
+            ;;
+        chrome*|Chromium*|google-chrome*)
+            appname="Chrome"
+            ;;
+        *)
+            # Clean binary name
+            base="${exe_name%%_*}"
+            base="${base%%.*}"
+            appname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
+            ;;
+    esac
+
+    hash=$(echo "$pkgdir" | sha1sum | cut -c1-6)
+    uniquename="${appname}_${hash}"
+
+    icon=""
+    icon_size=""
+    for size in 256 128 64; do
+        icon=$(find "$pkgdir" -maxdepth 1 -type f \
+            \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.jpeg" -o -iname "*${size}*.svg" \) \
+            ! -name "*.sh" | head -n1)
+        if [[ -n "$icon" ]]; then
+            icon_size="$size"
+            break
+        fi
+    done
+
+    [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
+        \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) ! -name "*.sh" | head -n1)
+
+    [[ -z "$icon" ]] && continue
+
+    icon_size="${icon_size:-256}"
+    outdir="$ICON_OUTPUT_BASE/${icon_size}x${icon_size}/apps"
+    mkdir -p "$outdir"
+
+    outfile="$outdir/${uniquename}.png"
+    ext="${icon##*.}"
+    ext="${ext,,}"
+
+    if [[ "$ext" == "svg" ]]; then
+        flatpak --user run org.inkscape.Inkscape \
+            --export-type=png \
+            --export-filename="$outfile" \
+            -w "$icon_size" \
+            "$icon" 2>/dev/null
+    else
+        cp "$icon" "$outfile"
+    fi
+
+    [[ ! -f "$outfile" ]] && continue
+
+    binlauncher="$BIN_DIR/${uniquename}.sh"
+    cat > "$binlauncher" <<EOF
+#!/bin/bash
+source "\$HOME/.bashrc"
+exec "$exe" "\$@"
+EOF
+    chmod +x "$binlauncher"
+
+    desktop_file="$HOME/.local/share/applications/${uniquename}.desktop"
+    cat > "$desktop_file" <<EOF
+[Desktop Entry]
+Name=$appname
+Exec=$binlauncher
+Icon=$uniquename
+Terminal=false
+Type=Application
+Categories=Utility;
+EOF
+    chmod +x "$desktop_file"
+
+    echo "${CYAN}Created shortcut for $appname ($uniquename)${RESET}"
+done
+
+}
 
 show_help() {
     echo "${MAGENTA}${BOLD}"
