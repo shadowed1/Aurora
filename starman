@@ -159,7 +159,6 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
 
     case "$arg" in
       -S|-Sy|-Syu|-Syyu|--noconfirm|--needed)
-        # Supported install flags — ignore
         ;;
       -Rns)
         shift
