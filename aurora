@@ -371,6 +371,7 @@ case "$1" in
                 exit 0
                 ;;
             1)
+                echo ""
                 echo "${GREEN}Performing quick reinstall...${RESET}"
                 mkdir -p ~/opt/bin
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
