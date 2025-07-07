@@ -73,7 +73,7 @@ shortcut() {
     mkdir -p "$BIN_DIR" "$DESKTOP_DIR"
 
     echo "${CYAN}Generating Flatpak shortcuts...${RESET}"
-    flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
+    flatpak --user list --columns=application | while read -r APPID; do
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
         [[ ! -d "$BASE_PATH" ]] && continue
 
@@ -123,11 +123,12 @@ EOF
         chmod +x "$DESKTOP_DIR/$APPID.desktop"
     done
 
-    echo "${CYAN}Generating starman shortcuts...${RESET}"
+    echo "${CYAN}Generating starman/AUR-style shortcuts...${RESET}"
     for pkgdir in "$HOME/opt"/*; do
         [[ -d "$pkgdir" && -x "$pkgdir" ]] || continue
         pkgname=$(basename "$pkgdir")
-        mainbin=$(find "$pkgdir" -type f -executable -name "$pkgname" -o -name "$pkgname.sh" -o -name "*.AppImage" | head -n1)
+
+        mainbin=$(find "$pkgdir" -type f -executable \( -name "$pkgname" -o -name "$pkgname.sh" -o -name "*.AppImage" \) | head -n1)
         [[ -z "$mainbin" ]] && mainbin=$(find "$pkgdir/bin" -type f -executable | head -n1)
         [[ -z "$mainbin" ]] && continue
 
