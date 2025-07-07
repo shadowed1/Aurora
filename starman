@@ -89,12 +89,13 @@ starman() {
         *.deb)
             local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
             mkdir -p "$DEB_DEST"
-            dpkg-deb -x "$FILE" "$DEB_DEST" || {
+            if ! dpkg-deb -x "$FILE" "$DEB_DEST"; then
                 echo "${RED}Failed to extract .deb package.${RESET}" >&2
                 return 1
-            }
+            fi
             echo "${GREEN}Extracted .deb to $DEB_DEST${RESET}"
             ;;
+
         *.sh|*.run|*.bin)
             chmod +x "$FILE"
             mv "$FILE" "$EXPORT_PATH/"
