@@ -4,13 +4,12 @@
 
 ### *Under active development. Bugs do exist.*
 
-## *Run apps and games in Borealis using Flatpak for signficantly higher performance than Crostini!*
+## *Run apps and games in Borealis using emulated AUR helpers, Flatpak, Git, Python, and GCC for signficantly higher performance than Crostini!*
 ### Requirements: 
 
 - ChromeOS
-- Steam installed and open
 - Internet connection
-- Logging into Steam is NOT required.  
+- Steam installed and open (log in not required)
 <br>
 <br>
 
@@ -22,34 +21,37 @@
 - Copy Paste in borealis shell: <br>
 `bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")` <br>
 
-*Aurora needs Borealis; it won't work elsewhere.*
+*Aurora needs Borealis; it won't work anywhere else.*
 
 <br>
 <br>
 
 ### Features:
 
+- Fantastic hardware acceleration for all apps; even unsupported web browsers.
 - Steam can be closed entirely as long as an app is running.
 - Borealis shell tabs automatically initiate Flatpak support.
-  
-<p align="center">
-  <img src="https://i.imgur.com/JaW6d3P.png" alt="logo" width="5000" />
-</p>  
+- Tweak display scaling and cursor size. 
+- Change default apps, generate shortcuts and icons, and download + extract tar files.
+- Uninstaller is able to clean up after itself.
 
-- Aurora can tweak display scaling and cursor size. 
-- Fantastic hardware acceleration for all apps; even unsupported web browsers
-- Built-in GPU acceleration allows for longer battery life vs software rendering.
-- Minecraft Java with Prism Launcher @ 2160p:
+<br><br>
 
+
+Minecraft Java with Prism Launcher @ 2160p:
+<br>
 <p align="center">
   <img src="https://i.imgur.com/SKNLuZb.png" alt="logo" width="5000" />
 </p>  
 
+<br><br>
 
 
+### How to use: 
 
-### How to use:
-Commands with examples:
+<br>
+
+Commands with examples: <br>
 
 `aurora                     # Show current display and cursor values` <br>
 `source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)` <br>
@@ -58,30 +60,39 @@ Commands with examples:
 `aurora_debug               # echo a list of paths that flatpak will use` <br>
 `aurora reinstall           # Redownload Aurora from Github` <br>
 `aurora uninstall           # Launch uninstaller` <br>
-
+`aurora shortcut            # Create desktop shortcuts` <br> <br>
+`starman                    # Open quick access menu` <br> 
+`starman default            # Menu to set default apps` <br>
+`starman reset              # Remove app entries in quick access menu` <br> <br>
 `flatpak list               # Show list of installed apps` <br>
 `flatpak --help             # flatpak has a lot of commands!` <br>
 
-NORMAL FLATPAK EXAMPLE:
+Flatpak example: <br>
 
 `flatpak search Discord` <br>
 `flatpak install com.discordapp.Discord` <br>
 `flatpak run com.discordapp.Discord` <br>
 
-Failed to connect to bus error it must be run like example below:
+Failed to connect to bus error it must be run like example below: <br>
 
+`Visual Studio:` <br>
 `flatpak search visualstudio` <br>
 `flatpak install com.visualstudio.code` <br>
 `flatpak run --command=sh com.visualstudio.code` <br>
-`/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
-
-Use ls /app/bin to help find the app in these situations.
-
-Brave browser example:
+`/app/bin/code --no-sandbox  2>/dev/null` <br>
+<br>
+`Brave browser:` <br>
 `flatpak search Brave` <br>
 `flatpak install com.brave.Browser` <br>
 `flatpak run --command=sh com.brave.Browser` <br>
 `/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &` <br>
+`Various Options:` <br>
+`--no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal` <br>
+
+
+Use ls /app/bin to help find the app in these situations.
+
+<br>
 
 - Apps and their data are saved in ~/.local/share/flatpak and Aurora + Flatpak are stored in~/opt/.
 - --user argument is built-in for this Flatpak since we have no root access.
@@ -95,7 +106,7 @@ When running VS:
 When running Brave:
 
 `flatpak run --command=sh com.brave.Browser` <br>
-`/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &` <br> <br>
+`/app/brave/brave --no-sandbox --no-zygote &` <br> <br>
 
 - To find where an app is after opening a shell for the app, run:
 `ls /app/bin` <br> <br>
@@ -112,11 +123,11 @@ When running Brave:
 
  (optional) create a new folder under "MyFiles" (i.e. Steam_files)
  - Open Crosh (ctrl-alt-t) and type in: <br>
-`vmc share borealis [folder path from MyFiles]`
+`vmc share borealis [folder path from MyFiles]` <br>
 - in my example this would be:  <br>
-  `vmc share borealis Steam_files`
+  `vmc share borealis Steam_files` <br>
 - if you simply want to share the whole downloads folder do: <br>
-  `vmc share borealis Downloads`
+  `vmc share borealis Downloads` <br>
 
  ### How it works:
 
@@ -130,12 +141,16 @@ When running Brave:
 - Currently lacking Crostini's integration with the shelf
 
 - To do:
-`Default web browser support, proper d-bus implementation, steam shortcuts`
+`Default web browser support, proper d-bus implementation, steam shortcuts` <br>
 
 ### Changelog:
 0.01: `Release` <br>
 0.02: `Removed .bashrc file and added append capability. Added check to make sure not to install anywhere but Borealis.
-Added uninstall and reinstall commands. Thanks to Saragon for the suggestions and teachimg me more about .bashrc.` <br>
+Added uninstall and reinstall commands. Thanks to Saragon for the suggestions and teachimg me more about .bashrc.` <br><br>
+0.03: `Added command to auto-generate shortcuts and icons with pin support. Thanks to Saragon for helping find how to do that. Added starman (steam tar manager) - download and decompress files, quick access menu, and change default apps. Added ability to download AppImages and run them with starman.` <br><br>
+0.04: `Added quick reinstall option, starman AUR emulation, and shortcut ability from AUR emulation. Added ability to build packages using git, python, gcc.` <br><br> 
+
+<br>
 
 
 ### Acknowledgments
