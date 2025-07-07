@@ -9,9 +9,11 @@ BOLD=$(tput bold)
 RESET=$(tput sgr0)
 DISPLAY_SCALING=""
 CURSOR_SIZE=""
+ICON_SIZE=256
+ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
 
-if [ -f "$HOME/opt/flatpak.env" ]; then
-    . "$HOME/opt/flatpak.env"
+if [ -f "$HOME/opt/.flatpak.env" ]; then
+    . "$HOME/opt/.flatpak.env"
 fi
 
 set_display_scaling() {
@@ -29,11 +31,7 @@ set_display_scaling() {
         fi
 
         export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
-
-        sed -i '/^export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=/d' "$HOME/opt/flatpak.env"
-        echo "export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=\"$DISPLAY_SCALING\"" >> "$HOME/opt/flatpak.env"
-
-        echo "${GREEN}Display scaling set to ${DISPLAY_SCALING}x${RESET}" >&2
+        echo "${GREEN}Display scaling set to $DISPLAY_SCALING${RESET}" >&2
     else
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}" >&2
         return 1
@@ -57,11 +55,176 @@ set_cursor_scaling() {
     fi
 
     export XCURSOR_SIZE=$CURSOR_SIZE
+    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
+}
 
-    sed -i '/^export XCURSOR_SIZE=/d' "$HOME/opt/flatpak.env"
-    echo "export XCURSOR_SIZE=\"$CURSOR_SIZE\"" >> "$HOME/opt/flatpak.env"
+shortcut() {
+    if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
+        echo "${BLUE}Inkscape is required. Installing...${RESET}" >&2
+        flatpak --user install flathub org.inkscape.Inkscape || {
+            echo "${RED}Failed to install Inkscape.${RESET}" >&2
+            exit 1
+        }
+    fi
 
-    echo "${GREEN}Cursor size set to ${CURSOR_SIZE}px${RESET}" >&2
+    ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
+
+    flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
+        BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
+
+        if [[ -d "$BASE_PATH" ]]; then
+            flatpak override --user org.inkscape.Inkscape --filesystem="$BASE_PATH"
+        fi
+
+        ICON=""
+        ICON_SIZE=""
+
+        ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
+            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null \
+            | sort | grep -Ei '(256x256|128x128).*\.((png|jpg|jpeg|svg))$' | head -n1)
+
+        if [[ -n "$ICON" ]]; then
+            ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
+        fi
+
+        if [[ -z "$ICON" ]]; then
+            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
+                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
+                -ipath "*/scalable/apps/*" -type f 2>/dev/null | head -n1)
+            ICON_SIZE=256
+        fi
+
+        [[ -z "$ICON" ]] && continue
+
+        OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
+        OUTFILE="$OUTDIR/$APPID.png"
+        mkdir -p "$OUTDIR"
+
+        echo "${MAGENTA}Processing icon for $APPID...${RESET}"
+
+        EXT="${ICON##*.}"
+        EXT_LOWER="${EXT,,}"
+
+        case "$EXT_LOWER" in
+            png|jpg|jpeg)
+                cp "$ICON" "$OUTFILE"
+                ;;
+            svg)
+                flatpak --user run org.inkscape.Inkscape \
+                    --export-type=png \
+                    --export-filename="$OUTFILE" \
+                    -w "$ICON_SIZE" \
+                    "$ICON" 2>/dev/null
+                ;;
+            *)
+                continue
+                ;;
+        esac
+
+        BIN_DIR="$HOME/opt/bin"
+        BIN_FILE="$BIN_DIR/${APPID##*.}.sh"
+        mkdir -p "$BIN_DIR"
+
+        cat > "$BIN_FILE" <<EOF
+#!/bin/bash
+source "\$HOME/.bashrc"
+flatpak run $APPID
+EOF
+        chmod +x "$BIN_FILE"
+        echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
+
+        DESKTOP_DIR="$HOME/.local/share/applications"
+        DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
+        mkdir -p "$DESKTOP_DIR"
+
+       raw_name="${APPID##*.}"
+       Name="$(tr '[:lower:]' '[:upper:]' <<< ${raw_name:0:1})${raw_name:1}"
+
+cat > "$DESKTOP_FILE" <<EOF
+[Desktop Entry]
+Name=$Name
+Exec=$BIN_FILE
+Icon=$APPID
+Terminal=false
+Type=Application
+Categories=Utility;
+EOF
+
+        chmod +x "$DESKTOP_FILE"
+        echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
+    done
+
+#### STRICT .sh BIN SHORTCUTS BASED ON FOLDER NAME ####
+BIN_DIR="$HOME/opt/bin"
+find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
+    folder_name=$(basename "$pkgdir")
+    base="${folder_name%-bin}"  # brave-bin → brave
+    exe="$pkgdir/$base"
+
+    # Only continue if that exact file exists and is executable
+    [[ -x "$exe" ]] || continue
+
+    # Pretty name and unique ID
+    shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
+    hash=$(echo "$exe" | sha1sum | cut -c1-6)
+    uniquename="${shortname}_${hash}"
+
+    # Find best icon in pkgdir
+    icon=""
+    for size in 256 128 64; do
+        icon=$(find "$pkgdir" -maxdepth 1 -type f \
+            \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) | head -n1)
+        [[ -n "$icon" ]] && break
+    done
+    [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
+        \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) | head -n1)
+    [[ -z "$icon" ]] && continue
+
+    icon_size=$(echo "$icon" | grep -oE '256|128|64' | head -n1)
+    icon_size=${icon_size:-256}
+    outdir="$ICON_OUTPUT_BASE/${icon_size}x${icon_size}/apps"
+    mkdir -p "$outdir"
+
+    outfile="$outdir/${uniquename}.png"
+    ext="${icon##*.}"
+    ext="${ext,,}"
+
+    if [[ "$ext" == "svg" ]]; then
+        flatpak --user run org.inkscape.Inkscape \
+            --export-type=png \
+            --export-filename="$outfile" \
+            -w "$icon_size" \
+            "$icon" 2>/dev/null
+    else
+        cp "$icon" "$outfile"
+    fi
+    [[ ! -f "$outfile" ]] && continue
+
+    binlauncher="$BIN_DIR/${uniquename}.sh"
+    cat > "$binlauncher" <<EOF
+#!/bin/bash
+source "\$HOME/.bashrc"
+exec "$exe" "\$@"
+EOF
+    chmod +x "$binlauncher"
+
+    # Create .desktop shortcut
+    desktop_file="$HOME/.local/share/applications/${uniquename}.desktop"
+    cat > "$desktop_file" <<EOF
+[Desktop Entry]
+Name=$shortname
+Exec=$binlauncher
+Icon=$uniquename
+Terminal=false
+Type=Application
+Categories=Utility;
+EOF
+    chmod +x "$desktop_file"
+
+    echo "${CYAN}Created shortcut for $shortname ($uniquename)${RESET}"
+done
+
 }
 
 show_help() {
@@ -72,14 +235,17 @@ show_help() {
     echo "source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)"
     echo "source aurora cursor 32    # Set cursor size (8 - 200)"
     echo "aurora help                # Show help"
+    echo "aurora shortcut            # Create desktop shortcuts"
     echo "aurora_debug               # echo a list of paths that flatpak can use"
     echo "aurora reinstall           # Redownload Aurora from Github"
     echo "aurora uninstall           # Launch uninstaller"
-    echo ""
-    echo "flatpak list               # Show list of installed apps"
-    echo "flatpak --help              # flatpak has a lot of commands!"
+    echo "${RESET}${YELLOW}"
+    echo "starman                    # Launch starman menu"
+    echo "${RESET}"
+    echo "${GREEN}flatpak list               # Show list of installed apps"
+    echo "flatpak --help             # flatpak has a lot of commands!${RESET}"
     echo "${BLUE}${BOLD}"
-    echo "NORMAL FLATPAK EXAMPLE:${RESET}${BLUE}"
+    echo "Normal flatpak example:${RESET}${BLUE}"
     echo ""
     echo "flatpak search Discord"
     echo "flatpak install com.discordapp.Discord"
@@ -87,18 +253,18 @@ show_help() {
     echo "${BLUE}${BOLD}"
     echo "Failed to connect to bus error - run like examples below:"
     echo "${RESET}${CYAN}"
+    echo "Visual Studio:"
+    echo ""
     echo "flatpak search visualstudio"
     echo "flatpak install com.visualstudio.code"
     echo "flatpak run --command=sh com.visualstudio.code"
     echo "/app/bin/code --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal"
     echo ""
-    echo "${RESET}${CYAN}${BOLD}Use ls /app/ to help find the app in these situations.${RESET}${CYAN}"
-    echo ""
-    echo "Brave browser might need to append '&' at the end to run:"
-    echo "flatpak search Brave"
-    echo "flatpak install com.brave.Browser"
+    echo "Brave Browser:"
     echo "flatpak run --command=sh com.brave.Browser"
-    echo "/app/brave/brave --no-sandbox --no-zygote --disable-gpu-sandbox --disable-features=UsePortal &"
+    echo "/app/brave/brave --no-sandbox --no-zygote &"
+    echo ""
+    echo "${RESET}${CYAN}${BOLD}Use ls /app/ to help find the app in these situations."
     echo "${RESET}"
 }
 
@@ -107,10 +273,10 @@ aurora_uninstall() {
     echo "${MAGENTA}${BOLD}Aurora Uninstaller${RESET}"
     echo "${BLUE}${BOLD}Select an option:${RESET}"
     echo "${BLUE}[0] Quit${RESET}"
-    echo "${CYAN}{[1] Remove ~/opt (Aurora + Flatpak only; keep Flatpak apps and data)${RESET}"
+    echo "${CYAN}[1] Remove ~/opt (Aurora + Flatpak only; keep Flatpak apps and data)${RESET}"
     echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, entries created in ~/.bashcr, and dependencies)${RESET}"
     echo ""
-    read -rp "Enter your choice [0-2]: " CHOICE
+    read -rp "Enter choice [0-2]: " CHOICE
 
     case "$CHOICE" in
         0)
@@ -125,7 +291,7 @@ aurora_uninstall() {
             else
                 echo "${YELLOW}$HOME/opt not found.${RESET}"
             fi
-            echo "${CYAN}Deletes Aurora + Flatpak, but kept Flatpak apps/data.${RESET}"
+            echo "${CYAN}Deleted Aurora + Flatpak, but kept apps + data.${RESET}"
             ;;
        2)
             echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashrc entries and ~/.xdg-runtime-dir${RESET}"
@@ -136,10 +302,9 @@ aurora_uninstall() {
                 return 1
             fi
 
-                sed -i '/flatpak\.env/d' "$HOME/.bashrc"
-                sed -i '/flatpak\.logic/d' "$HOME/.bashrc"
+                sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
+                sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
                 
-
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
                     rm -rf "$DIR"
@@ -150,13 +315,10 @@ aurora_uninstall() {
             done
 
             if grep -q "# Flatpak --user logic" "$HOME/.bashrc"; then
-                # Delete from marker to the closing "}" of the function
                 sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
-                echo "${CYAN}Removed Aurora Flatpak function from .bashrc${RESET}"
+                echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
             fi
 
-            sed -i '/flatpak\.env/d' "$HOME/.bashrc"
-            sed -i '/flatpak\.logic/d' "$HOME/.bashrc"
             
             echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, and data removed. ~/.bashrc entries removed. ${RESET}"
             ;;
@@ -177,27 +339,107 @@ case "$1" in
     --h|-h|h|--help|-help|help)
         show_help
         ;;
+    shortcut)
+        shortcut
+        ;;
     ""|status)
-        DISPLAY_SCALE=$(grep '^export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=' "$HOME/opt/flatpak.env" | cut -d= -f2- | tr -d '"')
-        CURSOR_VAL=$(grep '^export XCURSOR_SIZE=' "$HOME/opt/flatpak.env" | cut -d= -f2- | tr -d '"')
-    
-            if [[ -z "$DISPLAY_SCALE" && -z "$CURSOR_VAL" ]]; then
-                echo "${CYAN}ELECTRON_FORCE_DEVICE_SCALE_FACTOR and XCURSOR_SIZE remain default.${RESET}"
-            else
-                [[ -n "$DISPLAY_SCALE" ]] && \
-                    echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $DISPLAY_SCALE${RESET}" || \
-                    echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR remains default.${RESET}"
-        
-                [[ -n "$CURSOR_VAL" ]] && \
-                    echo "${MAGENTA}XCURSOR_SIZE = $CURSOR_VAL${RESET}" || \
-                    echo "${BLUE}XCURSOR_SIZE remains default.${RESET}"
-            fi
+        if [[ -z "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" && -z "$XCURSOR_SIZE" ]]; then
+            echo "${CYAN}ELECTRON_FORCE_DEVICE_SCALE_FACTOR and XCURSOR_SIZE remain default.${RESET}"
+        else
+            [[ -n "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" ]] && \
+                echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $ELECTRON_FORCE_DEVICE_SCALE_FACTOR${RESET}" || \
+                echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR remain default.${RESET}"
+
+            [[ -n "$XCURSOR_SIZE" ]] && \
+                echo "${MAGENTA}XCURSOR_SIZE = $XCURSOR_SIZE${RESET}" || \
+                echo "${BLUE}XCURSOR_SIZE remain default.${RESET}"
+        fi
         ;;
-        reinstall)
-        bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+      reinstall)
+        echo ""
+        echo "${MAGENTA}${BOLD}Aurora Reinstall:${RESET}"
+        echo ""
+        echo "${CYAN}[0] Quit${RESET}"
+        echo "${BLUE}[1] Quick reinstall - only download core Aurora files${RESET}"
+        echo "${MAGENTA}[2] Full reinstall - download all files and dependencies${RESET}"
+        echo ""
+        read -rp "Enter your choice [0-2]: " CHOICE
+
+        case "$CHOICE" in
+            0)
+                echo "${BLUE}Cancelled.${RESET}"
+                exit 0
+                ;;
+            1)
+                echo ""
+                echo "${GREEN}Performing quick reinstall...${RESET}"
+                echo ""
+                mkdir -p ~/opt/bin
+                echo "${MAGENTA}"
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
+                echo "${RESET}${BLUE}"
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
+                echo "${RESET}${CYAN}"
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
+                echo "${RESET}${BLUE}"
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
+                echo "${RESET}${MAGENTA}"
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
+                echo "${RESET}"
+                chmod +x ~/opt/bin/aurora
+                chmod +x ~/opt/bin/starman
+                rm "$HOME/opt/bin/yay" 2>/dev/null
+                rm "$HOME/opt/bin/paru" 2>/dev/null
+                rm "$HOME/opt/bin/pacaur" 2>/dev/null
+                rm "$HOME/opt/bin/pacman" 2>/dev/null
+                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
+                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
+                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
+                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
+                yay() { starman "$@"; }
+                paru() { starman "$@"; }
+                echo ""
+                echo "${GREEN}Quick reinstall completed.${RESET}"
+                echo ""
+                ;;
+            2)
+                echo ""
+                echo "${YELLOW}Launching full reinstall...${RESET}"
+                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+                ;;
+            *)
+                echo "${RED}Invalid choice. Please enter 0, 1, or 2.${RESET}"
+                exit 1
+                ;;
+        esac
         ;;
-        uninstall)
+    uninstall)
         aurora_uninstall
+        ;;
+    version)
+        if [[ -f "$HOME/opt/bin/version" ]]; then
+            CURRENT_VER=$(cat "$HOME/opt/bin/version")
+            CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g')
+
+            LATEST_VER=$(curl -Ls https://raw.githubusercontent.com/shadowed1/Aurora/main/version)
+            LATEST_VER_NO=$(echo "$LATEST_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g')
+
+            if [[ "$CURRENT_VER_NO" -lt "$LATEST_VER_NO" ]]; then
+                echo "${CYAN}You're using $CURRENT_VER which is NOT the latest version.${RESET}"
+                read -rp "Would you like to 'reinstall' to get $LATEST_VER ? (Y/n): " choice
+                if [[ "$choice" =~ ^[Yy]$ ]]; then
+                    echo "${CYAN}Reinstalling!${RESET}"
+                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+                else
+                    echo "${YELLOW}Skipping reinstall.${RESET}"
+                fi
+            else
+                echo "${GREEN}You're using $CURRENT_VER which is up-to-date, so you're good.${RESET}"
+            fi
+        else
+            echo "${RED}Version file not found.${RESET}"
+            exit 1
+        fi
         ;;
     *)
         echo "${RED}Unknown command $1 ${RESET}"
