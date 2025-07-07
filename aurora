@@ -68,82 +68,50 @@ shortcut() {
     fi
 
     ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
+    BIN_DIR="$HOME/opt/bin"
+    DESKTOP_DIR="$HOME/.local/share/applications"
+    mkdir -p "$BIN_DIR" "$DESKTOP_DIR"
 
+    echo "${CYAN}Generating Flatpak shortcuts...${RESET}"
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
+        [[ ! -d "$BASE_PATH" ]] && continue
 
-        if [[ -d "$BASE_PATH" ]]; then
-            echo "${YELLOW}Granting override for icon path of $APPID...${RESET}"
-            flatpak override --user org.inkscape.Inkscape \
-                --filesystem="$BASE_PATH"
-        fi
+        echo "${YELLOW}Granting override for icon path of $APPID...${RESET}"
+        flatpak override --user org.inkscape.Inkscape --filesystem="$BASE_PATH"
 
-        ICON=""
-        ICON_SIZE=""
-
-        # Prefer 256x256 or 128x128 icons
         ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
             \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null \
-            | sort | grep -Ei '(256x256|128x128).*\.((png|jpg|jpeg|svg))$' | head -n1)
+            \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null | head -n1)
 
-        if [[ -n "$ICON" ]]; then
-            ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
-        fi
-
-        # Fallback to scalable
-        if [[ -z "$ICON" ]]; then
-            ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
-                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
-                -ipath "*/scalable/apps/*" -type f 2>/dev/null | head -n1)
-            ICON_SIZE=256
-        fi
+        [[ -z "$ICON" ]] && ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 -iname "*.svg" -ipath "*/scalable/*" | head -n1)
 
         [[ -z "$ICON" ]] && continue
+        ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
+        [[ -z "$ICON_SIZE" ]] && ICON_SIZE=256
 
         OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
         OUTFILE="$OUTDIR/$APPID.png"
         mkdir -p "$OUTDIR"
 
-        echo "${GREEN}Processing icon for $APPID...${RESET}"
-
         EXT="${ICON##*.}"
-        EXT_LOWER=$(echo "$EXT" | tr 'A-Z' 'a-z')
-
-        case "$EXT_LOWER" in
-            png|jpg|jpeg)
-                cp "$ICON" "$OUTFILE"
-                ;;
+        case "${EXT,,}" in
+            png|jpg|jpeg) cp "$ICON" "$OUTFILE" ;;
             svg)
-                flatpak --user run org.inkscape.Inkscape \
-                    --export-type=png \
-                    --export-filename="$OUTFILE" \
-                    -w "$ICON_SIZE" \
-                    "$ICON" 2>/dev/null
-                ;;
-            *)
-                continue
+                flatpak run org.inkscape.Inkscape \
+                    --export-type=png --export-filename="$OUTFILE" -w "$ICON_SIZE" "$ICON" 2>/dev/null
                 ;;
         esac
 
-        BIN_DIR="$HOME/opt/bin"
         BIN_FILE="$BIN_DIR/${APPID##*.}.sh"
-        mkdir -p "$BIN_DIR"
-
         cat > "$BIN_FILE" <<EOF
 #!/bin/bash
 source "\$HOME/.bashrc"
 flatpak run $APPID
 EOF
-
         chmod +x "$BIN_FILE"
-        echo "${CYAN}Launcher script saved to $BIN_FILE${RESET}"
 
-        DESKTOP_DIR="$HOME/.local/share/applications"
-        DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
-        mkdir -p "$DESKTOP_DIR"
-
-        cat > "$DESKTOP_FILE" <<EOF
+        cat > "$DESKTOP_DIR/$APPID.desktop" <<EOF
 [Desktop Entry]
 Name=${APPID##*.}
 Exec=$BIN_FILE
@@ -152,12 +120,56 @@ Terminal=false
 Type=Application
 Categories=Utility;
 EOF
+        chmod +x "$DESKTOP_DIR/$APPID.desktop"
+    done
 
+    echo "${CYAN}Generating starman shortcuts...${RESET}"
+    for pkgdir in "$HOME/opt"/*; do
+        [[ -d "$pkgdir" && -x "$pkgdir" ]] || continue
+        pkgname=$(basename "$pkgdir")
+        mainbin=$(find "$pkgdir" -type f -executable -name "$pkgname" -o -name "$pkgname.sh" -o -name "*.AppImage" | head -n1)
+        [[ -z "$mainbin" ]] && mainbin=$(find "$pkgdir/bin" -type f -executable | head -n1)
+        [[ -z "$mainbin" ]] && continue
+
+        ICON=$(find "$pkgdir" \( -iname "*.png" -o -iname "*.svg" \) | grep -Ei '(256x256|128x128|icon)' | head -n1)
+        [[ -z "$ICON" ]] && ICON=$(find "$pkgdir/share/icons" -iname "*.svg" -o -iname "*.png" | head -n1)
+        ICON_SIZE=256
+
+        ICON_FILE="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps/$pkgname.png"
+        mkdir -p "$(dirname "$ICON_FILE")"
+        if [[ -n "$ICON" ]]; then
+            case "${ICON##*.}" in
+                png|jpg|jpeg) cp "$ICON" "$ICON_FILE" ;;
+                svg)
+                    flatpak run org.inkscape.Inkscape \
+                        --export-type=png --export-filename="$ICON_FILE" -w "$ICON_SIZE" "$ICON" 2>/dev/null
+                    ;;
+            esac
+        fi
+
+        BIN_FILE="$BIN_DIR/$pkgname.sh"
+        cat > "$BIN_FILE" <<EOF
+#!/bin/bash
+source "\$HOME/.bashrc"
+exec "$mainbin" "\$@"
+EOF
+        chmod +x "$BIN_FILE"
+
+        DESKTOP_FILE="$DESKTOP_DIR/$pkgname.desktop"
+        cat > "$DESKTOP_FILE" <<EOF
+[Desktop Entry]
+Name=$pkgname
+Exec=$BIN_FILE
+Icon=$pkgname
+Terminal=false
+Type=Application
+Categories=Utility;
+EOF
         chmod +x "$DESKTOP_FILE"
-        echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
+
+        echo "${GREEN}Created shortcut for $pkgname -> $BIN_FILE${RESET}"
     done
 }
-
 
 show_help() {
     echo "${MAGENTA}${BOLD}"
