@@ -419,12 +419,12 @@ case "$1" in
     version)
         if [[ -f "$HOME/opt/bin/version" ]]; then
             CURRENT_VER=$(cat "$HOME/opt/bin/version")
-            CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g')
+            CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
-            LATEST_VER=$(curl -Ls https://raw.githubusercontent.com/shadowed1/Aurora/main/version)
-            LATEST_VER_NO=$(echo "$LATEST_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g')
+            LATEST_VER=$(curl -Ls "https://raw.githubusercontent.com/shadowed1/Aurora/main/version")
+            LATEST_VER_NO=$(echo "$LATEST_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
-            if [[ "$CURRENT_VER_NO" -lt "$LATEST_VER_NO" ]]; then
+            if (( 10#$CURRENT_VER_NO < 10#$LATEST_VER_NO )); then
                 echo "${CYAN}You're using $CURRENT_VER which is NOT the latest version.${RESET}"
                 read -rp "Would you like to 'reinstall' to get $LATEST_VER ? (Y/n): " choice
                 if [[ "$choice" =~ ^[Yy]$ ]]; then
