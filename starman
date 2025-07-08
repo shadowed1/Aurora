@@ -283,13 +283,36 @@ zenity_launcher() {
                 --text="Enter the URL of the .tar archive:")
             [[ -z "$FILE_URL" ]] && return
         
-            EXTRACT_PATH=$(zenity --file-selection --directory \
-                --title="Choose Extraction Directory" \
-                --text="Select a folder where the archive will be extracted:")
-            [[ -z "$EXTRACT_PATH" ]] && return
-
+            EXTRACT_PATH="$HOME/opt/"
+        
+            mkdir -p "$EXTRACT_PATH"
+        
+            echo "${YELLOW}Downloading to: $EXTRACT_PATH${RESET}"
         
             STARMAN_EXPORT_PATH="$EXTRACT_PATH" starman "$FILE_URL"
+
+        
+            TEMPFILE=$(mktemp)
+            curl -L "$FILE_URL" -o "$TEMPFILE" || {
+                zenity --error --title="Download Failed" --text="Failed to download archive from:\n$FILE_URL"
+                return 1
+            }
+            
+            FILENAME=$(basename "$FILE_URL")
+            EXT="${FILENAME##*.}"
+            DESTFILE="$EXTRACT_PATH/$FILENAME"
+            
+            case "$EXT" in
+                tar|tar.gz|tar.xz|txz|tar.bz2|tgz|tbz2|zip|zst)
+                    mv "$TEMPFILE" "$DESTFILE"
+                    ;;
+                *)
+                    DESTFILE="$EXTRACT_PATH/archive_downloaded"
+                    mv "$TEMPFILE" "$DESTFILE"
+                    ;;
+            esac
+            
+            STARMAN_EXPORT_PATH="$EXTRACT_PATH" starman "$DESTFILE"
             ;;
 
         download_appimage)
