@@ -155,29 +155,26 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
-#### STRICT .sh BIN SHORTCUTS BASED ON FOLDER NAME ####
 BIN_DIR="$HOME/opt/bin"
 find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
     folder_name=$(basename "$pkgdir")
     base="${folder_name%-bin}"  # brave-bin → brave
     exe="$pkgdir/$base"
 
-    # Only continue if that exact file exists and is executable
     [[ -x "$exe" ]] || continue
 
-    # Pretty name and unique ID
+ 
     shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
     hash=$(echo "$exe" | sha1sum | cut -c1-6)
     uniquename="${shortname}_${hash}"
 
-    # Find best icon in pkgdir
     icon=""
     for size in 256 128 64; do
-        icon=$(find "$pkgdir" -maxdepth 1 -type f \
+        icon=$(find "$pkgdir" -mindepth 1 -maxdepth 4 -type f \
             \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) | head -n1)
         [[ -n "$icon" ]] && break
     done
-    [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
+    [[ -z "$icon" ]] && icon=$(find "$pkgdir" -mindepth 1 -maxdepth 4 -type f \
         \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) | head -n1)
     [[ -z "$icon" ]] && continue
 
