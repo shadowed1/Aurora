@@ -283,14 +283,11 @@ zenity_launcher() {
                 --text="Enter the URL of the .tar archive:")
             [[ -z "$FILE_URL" ]] && return
         
-            EXTRACT_PATH="$HOME/opt/"
+            EXTRACT_PATH="$HOME/opt"
         
             mkdir -p "$EXTRACT_PATH"
         
             echo "${YELLOW}Downloading to: $EXTRACT_PATH${RESET}"
-        
-            STARMAN_EXPORT_PATH="$EXTRACT_PATH" starman "$FILE_URL"
-
         
             TEMPFILE=$(mktemp)
             curl -L "$FILE_URL" -o "$TEMPFILE" || {
