@@ -34,25 +34,29 @@ starman() {
 
     mkdir -p "$EXPORT_PATH"
 
-    if [[ "$pkg" =~ ^https?:// ]]; then
-    # Add trailing /download for Arch pages
-    if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
-        pkg="$pkg/download"
-    fi
-
+   if [[ "$pkg" =~ ^https?:// ]]; then
     local real_url
     real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
-    local filename
-    filename=$(basename "$real_url")
-    [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
 
-    FILE="$HOME/$filename"
-    echo "${YELLOW}Downloading to: $FILE${RESET}"
-    curl -L "$real_url" -o "$FILE" || {
-        echo "${RED}Failed to download file.${RESET}" >&2
+    if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
+        local filename
+        # Try Content-Disposition header first
+        filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+        # Fallbacks
+        [[ -z "$filename" ]] && filename=$(basename "$real_url")
+        [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
+
+        FILE="$HOME/$filename"
+        echo "${YELLOW}Downloading to: $FILE${RESET}"
+        curl -L "$real_url" -o "$FILE" || {
+            echo "${RED}Failed to download file.${RESET}" >&2
+            return 1
+        }
+        downloaded=1
+    else
+        echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
         return 1
-    }
-    downloaded=1
+    fi
 
     elif [[ -f "$pkg" ]]; then
         FILE="$pkg"
@@ -76,8 +80,10 @@ starman() {
             real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
     
             local filename
-            filename=$(basename "$real_url")
-            FILE="$HOME/$filename"
+            local filename
+            filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+            [[ -z "$filename" ]] && filename=$(basename "$real_url")
+            [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg}.pkg.tar.zst"
     
             echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
             curl -L "$real_url" -o "$FILE" || {
