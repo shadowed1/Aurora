@@ -35,31 +35,32 @@ starman() {
     mkdir -p "$EXPORT_PATH"
 
     if [[ "$pkg" =~ ^https?:// ]]; then
-        # Add trailing /download for Arch pages
-        if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
-            pkg="$pkg/download"
-        fi
+    # Add trailing /download for Arch pages
+    if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
+        pkg="$pkg/download"
+    fi
 
-        local real_url
-        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
-        local filename=$(basename "$real_url")
-        [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
+    local real_url
+    real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+    local filename
+    filename=$(basename "$real_url")
+    [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
 
-        FILE="$HOME/$filename"
-        echo "${YELLOW}Downloading to: $FILE${RESET}"
-        curl -L "$real_url" -o "$FILE" || {
-            echo "${RED}Failed to download file.${RESET}" >&2
-            return 1
-        }
-        downloaded=1
+    FILE="$HOME/$filename"
+    echo "${YELLOW}Downloading to: $FILE${RESET}"
+    curl -L "$real_url" -o "$FILE" || {
+        echo "${RED}Failed to download file.${RESET}" >&2
+        return 1
+    }
+    downloaded=1
 
     elif [[ -f "$pkg" ]]; then
         FILE="$pkg"
         echo "${CYAN}starman installing from local file: $FILE${RESET}"
-
+    
     elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         echo "${BLUE}starman assuming package name: $pkg${RESET}"
-
+    
         local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
         FILE="$HOME/$pkg.tar.gz"
         if curl -fsSL "$AUR_URL" -o "$FILE"; then
@@ -67,11 +68,17 @@ starman() {
             downloaded=1
         else
             echo "${YELLOW}AUR package not found. Trying official Arch repo...${RESET}"
-            local ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/download"
-            local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
-            local filename=$(basename "$real_url")
+    
+            local ARCH_URL
+            ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/download"
+    
+            local real_url
+            real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
+    
+            local filename
+            filename=$(basename "$real_url")
             FILE="$HOME/$filename"
-
+    
             echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
             curl -L "$real_url" -o "$FILE" || {
                 echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
@@ -83,6 +90,7 @@ starman() {
         echo "${RED}Unrecognized input: $pkg${RESET}"
         return 1
     fi
+
 
     case "$FILE" in
         *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
