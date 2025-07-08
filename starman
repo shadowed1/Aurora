@@ -34,17 +34,18 @@ starman() {
 
     mkdir -p "$EXPORT_PATH"
 
-        if [[ "$pkg" =~ ^https?:// ]]; then
-            if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
+    if [[ "$pkg" =~ ^https?:// ]]; then
+        # Add trailing /download for Arch pages
+        if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
             pkg="$pkg/download"
         fi
-        
-        local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+
+        local real_url
+        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
         local filename=$(basename "$real_url")
         [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
 
         FILE="$HOME/$filename"
-
         echo "${YELLOW}Downloading to: $FILE${RESET}"
         curl -L "$real_url" -o "$FILE" || {
             echo "${RED}Failed to download file.${RESET}" >&2
@@ -56,9 +57,9 @@ starman() {
         FILE="$pkg"
         echo "${CYAN}starman installing from local file: $FILE${RESET}"
 
-        elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+    elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         echo "${BLUE}starman assuming package name: $pkg${RESET}"
-        
+
         local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
         FILE="$HOME/$pkg.tar.gz"
         if curl -fsSL "$AUR_URL" -o "$FILE"; then
