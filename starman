@@ -33,53 +33,66 @@ starman() {
 
     mkdir -p "$EXPORT_PATH"
 
-        if [[ "$pkg" =~ ^https?:// ]]; then
-            if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
-            pkg="$pkg/download"
-        fi
-        
-        local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
-        local filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^";]*\)"\?.*/\1/p' | tail -1)
-        [[ -z "$filename" ]] && filename=$(basename "$real_url")
-        FILE="$HOME/$filename"
+    if [[ "$pkg" =~ ^https?://archlinux.org/packages/.+[^/](/)?$ ]]; then
+    pkg="${pkg%/}/download"
 
+    local real_url
+    real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+
+    if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
+        local filename
+        filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+        [[ -z "$filename" ]] && filename=$(basename "$real_url")
+        [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
+
+        FILE="$HOME/$filename"
         echo "${YELLOW}Downloading to: $FILE${RESET}"
         curl -L "$real_url" -o "$FILE" || {
             echo "${RED}Failed to download file.${RESET}" >&2
             return 1
         }
         downloaded=1
-
-    elif [[ -f "$pkg" ]]; then
-        FILE="$pkg"
-        echo "${CYAN}starman installing from local file: $FILE${RESET}"
-
-        elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
-        echo "${BLUE}starman assuming package name: $pkg${RESET}"
-        
-        local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
-        FILE="$HOME/$pkg.tar.gz"
-        if curl -fsSL "$AUR_URL" -o "$FILE"; then
-            echo "${GREEN}Downloaded AUR package: $pkg${RESET}"
-            downloaded=1
-        else
-            echo "${YELLOW}AUR package not found. Trying official Arch repo...${RESET}"
-            local ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/download"
-            local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
-            local filename=$(basename "$real_url")
-            FILE="$HOME/$filename"
-
-            echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
-            curl -L "$real_url" -o "$FILE" || {
-                echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
-                return 1
-            }
-            downloaded=1
-        fi
     else
-        echo "${RED}Unrecognized input: $pkg${RESET}"
+        echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
         return 1
     fi
+
+elif [[ -f "$pkg" ]]; then
+    FILE="$pkg"
+    echo "${CYAN}starman installing from local file: $FILE${RESET}"
+
+elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+    echo "${BLUE}starman assuming package name: $pkg${RESET}"
+
+    local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
+    FILE="$HOME/$pkg.tar.gz"
+    if curl -fsSL "$AUR_URL" -o "$FILE"; then
+        echo "${GREEN}Downloaded AUR package: $pkg${RESET}"
+        downloaded=1
+    else
+        echo "${YELLOW}AUR package not found. Trying official Arch repo...${RESET}"
+
+        local ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/download"
+        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
+
+        local filename
+        filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+        [[ -z "$filename" ]] && filename=$(basename "$real_url")
+        [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg}.pkg.tar.zst"
+
+        FILE="$HOME/$filename"
+        echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
+        curl -L "$real_url" -o "$FILE" || {
+            echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
+            return 1
+        }
+        downloaded=1
+    fi
+
+else
+    echo "${RED}Unrecognized input: $pkg${RESET}"
+    return 1
+fi
 
     case "$FILE" in
         *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
@@ -230,8 +243,15 @@ show_help() {
     echo "${YELLOW}"
     echo "Commands with examples:"
     echo ""
-    echo "starman https://archlinux.org/packages/extra/x86_64/composefs/download ~/opt/flatpak-deps"
-    echo "Default path if unset: ~/opt/bin"
+    echo "starman                # Open GUI app launcher"
+    echo "starman refresh        # Update app list"
+    echo ""
+    echo "Install packages in different ways:"
+    echo "pacman https://archlinux.org/packages/extra/x86_64/libvlc/"
+    echo "pacman vlc"
+    echo ""
+    echo "Emulates yay,pacaur, paru, and pacman. "
+    echo ""
     echo "${RESET}"
 }
 
@@ -272,21 +292,16 @@ zenity_launcher() {
       --column="Action" --column="Description" \
       "${MENU_ENTRIES[@]}")
 
-    case "$CHOICE" in
+     case "$CHOICE" in
         browse_files)
             zenity --file-selection --directory --title="Select a Folder to Browse"
             ;;
-           download_archive)
-            FILE_URL=$(zenity --entry \
-                --title="Steam Tar Manager" \
-                --text="Enter the URL of the .tar archive:")
-            [[ -z "$FILE_URL" ]] && return
+        download_archive)
+            FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the .tar archive:")
+            [[ -z "$FILE_URL" ]] && break
         
-            EXTRACT_PATH=$(zenity --file-selection --directory \
-                --title="Choose Extraction Directory" \
-                --text="Select a folder where the archive will be extracted:")
-            [[ -z "$EXTRACT_PATH" ]] && return
-
+            EXTRACT_PATH=$(zenity --file-selection --directory --title="Choose Extraction Directory" --filename="$HOME/")
+            [[ -z "$EXTRACT_PATH" ]] && break
         
             STARMAN_EXPORT_PATH="$EXTRACT_PATH" starman "$FILE_URL"
             ;;
