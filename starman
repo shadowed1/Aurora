@@ -80,10 +80,10 @@ starman() {
     
             local filename
             filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
-            FILE="$HOME/$filename"
             [[ -z "$filename" ]] && filename=$(basename "$real_url")
             [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg}.pkg.tar.zst"
-    
+            FILE="$HOME/$filename"
+            
             echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
             curl -L "$real_url" -o "$FILE" || {
                 echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
