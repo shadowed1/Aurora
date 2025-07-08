@@ -1,3 +1,4 @@
+
 #!/bin/bash
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
@@ -12,111 +13,219 @@ if [ -f "$HOME/opt/.flatpak.env" ]; then
     . "$HOME/opt/.flatpak.env"
 fi
 
-update_app_list_cache() {
-    flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
-}
-
 starman() {
+    local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
     local pkg=""
-    if [[ "$1" =~ ^-S ]]; then
-        for arg in "$@"; do
-            case "$arg" in
-                -S|-Sy|--needed|--noconfirm)
-                    ;; # skip flags
-                *)
-                    pkg="$arg"
-                    ;;
-            esac
-        done
+    local FILE=""
+    local downloaded=0
 
-        if [[ -z "$pkg" ]]; then
-            echo "${RED}No package specified.${RESET}"
-            return 1
-        fi
-    else
-        pkg="$1"
-    fi
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -S|--needed|--noconfirm|-Sy|-Syu|-Syyu) shift ;;
+            -*|--*) echo "${RED}Unsupported flag: $1${RESET}" >&2; return 1 ;;
+            *) pkg="$1"; shift ;;
+        esac
+    done
 
     if [[ -z "$pkg" ]]; then
         echo "${RED}Error: You must provide a package name or archive URL.${RESET}" >&2
-        echo "Usage: starman -S https://example.com/file.tar.xz"
-        echo "   or: starman /path/to/file.sh"
-        return 1
-    fi
-
-    local FILE=""
-    local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
-    local downloaded=0
-
-    if [[ "$pkg" =~ ^https?:// ]]; then
-        local real_url
-        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
-
-        if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
-            local filename
-            filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
-            [[ -z "$filename" ]] && filename=$(basename "$real_url")
-
-            FILE="$HOME/$filename"
-            echo "${YELLOW}Downloading to: $FILE${RESET}"
-            curl -L "$real_url" -o "$FILE" || {
-                echo "${RED}Failed to download file.${RESET}" >&2
-                return 1
-            }
-            downloaded=1
-        else
-            echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
-            return 1
-        fi
-
-    elif [[ -f "$pkg" ]]; then
-        FILE="$pkg"
-        echo "${CYAN}[starman] Installing from local file: $FILE${RESET}"
-    else
-        echo "${YELLOW}Warning: '$pkg' is not a valid URL or local file.${RESET}"
         return 1
     fi
 
     mkdir -p "$EXPORT_PATH"
 
+        if [[ "$pkg" =~ ^https?:// ]]; then
+            if [[ "$pkg" =~ ^https://archlinux\.org/packages/.+[^/]$ ]]; then
+            pkg="$pkg/download"
+        fi
+        
+        local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+        local filename=$(basename "$real_url")
+        [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
+
+        FILE="$HOME/$filename"
+
+        echo "${YELLOW}Downloading to: $FILE${RESET}"
+        curl -L "$real_url" -o "$FILE" || {
+            echo "${RED}Failed to download file.${RESET}" >&2
+            return 1
+        }
+        downloaded=1
+
+    elif [[ -f "$pkg" ]]; then
+        FILE="$pkg"
+        echo "${CYAN}starman installing from local file: $FILE${RESET}"
+
+        elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+        echo "${BLUE}starman assuming package name: $pkg${RESET}"
+        
+        local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
+        FILE="$HOME/$pkg.tar.gz"
+        if curl -fsSL "$AUR_URL" -o "$FILE"; then
+            echo "${GREEN}Downloaded AUR package: $pkg${RESET}"
+            downloaded=1
+        else
+            echo "${YELLOW}AUR package not found. Trying official Arch repo...${RESET}"
+            local ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/download"
+            local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
+            local filename=$(basename "$real_url")
+            FILE="$HOME/$filename"
+
+            echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
+            curl -L "$real_url" -o "$FILE" || {
+                echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
+                return 1
+            }
+            downloaded=1
+        fi
+    else
+        echo "${RED}Unrecognized input: $pkg${RESET}"
+        return 1
+    fi
+
     case "$FILE" in
-        *.tar.gz|*.tgz)     tar --use-compress-program="gzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.bz2|*.tbz2)   tar --use-compress-program="bzip2 -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.xz|*.txz)     tar --use-compress-program="xz -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.zst|*.tzst)   tar --use-compress-program="unzstd" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz4)          tar --use-compress-program="lz4 -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lzma)         tar --use-compress-program="lzma -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz)           tar --use-compress-program="lzip -d" -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.Z)            tar --use-compress-program="uncompress" -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.xz|*.txz)     tar -xvJf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.zst|*.tzst)   tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lz4)          tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lzma)         tar --use-compress-program=lzma -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
         *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.zip)              unzip -o "$FILE" -d "$EXPORT_PATH" ;;
+        *.deb)
+            local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
+            mkdir -p "$DEB_DEST"
+            dpkg-deb -x "$FILE" "$DEB_DEST" || {
+                echo "${RED}Failed to extract .deb package.${RESET}" >&2
+                return 1
+            }
+            echo "${GREEN}Extracted .deb to $DEB_DEST${RESET}"
+            ;;
         *.sh|*.run|*.bin)
             chmod +x "$FILE"
             mv "$FILE" "$EXPORT_PATH/"
-            echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")"
-            downloaded=0 # Keep the file
-            ;;
-        *.deb)
-            echo "${RED}.deb packages are not supported yet by starman.${RESET}"
-            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
-            return 1
+            echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
+            downloaded=0
             ;;
         *)
-            echo "${RED}Unknown file format: $FILE${RESET}" >&2
+            echo "${RED}Unknown or unsupported file format: $FILE${RESET}"
             [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
             return 1
             ;;
     esac
 
-    if [[ "$downloaded" -eq 1 ]]; then
-        echo "Cleaning up..."
-        rm -f "$FILE"
+    if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+        local pkgdir="$EXPORT_PATH/$pkg"
+        mkdir -p "$pkgdir"
+        tar -xf "$FILE" -C "$pkgdir"
+
+        local PKGBUILD="$pkgdir/PKGBUILD"
+        if [[ -f "$PKGBUILD" ]]; then
+            echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
+            source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
+            local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$PKGBUILD" | head -1)
+
+            if [[ -n "$zip_url" ]]; then
+                local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
+                echo "${YELLOW}starman downloading source from PKGBUILD: $zip_url${RESET}"
+                curl -L "$zip_url" -o "$extfile" && {
+                    case "$extfile" in
+                        *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.gz) tar -xzf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.xz) tar -xJf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.bz2) tar -xjf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *.tar.zst) tar --use-compress-program=unzstd -xvf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                        *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
+                    esac
+                    rm -f "$extfile"
+                    echo "${GREEN}starman extracted archive to $EXPORT_PATH/$pkgname${RESET}"
+                }
+            fi
+        fi
     fi
 
+    [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
     echo "${GREEN}Done.${RESET}"
 }
 
+update_app_list_cache() {
+    flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
+}
 
+lookup_flatpak_alias() {
+  local name="$1"
+  grep -i "$name" "$HOME/.starman_flatpak_cache" | head -n1 | cut -f1
+}
 
+cmd_name=$(basename "$0")
+
+if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
+  echo "${MAGENTA}starman emulating: $cmd_name${RESET}"
+
+  declare -a packages=()
+  skip_next_arg=0
+  while [[ $# -gt 0 ]]; do
+    arg="$1"
+    shift
+
+    if [[ "$skip_next_arg" -eq 1 ]]; then
+        skip_next_arg=0
+        continue
+    fi
+
+    case "$arg" in
+      -S|-Sy|-Syu|-Syyu|--noconfirm|--needed)
+        # Supported install flags — ignore
+        ;;
+      -Rns)
+        shift
+        for pkg in "$@"; do
+          local found=""
+          for dir in "$HOME/opt/bin" "$HOME/opt/flatpak-deps" "$HOME/opt/usr/bin"; do
+            found=$(find "$dir" -maxdepth 1 -type f -name "$pkg" 2>/dev/null | head -n1)
+            if [[ -n "$found" ]]; then
+              echo "${YELLOW}starman removing $found${RESET}"
+              rm -f "$found"
+            fi
+          done
+          if [[ -z "$found" ]]; then
+            echo "${RED}starman could not find installed file for '$pkg'.${RESET}"
+          fi
+        done
+        update_app_list_cache
+        exit 1
+        ;;
+      -Qi)
+        echo "${CYAN}starman info for $2:${RESET}"
+        echo "Name            : $2"
+        echo "Version         : 1.0.0"
+        echo "Description     : AUR package for compatibility"
+        echo "Install Date    : $(date)"
+        exit 1
+        ;;
+      -*)
+        echo "${RED}starman unsupported flag: $arg${RESET}"
+        exit 1
+        ;;
+      *)
+        packages+=("$arg")
+        ;;
+    esac
+  done
+
+  if [ "${#packages[@]}" -eq 0 ]; then
+    echo "${RED}[starman] No packages specified.${RESET}"
+    exit 1
+  fi
+
+  for pkg in "${packages[@]}"; do
+    echo "${CYAN}[starman] Downloading archive for: $pkg${RESET}"
+    STARMAN_EXPORT_PATH="$HOME/opt" starman "$pkg"
+  done
+  exit 0
+fi
 
 
 show_help() {
@@ -165,7 +274,7 @@ zenity_launcher() {
       --column="Action" --column="Description" \
       "${MENU_ENTRIES[@]}")
 
-    case "$CHOICE" in
+     case "$CHOICE" in
         browse_files)
             zenity --file-selection --directory --title="Select a Folder to Browse"
             ;;
@@ -235,9 +344,6 @@ zenity_launcher() {
 esac
 }
 
-
-
-
 reset_app_list() {
     rm -f "$HOME/.starman_flatpak_cache"
     echo "${YELLOW}Flatpak app list cache cleared.${RESET}"
@@ -259,7 +365,7 @@ set_default_app() {
     read -rp "Enter the number of the app to set as default: " appnum
     if ! [[ "$appnum" =~ ^[0-9]+$ ]] || (( appnum < 0 || appnum >= ${#APPS[@]} )); then
         echo "Invalid selection."
-        return 1
+        exit 1
     fi
 
     local selected_app="${APPS[appnum]}"
@@ -313,31 +419,34 @@ set_default_app() {
     echo "Done."
 }
 
+main() {
+    case "$1" in
+        starman)
+            shift
+            starman "$@" || return 1
+            ;;
+        --h|-h|help)
+            show_help
+            ;;
+        default)
+            set_default_app || return 1
+            ;;
+        refresh)
+            update_app_list_cache
+            echo "${GREEN}Starman app list refreshed.${RESET}"
+            ;;
+        ""|status)
+            zenity_launcher || return 1
+            ;;
+        reset)
+            reset_app_list
+            ;;
+        *)
+            echo "${RED}Unknown command '$1'${RESET}"
+            show_help
+            return 1
+            ;;
+    esac
+}
 
-case "$1" in
-    starman)
-        shift
-        starman "$@"
-        ;;
-    --h|-h|help)
-        show_help
-        ;;
-    default)
-        set_default_app
-        ;;
-    refresh)
-        update_app_list_cache
-        echo "${GREEN}Starman app list refreshed.${RESET}"
-        ;;
-    ""|status)
-        zenity_launcher
-        ;;
-     reset)
-        reset_app_list
-        ;;
-    *)
-        echo "${RED}Unknown command '$1'${RESET}"
-        show_help
-        exit 1
-        ;;
-esac
+main "$@"
