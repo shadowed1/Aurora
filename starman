@@ -41,6 +41,7 @@ starman() {
     if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
         local filename
         filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+        FILE="$HOME/$filename"
         [[ -z "$filename" ]] && filename=$(basename "$real_url")
         [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
 
@@ -78,8 +79,8 @@ starman() {
             real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
     
             local filename
-            local filename
             filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+            FILE="$HOME/$filename"
             [[ -z "$filename" ]] && filename=$(basename "$real_url")
             [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg}.pkg.tar.zst"
     
