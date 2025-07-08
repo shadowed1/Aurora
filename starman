@@ -40,9 +40,7 @@ starman() {
 
     if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
         local filename
-        # Try Content-Disposition header first
         filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
-        # Fallbacks
         [[ -z "$filename" ]] && filename=$(basename "$real_url")
         [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
 
@@ -96,8 +94,6 @@ starman() {
         echo "${RED}Unrecognized input: $pkg${RESET}"
         return 1
     fi
-
-
     case "$FILE" in
         *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
         *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH" ;;
