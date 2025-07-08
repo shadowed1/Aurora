@@ -39,11 +39,9 @@ starman() {
         fi
         
         local real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
-        local filename=$(curl -sIL "$real_url" | grep -i -E '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\).*/\1/p' | tail -1)
-        if [[ -z "$filename" || "$filename" == "download" ]]; then
-            filename=$(curl -sIL "$real_url" | grep -oiE 'filename=.*(\.pkg\.tar\.[^"; ]+)' | head -n1 | sed 's/filename=//;s/"//g')
-        fi
-        [[ -z "$filename" || "$filename" == "download" ]] && filename=$(basename "$real_url")
+        local filename=$(basename "$real_url")
+        [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
+
         FILE="$HOME/$filename"
 
         echo "${YELLOW}Downloading to: $FILE${RESET}"
