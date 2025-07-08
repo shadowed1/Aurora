@@ -34,12 +34,10 @@ starman() {
 
     mkdir -p "$EXPORT_PATH"
 
-   if [[ "$pkg" =~ ^https?:// ]]; then
-    if [[ "$pkg" =~ ^https?://archlinux.org/packages/.+[^/]$ ]]; then
-        pkg="${pkg}/download"
-    elif [[ "$pkg" =~ ^https?://archlinux.org/packages/.+/+$ ]]; then
-        pkg="${pkg}download"
+   if [[ "$pkg" =~ ^https?://archlinux.org/packages/.+[^/](/)?$ ]]; then
+    pkg="${pkg%/}/download"
     fi
+
 
     local real_url
     real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
