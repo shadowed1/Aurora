@@ -33,6 +33,7 @@
 - Borealis shell tabs automatically initiate Flatpak support.
 - Tweak display scaling and cursor size. 
 - Change default apps, generate shortcuts and icons, and download + extract tar files.
+- Emulate pacman, yay, pacaur, and paru to download packages from arch repo directly. 
 - Uninstaller is able to clean up after itself.
 
 <br><br>
