@@ -126,7 +126,7 @@ When running Brave:
 
  Customize to your liking. Applying changes requires restarting app. <br><br>
 
-  #### Sharing files (Simalar to "Share with Linux")
+  #### Sharing files (Similar to "Share with Linux")
 
  (optional) create a new folder under "MyFiles" (i.e. Steam_files)
  - Open Crosh (ctrl-alt-t) and type in: <br>
