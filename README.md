@@ -2,9 +2,11 @@
   <img src="https://i.imgur.com/vhqBIyM.png" alt="logo" width="5000" />
 </p>  
 
-### *Under active development. Bugs do exist.*
 
 ## *Run apps and games in Borealis using emulated AUR helpers, Flatpak, Git, Python, and GCC for signficantly higher performance than Crostini!*
+
+*Under active development. Bugs do exist.*
+
 ### Requirements: 
 
 - ChromeOS
