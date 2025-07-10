@@ -144,12 +144,6 @@ When running Brave:
 - Adds .bashrc for flatpak commands to actually work.
 
 
-### Limitations:
-- Currently lacking Crostini's integration with the shelf
-
-- To do:
-`Default web browser support, proper d-bus implementation, steam shortcuts` <br>
-
 ### Changelog:
 0.01: `Release` <br>
 0.02: `Removed .bashrc file and added append capability. Added check to make sure not to install anywhere but Borealis.
