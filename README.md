@@ -154,6 +154,8 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 0.04: `Added quick reinstall option, starman AUR emulation, and shortcut ability from AUR emulation. Added ability to build packages using git, python, gcc.` <br><br>
 0.05: `Fixed starman bug with link parsing. Added support for yay, paru, pacaur, and pacman to install packages multiple ways. Added version base 10 support.` <br>
 
+To do list: Make `aurora shortcut` more intelligent at finding icons for non-standardized paths. 
+
 <br>
 
 
