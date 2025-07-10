@@ -8,7 +8,6 @@
 ### Requirements: 
 
 - ChromeOS
-- Internet connection
 - Steam installed and open (log in not required)
 <br>
 <br>
@@ -33,6 +32,7 @@
 - Borealis shell tabs automatically initiate Flatpak support.
 - Tweak display scaling and cursor size. 
 - Change default apps, generate shortcuts and icons, and download + extract tar files.
+- Emulate pacman, yay, pacaur, and paru to download packages from arch repo directly. 
 - Uninstaller is able to clean up after itself.
 
 <br><br>
@@ -61,13 +61,19 @@ Commands with examples: <br>
 `aurora reinstall           # Redownload Aurora from Github` <br>
 `aurora uninstall           # Launch uninstaller` <br>
 `aurora shortcut            # Create desktop shortcuts` <br> <br>
+
+
+`starman                # Open GUI app launcher` <br>
+`starman refresh        # Update app list` <br>
+
 `starman                    # Open quick access menu` <br> 
 `starman default            # Menu to set default apps` <br>
 `starman reset              # Remove app entries in quick access menu` <br> <br>
+`pacman https://archlinux.org/packages/extra/x86_64/libvlc/` <br>
+`pacman vlc` <br>
+
 `flatpak list               # Show list of installed apps` <br>
 `flatpak --help             # flatpak has a lot of commands!` <br>
-
-Flatpak example: <br>
 
 `flatpak search Discord` <br>
 `flatpak install com.discordapp.Discord` <br>
@@ -148,7 +154,8 @@ When running Brave:
 0.02: `Removed .bashrc file and added append capability. Added check to make sure not to install anywhere but Borealis.
 Added uninstall and reinstall commands. Thanks to Saragon for the suggestions and teachimg me more about .bashrc.` <br><br>
 0.03: `Added command to auto-generate shortcuts and icons with pin support. Thanks to Saragon for helping find how to do that. Added starman (steam tar manager) - download and decompress files, quick access menu, and change default apps. Added ability to download AppImages and run them with starman.` <br><br>
-0.04: `Added quick reinstall option, starman AUR emulation, and shortcut ability from AUR emulation. Added ability to build packages using git, python, gcc.` <br><br> 
+0.04: `Added quick reinstall option, starman AUR emulation, and shortcut ability from AUR emulation. Added ability to build packages using git, python, gcc.` <br><br>
+0.05: `Fixed starman bug with link parsing. Added support for yay, paru, pacaur, and pacman to install packages multiple ways. Added version base 10 support.` <br>
 
 <br>
 
