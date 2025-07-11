@@ -1,3 +1,4 @@
+
 #!/bin/bash
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
@@ -40,6 +41,14 @@ case "$choice" in
 echo ""
 echo "${CYAN}${BOLD}About to start downloading Flatpak, Git, GCC, Python and their dependencies! Download can take up to 5 minutes.${RESET}"
 sleep 5
+
+sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
+sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
+
+if grep -q "# Flatpak --user logic" "$HOME/.bashrc"; then
+sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
+echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
+fi
 
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
