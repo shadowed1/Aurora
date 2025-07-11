@@ -374,15 +374,6 @@ case "$1" in
                 echo ""
                 echo "${GREEN}Performing quick reinstall...${RESET}"
                 echo ""
-
-                sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
-                sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
-
-                 if grep -q "# Flatpak --user logic" "$HOME/.bashrc"; then
-                sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
-                echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
-                fi
-
                 mkdir -p ~/opt/bin
                 echo "${MAGENTA}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
