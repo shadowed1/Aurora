@@ -407,9 +407,13 @@ case "$1" in
                 grep -Fxq "$FLATPAK_ENV_LINE" "$HOME/.bashrc" || echo "$FLATPAK_ENV_LINE" >> "$HOME/.bashrc"
                 grep -Fxq "$FLATPAK_LOGIC_LINE" "$HOME/.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "$HOME/.bashrc"
 
-                echo ""
-                echo "${GREEN}Quick reinstall completed.${RESET}"
-                echo ""
+                echo "${RESET}${MAGENTA}"
+echo "╔═══════════════════════════════════════════════════════════════════════════════════════════════╗"
+echo "║                                       ${RESET}${BOLD}${MAGENTA}INSTALL COMPLETE!${RESET}${MAGENTA}                                      ║"
+echo "║           ${RESET}${BLUE}${BOLD}Open a new Crosh tab and run ${RESET}${BOLD}${CYAN}vsh borealis${RESET}${BLUE}${BOLD} to continue setting up Flatpak${RESET}${MAGENTA}            ║"
+echo "╚═══════════════════════════════════════════════════════════════════════════════════════════════╝"
+echo "${RESET}"
+echo ""
                 ;;
             2)
                 echo ""
