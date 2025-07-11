@@ -55,14 +55,14 @@ Minecraft Java with Prism Launcher @ 2160p:
 
 Commands with examples: <br>
 
-`aurora                     # Show current display and cursor values` <br>
-`source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)` <br>
-`source aurora cursor 32    # Set cursor size (8 - 200)` <br>
-`aurora help                # Show help` <br>
-`aurora_debug               # echo a list of paths that flatpak will use` <br>
-`aurora reinstall           # Redownload Aurora from Github` <br>
-`aurora uninstall           # Launch uninstaller` <br>
-`aurora shortcut            # Create desktop shortcuts` <br> <br>
+`aurora                  # Show current display and cursor values` <br>
+`aurora display 1.0      # Set display scaling factor (0.25 - 4.0)` <br>
+`aurora cursor 32        # Set cursor size (8 - 200)` <br>
+`aurora help             # Show help` <br>
+`aurora_debug            # echo a list of paths that flatpak will use` <br>
+`aurora reinstall        # Redownload Aurora from Github` <br>
+`aurora uninstall        # Launch uninstaller` <br>
+`aurora shortcut         # Create desktop shortcuts` <br> <br>
 
 
 `starman                # Open GUI app launcher` <br>
