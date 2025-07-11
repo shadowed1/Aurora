@@ -155,26 +155,29 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
+#### STRICT .sh BIN SHORTCUTS BASED ON FOLDER NAME ####
 BIN_DIR="$HOME/opt/bin"
 find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
     folder_name=$(basename "$pkgdir")
     base="${folder_name%-bin}"  # brave-bin → brave
     exe="$pkgdir/$base"
 
+    # Only continue if that exact file exists and is executable
     [[ -x "$exe" ]] || continue
 
- 
+    # Pretty name and unique ID
     shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
     hash=$(echo "$exe" | sha1sum | cut -c1-6)
     uniquename="${shortname}_${hash}"
 
+    # Find best icon in pkgdir
     icon=""
     for size in 256 128 64; do
-        icon=$(find "$pkgdir" -mindepth 1 -maxdepth 4 -type f \
+        icon=$(find "$pkgdir" -maxdepth 1 -type f \
             \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) | head -n1)
         [[ -n "$icon" ]] && break
     done
-    [[ -z "$icon" ]] && icon=$(find "$pkgdir" -mindepth 1 -maxdepth 4 -type f \
+    [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
         \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) | head -n1)
     [[ -z "$icon" ]] && continue
 
@@ -373,15 +376,15 @@ case "$1" in
                 echo ""
                 mkdir -p ~/opt/bin
                 echo "${MAGENTA}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
                 echo "${RESET}${BLUE}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
                 echo "${RESET}${CYAN}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
                 echo "${RESET}${BLUE}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
                 echo "${RESET}${MAGENTA}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
                 echo "${RESET}"
                 chmod +x ~/opt/bin/aurora
                 chmod +x ~/opt/bin/starman
@@ -395,6 +398,15 @@ case "$1" in
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
                 yay() { starman "$@"; }
                 paru() { starman "$@"; }
+
+                [ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
+
+                FLATPAK_ENV_LINE='[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"'
+                FLATPAK_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
+                
+                grep -Fxq "$FLATPAK_ENV_LINE" "$HOME/.bashrc" || echo "$FLATPAK_ENV_LINE" >> "$HOME/.bashrc"
+                grep -Fxq "$FLATPAK_LOGIC_LINE" "$HOME/.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "$HOME/.bashrc"
+
                 echo ""
                 echo "${GREEN}Quick reinstall completed.${RESET}"
                 echo ""
@@ -402,7 +414,7 @@ case "$1" in
             2)
                 echo ""
                 echo "${YELLOW}Launching full reinstall...${RESET}"
-                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
+                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
                 ;;
             *)
                 echo "${RED}Invalid choice. Please enter 0, 1, or 2.${RESET}"
@@ -418,7 +430,7 @@ case "$1" in
             CURRENT_VER=$(cat "$HOME/opt/bin/version")
             CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
-            LATEST_VER=$(curl -Ls "https://raw.githubusercontent.com/shadowed1/Aurora/beta/version")
+            LATEST_VER=$(curl -Ls "https://raw.githubusercontent.com/shadowed1/Aurora/main/version")
             LATEST_VER_NO=$(echo "$LATEST_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
             if (( 10#$CURRENT_VER_NO < 10#$LATEST_VER_NO )); then
@@ -426,7 +438,7 @@ case "$1" in
                 read -rp "Would you like to 'reinstall' to get $LATEST_VER ? (Y/n): " choice
                 if [[ "$choice" =~ ^[Yy]$ ]]; then
                     echo "${CYAN}Reinstalling!${RESET}"
-                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
+                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
                 else
                     echo "${YELLOW}Skipping reinstall.${RESET}"
                 fi
