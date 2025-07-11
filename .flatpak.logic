@@ -81,6 +81,8 @@ aurora() {
       fi
       ;;
   esac
+}
+
 
 
 ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
