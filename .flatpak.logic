@@ -1,3 +1,4 @@
+
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
@@ -81,10 +82,12 @@ aurora() {
       fi
       ;;
   esac
+}
 
 
-ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
-ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
+
+[[ -L "$BIN_DIR/npm" || -e "$BIN_DIR/npm" ]] || ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
+[[ -L "$BIN_DIR/npx" || -e "$BIN_DIR/npx" ]] || ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
