@@ -408,7 +408,7 @@ case "$1" in
                 grep -Fxq "$FLATPAK_LOGIC_LINE" "$HOME/.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "$HOME/.bashrc"
 
                 echo ""
-                echo "${GREEN}Quick reinstall completed.${RESET}"
+                echo "${GREEN}Quick reinstall completed. Open a new vsh borealis tab to finish.${RESET}"
                 echo ""
                 ;;
             2)
