@@ -1,3 +1,4 @@
+
 #!/bin/bash
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
@@ -40,6 +41,14 @@ case "$choice" in
 echo ""
 echo "${CYAN}${BOLD}About to start downloading Flatpak, Git, GCC, Python and their dependencies! Download can take up to 5 minutes.${RESET}"
 sleep 5
+
+sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
+sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
+
+if grep -q "# Flatpak --user logic" "$HOME/.bashrc"; then
+sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
+echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
+fi
 
  mkdir -p ~/opt/flatpak
  mkdir -p ~/opt/flatpak-deps
@@ -595,15 +604,15 @@ download_and_extract "$URL" "$HOME/opt/"
 
 
 echo "${MAGENTA}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
 echo "${RESET}${BLUE}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
 echo "${RESET}${CYAN}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
 echo "${RESET}${BLUE}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
 echo "${RESET}${MAGENTA}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
 echo "${RESET}"
 chmod +x ~/opt/bin/aurora
 chmod +x ~/opt/bin/starman
