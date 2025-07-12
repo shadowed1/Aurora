@@ -284,9 +284,10 @@ aurora_uninstall() {
             return 0
             ;;
         1)
-            echo "${CYAN}Removing ~/opt only (leaving Flatpak apps/data)...${RESET}"
+            echo "${CYAN}Removing Aurora and Starman - (leaving apps/data)...${RESET}"
             if [ -d "$HOME/opt" ]; then
-                rm -rf "$HOME/opt"
+                rm "$HOME/opt/aurora"
+                rm "$HOME/opt/starman"
                 echo "${CYAN}Removed $HOME/opt${RESET}"
             else
                 echo "${YELLOW}$HOME/opt not found.${RESET}"
