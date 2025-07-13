@@ -437,169 +437,169 @@ URL="https://archlinux.org/packages/extra/x86_64/unzip/download"
 download_and_extract "$URL" "$HOME/opt/"
 
 #xfce4
-URL"https://archlinux.org/packages/extra/x86_64/exo/download"
+URL="https://archlinux.org/packages/extra/x86_64/exo/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/garcon/download"
+URL="https://archlinux.org/packages/extra/x86_64/garcon/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xfce4-session/download"
+URL="https://archlinux.org/packages/extra/x86_64/xfce4-session/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xfconf/download"
+URL="https://archlinux.org/packages/extra/x86_64/xfconf/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxfce4util/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxfce4util/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxfce4ui/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxfce4ui/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xfce4-panel/download"
+URL="https://archlinux.org/packages/extra/x86_64/xfce4-panel/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xfdesktop/download"
+URL="https://archlinux.org/packages/extra/x86_64/xfdesktop/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/gvfs/download"
+URL="https://archlinux.org/packages/extra/x86_64/gvfs/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxfce4windowing/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxfce4windowing/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/gdk-pixbuf2/download"
+URL="https://archlinux.org/packages/extra/x86_64/gdk-pixbuf2/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/core/x86_64/glib2/download"
+URL="https://archlinux.org/packages/core/x86_64/glib2/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/core/x86_64/util-linux-libs/download"
+URL="https://archlinux.org/packages/core/x86_64/util-linux-libs/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/core/x86_64/sqlite/download"
+URL="https://archlinux.org/packages/core/x86_64/sqlite/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/gtk3/download"
+URL="https://archlinux.org/packages/extra/x86_64/gtk3/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libdisplay-info/download"
+URL="https://archlinux.org/packages/extra/x86_64/libdisplay-info/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libwnck3/download"
+URL="https://archlinux.org/packages/extra/x86_64/libwnck3/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libx11/download"
+URL="https://archlinux.org/packages/extra/x86_64/libx11/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/gobject-introspection/download"
+URL="https://archlinux.org/packages/extra/x86_64/gobject-introspection/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xfce4-dev-tools/download"
+URL="https://archlinux.org/packages/extra/x86_64/xfce4-dev-tools/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/any/gtk-doc/download"
+URL="https://archlinux.org/packages/extra/any/gtk-doc/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xorg-server-xephyr/download"
+URL="https://archlinux.org/packages/extra/x86_64/xorg-server-xephyr/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libepoxy/download"
+URL="https://archlinux.org/packages/extra/x86_64/libepoxy/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/core/x86_64/libtirpc/download"
+URL="https://archlinux.org/packages/core/x86_64/libtirpc/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/core/x86_64/krb5/download"
+URL="https://archlinux.org/packages/core/x86_64/krb5/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/core/x86_64/e2fsprogs/download"
+URL="https://archlinux.org/packages/core/x86_64/e2fsprogs/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/core/x86_64/libldap/download"
+URL="https://archlinux.org/packages/core/x86_64/libldap/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/core/x86_64/keyutils/download"
+URL="https://archlinux.org/packages/core/x86_64/keyutils/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libunwind/download"
+URL="https://archlinux.org/packages/extra/x86_64/libunwind/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxau/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxau/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxdmcp/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxdmcp/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxshmfence/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxshmfence/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/pixman/download"
+URL="https://archlinux.org/packages/extra/x86_64/pixman/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xcb-util-renderutil/download"
+URL="https://archlinux.org/packages/extra/x86_64/xcb-util-renderutil/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xorg-server-common/download"
+URL="https://archlinux.org/packages/extra/x86_64/xorg-server-common/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/any/xkeyboard-config/download"
+URL="https://archlinux.org/packages/extra/any/xkeyboard-config/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xorg-setxkbmap/download"
+URL="https://archlinux.org/packages/extra/x86_64/xorg-setxkbmap/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xorg-xkbcomp/download"
+URL="https://archlinux.org/packages/extra/x86_64/xorg-xkbcomp/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xcb-util-wm/download"
+URL="https://archlinux.org/packages/extra/x86_64/xcb-util-wm/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xcb-util-keysyms/download"
+URL="https://archlinux.org/packages/extra/x86_64/xcb-util-keysyms/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xcb-util-image/download"
+URL="https://archlinux.org/packages/extra/x86_64/xcb-util-image/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxcb/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxcb/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xcb-util-renderutil/download"
+URL="https://archlinux.org/packages/extra/x86_64/xcb-util-renderutil/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/any/xorgproto/download"
+URL="https://archlinux.org/packages/extra/any/xorgproto/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/any/xcb-proto/download"
+URL="https://archlinux.org/packages/extra/any/xcb-proto/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xcb-util/download"
+URL="https://archlinux.org/packages/extra/x86_64/xcb-util/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/gtk-layer-shell/download"
+URL="https://archlinux.org/packages/extra/x86_64/gtk-layer-shell/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/startup-notification/download"
+URL="https://archlinux.org/packages/extra/x86_64/startup-notification/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxres/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxres/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xfce4-settings/download"
+URL="https://archlinux.org/packages/extra/x86_64/xfce4-settings/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxklavier/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxklavier/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libnotify/download"
+URL="https://archlinux.org/packages/extra/x86_64/libnotify/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/xfwm4/download"
+URL="https://archlinux.org/packages/extra/x86_64/xfwm4/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/libxpresent/download"
+URL="https://archlinux.org/packages/extra/x86_64/libxpresent/download"
 download_and_extract "$URL" "$HOME/opt/"
 
-URL"https://archlinux.org/packages/extra/x86_64/thunar/download"
+URL="https://archlinux.org/packages/extra/x86_64/thunar/download"
 download_and_extract "$URL" "$HOME/opt/"
 
 
