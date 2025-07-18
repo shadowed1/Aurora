@@ -22,10 +22,10 @@ set_display_scaling() {
     if [[ "$input" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
         local scale=$(printf "%.2f" "$input")
 
-        if awk "BEGIN {exit !($scale < 0.25)}"; then
+        if (( $(awk "BEGIN {print ($scale < 0.25)}") )); then
             echo "${RED}Warning: DISPLAY_SCALING below 0.25, resetting to 1.0${RESET}" >&2
             scale=1.0
-        elif awk "BEGIN {exit !($scale > 4.0)}"; then
+        elif (( $(awk "BEGIN {print ($scale > 4.0)}") )); then
             echo "${RED}Warning: DISPLAY_SCALING above 4.0, resetting to 4.0${RESET}" >&2
             scale=4.0
         fi
@@ -33,10 +33,8 @@ set_display_scaling() {
         export AURORA_SCALE="$scale"
         export GDK_SCALE="$AURORA_SCALE"
         export GDK_DPI_SCALE=1
-
         export QT_SCALE_FACTOR="$AURORA_SCALE"
         export QT_AUTO_SCREEN_SCALE_FACTOR=1
-
         export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$AURORA_SCALE"
         export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
 
@@ -45,28 +43,6 @@ set_display_scaling() {
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}" >&2
         return 1
     fi
-}
-
-set_cursor_scaling() {
-    local input="$1"
-
-    if ! [[ "$input" =~ ^[0-9]+$ ]]; then
-        echo "${RED}Error: Cursor size must be an integer.${RESET}" >&2
-        return 1
-    fi
-
-    local size=$input
-
-    if (( size < 8 )); then
-        echo "${YELLOW}Warning: Cursor size below 8, resetting to 8.${RESET}" >&2
-        size=8
-    elif (( size > 200 )); then
-        echo "${YELLOW}Warning: Cursor size above 200, resetting to 200.${RESET}" >&2
-        size=200
-    fi
-
-    export XCURSOR_SIZE="$size"
-    echo "${GREEN}Cursor size set to $XCURSOR_SIZE${RESET}" >&2
 }
 
 : "${AURORA_SCALE:=1.25}"
@@ -155,7 +131,9 @@ EOF
         chmod +x "$BIN_FILE"
         echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
 
-        NAME="$(tr '[:lower:]' '[:upper:]' <<< ${APPID##*.:0:1})${APPID##*.:1}"
+        raw_name="${APPID##*.}"
+        NAME="$(tr '[:lower:]' '[:upper:]' <<< "${raw_name:0:1}")${raw_name:1}"
+
         DESKTOP_FILE="$DESKTOP_DIR/${APPID}.desktop"
 
         cat > "$DESKTOP_FILE" <<EOF
