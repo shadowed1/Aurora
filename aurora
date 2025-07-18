@@ -20,18 +20,27 @@ set_display_scaling() {
     local input="$1"
 
     if [[ "$input" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
-        DISPLAY_SCALING=$(printf "%.2f" "$input")
+        local scale=$(printf "%.2f" "$input")
 
-        if awk "BEGIN {exit !($DISPLAY_SCALING < 0.25)}"; then
+        if awk "BEGIN {exit !($scale < 0.25)}"; then
             echo "${RED}Warning: DISPLAY_SCALING below 0.25, resetting to 1.0${RESET}" >&2
-            DISPLAY_SCALING=1.0
-        elif awk "BEGIN {exit !($DISPLAY_SCALING > 4.0)}"; then
+            scale=1.0
+        elif awk "BEGIN {exit !($scale > 4.0)}"; then
             echo "${RED}Warning: DISPLAY_SCALING above 4.0, resetting to 4.0${RESET}" >&2
-            DISPLAY_SCALING=4.0
+            scale=4.0
         fi
 
-        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
-        echo "${GREEN}Display scaling set to $DISPLAY_SCALING${RESET}" >&2
+        export AURORA_SCALE="$scale"
+        export GDK_SCALE="$AURORA_SCALE"
+        export GDK_DPI_SCALE=1
+
+        export QT_SCALE_FACTOR="$AURORA_SCALE"
+        export QT_AUTO_SCREEN_SCALE_FACTOR=1
+
+        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$AURORA_SCALE"
+        export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
+
+        echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
     else
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}" >&2
         return 1
@@ -39,24 +48,41 @@ set_display_scaling() {
 }
 
 set_cursor_scaling() {
-    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+    local input="$1"
+
+    if ! [[ "$input" =~ ^[0-9]+$ ]]; then
         echo "${RED}Error: Cursor size must be an integer.${RESET}" >&2
         return 1
     fi
 
-    CURSOR_SIZE=$1
+    local size=$input
 
-    if (( CURSOR_SIZE < 8 )); then
+    if (( size < 8 )); then
         echo "${YELLOW}Warning: Cursor size below 8, resetting to 8.${RESET}" >&2
-        CURSOR_SIZE=8
-    elif (( CURSOR_SIZE > 200 )); then
+        size=8
+    elif (( size > 200 )); then
         echo "${YELLOW}Warning: Cursor size above 200, resetting to 200.${RESET}" >&2
-        CURSOR_SIZE=200
+        size=200
     fi
 
-    export XCURSOR_SIZE=$CURSOR_SIZE
-    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
+    export XCURSOR_SIZE="$size"
+    echo "${GREEN}Cursor size set to $XCURSOR_SIZE${RESET}" >&2
 }
+
+: "${AURORA_SCALE:=1.25}"
+: "${XCURSOR_SIZE:=32}"
+
+export GDK_SCALE="$AURORA_SCALE"
+export GDK_DPI_SCALE=1
+
+export QT_SCALE_FACTOR="$AURORA_SCALE"
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+
+export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$AURORA_SCALE"
+export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
+
+export XCURSOR_SIZE
+
 
 shortcut() {
     if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
@@ -154,23 +180,18 @@ EOF
         chmod +x "$DESKTOP_FILE"
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
-
-#### STRICT .sh BIN SHORTCUTS BASED ON FOLDER NAME ####
 BIN_DIR="$HOME/opt/bin"
 find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
     folder_name=$(basename "$pkgdir")
     base="${folder_name%-bin}"  # brave-bin → brave
     exe="$pkgdir/$base"
 
-    # Only continue if that exact file exists and is executable
     [[ -x "$exe" ]] || continue
 
-    # Pretty name and unique ID
     shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
     hash=$(echo "$exe" | sha1sum | cut -c1-6)
     uniquename="${shortname}_${hash}"
 
-    # Find best icon in pkgdir
     icon=""
     for size in 256 128 64; do
         icon=$(find "$pkgdir" -maxdepth 1 -type f \
