@@ -235,6 +235,7 @@ show_help() {
     echo "source aurora display 1.0  # Set display scaling factor (0.25 - 4.0)"
     echo "source aurora cursor 32    # Set cursor size (8 - 200)"
     echo "aurora help                # Show help"
+    echo "aurora version             # See version and check for updates"
     echo "aurora shortcut            # Create desktop shortcuts"
     echo "aurora_debug               # echo a list of paths that flatpak can use"
     echo "aurora reinstall           # Redownload Aurora from Github"
