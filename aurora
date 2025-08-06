@@ -20,132 +20,127 @@ set_display_scaling() {
     local input="$1"
 
     if [[ "$input" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
-        DISPLAY_SCALING=$(printf "%.2f" "$input")
+        local scale=$(printf "%.2f" "$input")
 
-        if (( $(awk "BEGIN {print ($DISPLAY_SCALING < 0.25)}") )); then
+        if (( $(awk "BEGIN {print ($scale < 0.25)}") )); then
             echo "${RED}Warning: DISPLAY_SCALING below 0.25, resetting to 1.0${RESET}" >&2
-            DISPLAY_SCALING=1.0
-        elif (( $(awk "BEGIN {print ($DISPLAY_SCALING > 4.0)}") )); then
+            scale=1.0
+        elif (( $(awk "BEGIN {print ($scale > 4.0)}") )); then
             echo "${RED}Warning: DISPLAY_SCALING above 4.0, resetting to 4.0${RESET}" >&2
-            DISPLAY_SCALING=4.0
+            scale=4.0
         fi
 
-        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$DISPLAY_SCALING
-        echo "${GREEN}Display scaling set to $DISPLAY_SCALING${RESET}" >&2
+        export AURORA_SCALE="$scale"
+        export GDK_SCALE="$AURORA_SCALE"
+        export GDK_DPI_SCALE=1
+        export QT_SCALE_FACTOR="$AURORA_SCALE"
+        export QT_AUTO_SCREEN_SCALE_FACTOR=1
+        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$AURORA_SCALE"
+        export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
+
+        echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
     else
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}" >&2
         return 1
     fi
 }
 
-set_cursor_scaling() {
-    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
-        echo "${RED}Error: Cursor size must be an integer.${RESET}" >&2
-        return 1
-    fi
+: "${AURORA_SCALE:=1.25}"
+: "${XCURSOR_SIZE:=32}"
 
-    CURSOR_SIZE=$1
+export GDK_SCALE="$AURORA_SCALE"
+export GDK_DPI_SCALE=1
 
-    if (( CURSOR_SIZE < 8 )); then
-        echo "${YELLOW}Warning: Cursor size below 8, resetting to 8.${RESET}" >&2
-        CURSOR_SIZE=8
-    elif (( CURSOR_SIZE > 200 )); then
-        echo "${YELLOW}Warning: Cursor size above 200, resetting to 200.${RESET}" >&2
-        CURSOR_SIZE=200
-    fi
+export QT_SCALE_FACTOR="$AURORA_SCALE"
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
 
-    export XCURSOR_SIZE=$CURSOR_SIZE
-    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
-}
+export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$AURORA_SCALE"
+export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
+
+export XCURSOR_SIZE
+
 
 shortcut() {
     if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
         echo "${BLUE}Inkscape is required. Installing...${RESET}" >&2
-        flatpak --user install flathub org.inkscape.Inkscape || {
+        flatpak --user install -y flathub org.inkscape.Inkscape || {
             echo "${RED}Failed to install Inkscape.${RESET}" >&2
-            exit 1
+            return 1
         }
     fi
 
     ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
+    BIN_DIR="$HOME/opt/bin"
+    DESKTOP_DIR="$HOME/.local/share/applications"
+    mkdir -p "$BIN_DIR" "$DESKTOP_DIR"
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
         BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
+        [[ -d "$BASE_PATH" ]] || continue
 
-        if [[ -d "$BASE_PATH" ]]; then
-            flatpak override --user org.inkscape.Inkscape --filesystem="$BASE_PATH"
-        fi
-
-        ICON=""
-        ICON_SIZE=""
+        flatpak override --user org.inkscape.Inkscape --filesystem="$BASE_PATH"
 
         ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
             \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
             \( -ipath "*/256x256/*" -o -ipath "*/128x128/*" \) 2>/dev/null \
             | sort | grep -Ei '(256x256|128x128).*\.((png|jpg|jpeg|svg))$' | head -n1)
 
-        if [[ -n "$ICON" ]]; then
-            ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
-        fi
-
         if [[ -z "$ICON" ]]; then
             ICON=$(find "$BASE_PATH" -mindepth 3 -maxdepth 3 \
                 \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.svg" \) \
                 -ipath "*/scalable/apps/*" -type f 2>/dev/null | head -n1)
             ICON_SIZE=256
+        else
+            ICON_SIZE=$(echo "$ICON" | grep -oE '[0-9]{2,4}x[0-9]{2,4}' | cut -d'x' -f1)
         fi
 
         [[ -z "$ICON" ]] && continue
+        ICON_SIZE="${ICON_SIZE:-256}"
 
         OUTDIR="$ICON_OUTPUT_BASE/${ICON_SIZE}x${ICON_SIZE}/apps"
-        OUTFILE="$OUTDIR/$APPID.png"
+        OUTFILE="$OUTDIR/${APPID}.png"
         mkdir -p "$OUTDIR"
 
         echo "${MAGENTA}Processing icon for $APPID...${RESET}"
+        EXT_LOWER="${ICON##*.}"
+        EXT_LOWER="${EXT_LOWER,,}"
 
-        EXT="${ICON##*.}"
-        EXT_LOWER="${EXT,,}"
+        if [[ ! -f "$OUTFILE" ]]; then
+            case "$EXT_LOWER" in
+                png|jpg|jpeg)
+                    cp "$ICON" "$OUTFILE"
+                    ;;
+                svg)
+                    flatpak --user run org.inkscape.Inkscape \
+                        --export-type=png \
+                        --export-filename="$OUTFILE" \
+                        -w "$ICON_SIZE" \
+                        "$ICON" 2>/dev/null
+                    ;;
+            esac
+        fi
 
-        case "$EXT_LOWER" in
-            png|jpg|jpeg)
-                cp "$ICON" "$OUTFILE"
-                ;;
-            svg)
-                flatpak --user run org.inkscape.Inkscape \
-                    --export-type=png \
-                    --export-filename="$OUTFILE" \
-                    -w "$ICON_SIZE" \
-                    "$ICON" 2>/dev/null
-                ;;
-            *)
-                continue
-                ;;
-        esac
-
-        BIN_DIR="$HOME/opt/bin"
-        BIN_FILE="$BIN_DIR/${APPID##*.}.sh"
-        mkdir -p "$BIN_DIR"
+        SCRIPT_NAME="${APPID//./_}.sh"
+        BIN_FILE="$BIN_DIR/$SCRIPT_NAME"
 
         cat > "$BIN_FILE" <<EOF
 #!/bin/bash
 source "\$HOME/.bashrc"
-flatpak run $APPID
+flatpak run $APPID "\$@"
 EOF
         chmod +x "$BIN_FILE"
         echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
 
-        DESKTOP_DIR="$HOME/.local/share/applications"
-        DESKTOP_FILE="$DESKTOP_DIR/$APPID.desktop"
-        mkdir -p "$DESKTOP_DIR"
+        raw_name="${APPID##*.}"
+        NAME="$(tr '[:lower:]' '[:upper:]' <<< "${raw_name:0:1}")${raw_name:1}"
 
-       raw_name="${APPID##*.}"
-       Name="$(tr '[:lower:]' '[:upper:]' <<< ${raw_name:0:1})${raw_name:1}"
+        DESKTOP_FILE="$DESKTOP_DIR/${APPID}.desktop"
 
-cat > "$DESKTOP_FILE" <<EOF
+        cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
-Name=$Name
+Name=$NAME
 Exec=$BIN_FILE
-Icon=$APPID
+Icon=${APPID}
 Terminal=false
 Type=Application
 Categories=Utility;
@@ -155,63 +150,56 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
-#### STRICT .sh BIN SHORTCUTS BASED ON FOLDER NAME ####
-BIN_DIR="$HOME/opt/bin"
-find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
-    folder_name=$(basename "$pkgdir")
-    base="${folder_name%-bin}"  # brave-bin → brave
-    exe="$pkgdir/$base"
+    find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
+        folder_name=$(basename "$pkgdir")
+        base="${folder_name%-bin}"
+        exe="$pkgdir/$base"
+        [[ -x "$exe" ]] || continue
 
-    # Only continue if that exact file exists and is executable
-    [[ -x "$exe" ]] || continue
+        shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
+        hash=$(echo "$exe" | sha1sum | cut -c1-6)
+        uniquename="${shortname}_${hash}"
 
-    # Pretty name and unique ID
-    shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
-    hash=$(echo "$exe" | sha1sum | cut -c1-6)
-    uniquename="${shortname}_${hash}"
+        icon=""
+        for size in 256 128 64; do
+            icon=$(find "$pkgdir" -maxdepth 1 -type f \
+                \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) | head -n1)
+            [[ -n "$icon" ]] && break
+        done
+        [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
+            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) | head -n1)
+        [[ -z "$icon" ]] && continue
 
-    # Find best icon in pkgdir
-    icon=""
-    for size in 256 128 64; do
-        icon=$(find "$pkgdir" -maxdepth 1 -type f \
-            \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) | head -n1)
-        [[ -n "$icon" ]] && break
-    done
-    [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
-        \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) | head -n1)
-    [[ -z "$icon" ]] && continue
+        icon_size=$(echo "$icon" | grep -oE '256|128|64' | head -n1)
+        icon_size="${icon_size:-256}"
+        outdir="$ICON_OUTPUT_BASE/${icon_size}x${icon_size}/apps"
+        mkdir -p "$outdir"
 
-    icon_size=$(echo "$icon" | grep -oE '256|128|64' | head -n1)
-    icon_size=${icon_size:-256}
-    outdir="$ICON_OUTPUT_BASE/${icon_size}x${icon_size}/apps"
-    mkdir -p "$outdir"
+        outfile="$outdir/${uniquename}.png"
+        ext="${icon##*.}"
+        ext="${ext,,}"
 
-    outfile="$outdir/${uniquename}.png"
-    ext="${icon##*.}"
-    ext="${ext,,}"
+        if [[ "$ext" == "svg" ]]; then
+            flatpak --user run org.inkscape.Inkscape \
+                --export-type=png \
+                --export-filename="$outfile" \
+                -w "$icon_size" \
+                "$icon" 2>/dev/null
+        else
+            cp "$icon" "$outfile"
+        fi
+        [[ ! -f "$outfile" ]] && continue
 
-    if [[ "$ext" == "svg" ]]; then
-        flatpak --user run org.inkscape.Inkscape \
-            --export-type=png \
-            --export-filename="$outfile" \
-            -w "$icon_size" \
-            "$icon" 2>/dev/null
-    else
-        cp "$icon" "$outfile"
-    fi
-    [[ ! -f "$outfile" ]] && continue
-
-    binlauncher="$BIN_DIR/${uniquename}.sh"
-    cat > "$binlauncher" <<EOF
+        binlauncher="$BIN_DIR/${uniquename}.sh"
+        cat > "$binlauncher" <<EOF
 #!/bin/bash
 source "\$HOME/.bashrc"
 exec "$exe" "\$@"
 EOF
-    chmod +x "$binlauncher"
+        chmod +x "$binlauncher"
 
-    # Create .desktop shortcut
-    desktop_file="$HOME/.local/share/applications/${uniquename}.desktop"
-    cat > "$desktop_file" <<EOF
+        desktop_file="$DESKTOP_DIR/${uniquename}.desktop"
+        cat > "$desktop_file" <<EOF
 [Desktop Entry]
 Name=$shortname
 Exec=$binlauncher
@@ -220,11 +208,9 @@ Terminal=false
 Type=Application
 Categories=Utility;
 EOF
-    chmod +x "$desktop_file"
-
-    echo "${CYAN}Created shortcut for $shortname ($uniquename)${RESET}"
-done
-
+        chmod +x "$desktop_file"
+        echo "${CYAN}Created shortcut for $shortname ($uniquename)${RESET}"
+    done
 }
 
 show_help() {
@@ -345,18 +331,40 @@ case "$1" in
         shortcut
         ;;
     ""|status)
-        if [[ -z "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" && -z "$XCURSOR_SIZE" ]]; then
-            echo "${CYAN}ELECTRON_FORCE_DEVICE_SCALE_FACTOR and XCURSOR_SIZE remain default.${RESET}"
-        else
-            [[ -n "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" ]] && \
-                echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $ELECTRON_FORCE_DEVICE_SCALE_FACTOR${RESET}" || \
-                echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR remain default.${RESET}"
+    echo "${CYAN}Aurora Environment Status:${RESET}"
 
-            [[ -n "$XCURSOR_SIZE" ]] && \
-                echo "${MAGENTA}XCURSOR_SIZE = $XCURSOR_SIZE${RESET}" || \
-                echo "${BLUE}XCURSOR_SIZE remain default.${RESET}"
-        fi
-        ;;
+    [[ -n "$AURORA_SCALE" ]] && \
+        echo "${MAGENTA}AURORA_SCALE = $AURORA_SCALE${RESET}" || \
+        echo "${BLUE}AURORA_SCALE remains default.${RESET}"
+
+    [[ -n "$GDK_SCALE" ]] && \
+        echo "${MAGENTA}GDK_SCALE = $GDK_SCALE${RESET}" || \
+        echo "${BLUE}GDK_SCALE remains default.${RESET}"
+
+    [[ -n "$GDK_DPI_SCALE" ]] && \
+        echo "${MAGENTA}GDK_DPI_SCALE = $GDK_DPI_SCALE${RESET}" || \
+        echo "${BLUE}GDK_DPI_SCALE remains default.${RESET}"
+
+    [[ -n "$QT_SCALE_FACTOR" ]] && \
+        echo "${MAGENTA}QT_SCALE_FACTOR = $QT_SCALE_FACTOR${RESET}" || \
+        echo "${BLUE}QT_SCALE_FACTOR remains default.${RESET}"
+
+    [[ -n "$QT_AUTO_SCREEN_SCALE_FACTOR" ]] && \
+        echo "${MAGENTA}QT_AUTO_SCREEN_SCALE_FACTOR = $QT_AUTO_SCREEN_SCALE_FACTOR${RESET}" || \
+        echo "${BLUE}QT_AUTO_SCREEN_SCALE_FACTOR remains default.${RESET}"
+
+    [[ -n "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR" ]] && \
+        echo "${MAGENTA}ELECTRON_FORCE_DEVICE_SCALE_FACTOR = $ELECTRON_FORCE_DEVICE_SCALE_FACTOR${RESET}" || \
+        echo "${BLUE}ELECTRON_FORCE_DEVICE_SCALE_FACTOR remains default.${RESET}"
+
+    [[ -n "$_JAVA_OPTIONS" ]] && \
+        echo "${MAGENTA}_JAVA_OPTIONS = $_JAVA_OPTIONS${RESET}" || \
+        echo "${BLUE}_JAVA_OPTIONS remains default.${RESET}"
+
+    [[ -n "$XCURSOR_SIZE" ]] && \
+        echo "${MAGENTA}XCURSOR_SIZE = $XCURSOR_SIZE${RESET}" || \
+        echo "${BLUE}XCURSOR_SIZE remains default.${RESET}"
+    ;;
       reinstall)
         echo ""
         echo "${MAGENTA}${BOLD}Aurora Reinstall:${RESET}"
@@ -378,15 +386,15 @@ case "$1" in
                 echo ""
                 mkdir -p ~/opt/bin
                 echo "${MAGENTA}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.logic -o ~/opt/.flatpak.logic
                 echo "${RESET}${BLUE}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora -o ~/opt/bin/aurora
                 echo "${RESET}${CYAN}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/starman -o ~/opt/bin/starman
                 echo "${RESET}${BLUE}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/version -o ~/opt/bin/version
                 echo "${RESET}${MAGENTA}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
+                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/beta/.flatpak.env -o ~/opt/.flatpak.env
                 echo "${RESET}"
                 chmod +x ~/opt/bin/aurora
                 chmod +x ~/opt/bin/starman
@@ -416,7 +424,7 @@ case "$1" in
             2)
                 echo ""
                 echo "${YELLOW}Launching full reinstall...${RESET}"
-                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
                 ;;
             *)
                 echo "${RED}Invalid choice. Please enter 0, 1, or 2.${RESET}"
@@ -427,20 +435,22 @@ case "$1" in
     uninstall)
         aurora_uninstall
         ;;
+    # Denny's version checker
     version)
-        if [[ -f "$HOME/opt/bin/version" ]]; then
-            CURRENT_VER=$(cat "$HOME/opt/bin/version")
-            CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
+    if [[ -f "$HOME/opt/bin/version" ]]; then
+        CURRENT_VER=$(cat "$HOME/opt/bin/version")
+        CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
-            LATEST_VER=$(curl -Ls "https://raw.githubusercontent.com/shadowed1/Aurora/main/version")
-            LATEST_VER_NO=$(echo "$LATEST_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
+        LATEST_VER=$(curl -Ls "https://raw.githubusercontent.com/shadowed1/Aurora/beta/version")
+        LATEST_VER_NO=$(echo "$LATEST_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
+        if [[ "$CURRENT_VER_NO" =~ ^[0-9]+$ && "$LATEST_VER_NO" =~ ^[0-9]+$ ]]; then
             if (( 10#$CURRENT_VER_NO < 10#$LATEST_VER_NO )); then
                 echo "${CYAN}You're using $CURRENT_VER which is NOT the latest version.${RESET}"
                 read -rp "Would you like to 'reinstall' to get $LATEST_VER ? (Y/n): " choice
-                if [[ "$choice" =~ ^[Yy]$ ]]; then
+                if [[ "$choice" =~ ^[Yy]$ || -z "$choice" ]]; then
                     echo "${CYAN}Reinstalling!${RESET}"
-                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/beta/aurora_installer.sh?$(date +%s)")
                 else
                     echo "${YELLOW}Skipping reinstall.${RESET}"
                 fi
@@ -448,13 +458,11 @@ case "$1" in
                 echo "${GREEN}You're using $CURRENT_VER which is up-to-date, so you're good.${RESET}"
             fi
         else
-            echo "${RED}Version file not found.${RESET}"
-            exit 1
+            echo "${RED}Version check failed. One of the version numbers is invalid.${RESET}"
         fi
-        ;;
-    *)
-        echo "${RED}Unknown command $1 ${RESET}"
-        show_help
+    else
+        echo "${RED}Version file not found.${RESET}"
         exit 1
+    fi
         ;;
 esac
