@@ -177,15 +177,26 @@ EOF
     uniquename="${shortname}_${hash}"
 
 
-        icon=""
-        for size in 256 128 64; do
-            icon=$(find "$pkgdir" -maxdepth 1 -type f \
-                \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) | head -n1)
-            [[ -n "$icon" ]] && break
-        done
-        [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
-            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) | head -n1)
-        [[ -z "$icon" ]] && continue
+       icon=""
+
+icon=$(find "$pkgdir" -type f \
+    \( -iname "*icon*.png" -o -iname "*icon*.svg" -o -iname "*$base*.png" -o -iname "*$base*.svg" \) \
+    2>/dev/null | head -n1)
+
+if [[ -z "$icon" ]]; then
+    for size in 256 128 64; do
+        icon=$(find "$pkgdir" -type f \
+            \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) \
+            2>/dev/null | head -n1)
+        [[ -n "$icon" ]] && break
+    done
+fi
+
+[[ -z "$icon" ]] && icon=$(find "$pkgdir" -type f \
+    \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
+
+[[ -z "$icon" ]] && continue
+
 
         icon_size=$(echo "$icon" | grep -oE '256|128|64' | head -n1)
         icon_size="${icon_size:-256}"
