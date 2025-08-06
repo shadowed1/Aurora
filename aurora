@@ -150,15 +150,32 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
-    find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
-        folder_name=$(basename "$pkgdir")
-        base="${folder_name%-bin}"
-        exe="$pkgdir/$base"
-        [[ -x "$exe" ]] || continue
+   find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
+    folder_name=$(basename "$pkgdir")
+    exe=""
 
-        shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
-        hash=$(echo "$exe" | sha1sum | cut -c1-6)
-        uniquename="${shortname}_${hash}"
+    candidate=$(find "$pkgdir" -type f -iname "$folder_name" -executable 2>/dev/null | head -n1)
+    if [[ -x "$candidate" ]]; then
+        exe="$candidate"
+    else
+        direct="$pkgdir/$folder_name"
+        [[ -x "$direct" ]] && exe="$direct"
+    fi
+
+    if [[ -z "$exe" ]]; then
+        executables=($(find "$pkgdir" -type f -executable 2>/dev/null | grep -vE '\.so$|\.dll$|\.sh$|\.py$|\.pl$'))
+        if [[ ${#executables[@]} -eq 1 ]]; then
+            exe="${executables[0]}"
+        fi
+    fi
+
+    [[ -z "$exe" || ! -x "$exe" ]] && continue
+
+    base=$(basename "$exe")
+    shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
+    hash=$(echo "$exe" | sha1sum | cut -c1-6)
+    uniquename="${shortname}_${hash}"
+
 
         icon=""
         for size in 256 128 64; do
