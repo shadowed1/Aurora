@@ -335,14 +335,37 @@ zenity_launcher() {
             zenity --file-selection --directory --title="Select a Folder to Browse"
             ;;
         download_archive)
-            FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the .tar archive:")
-            [[ -z "$FILE_URL" ]] && break
-        
-            EXTRACT_PATH=$(zenity --file-selection --directory --title="Choose Extraction Directory" --filename="$HOME/")
-            [[ -z "$EXTRACT_PATH" ]] && break
-        
-            STARMAN_EXPORT_PATH="$EXTRACT_PATH" starman "$FILE_URL"
-            ;;
+    local DOWNLOAD_DIR="$HOME/opt"
+    local EXTRACT_DIR="$HOME/opt/bin"
+    mkdir -p "$DOWNLOAD_DIR" "$EXTRACT_DIR"
+
+    FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the archive:")
+    if [[ -z "$FILE_URL" ]]; then
+        echo "No URL provided, aborting."
+        break
+    fi
+
+    FILENAME=$(basename "${FILE_URL%%\?*}")
+    FILEPATH="$DOWNLOAD_DIR/$FILENAME"
+
+    echo "Downloading archive to: $FILEPATH"
+    if ! curl -L -o "$FILEPATH" "$FILE_URL"; then
+        zenity --error --title="Download Failed" --text="Failed to download archive from:\n$FILE_URL"
+        break
+    fi
+
+    echo "Extracting archive to: $EXTRACT_DIR"
+    if ! bsdtar -xf "$FILEPATH" -C "$EXTRACT_DIR"; then
+        zenity --error --title="Extraction Failed" --text="Failed to extract archive: $FILEPATH"
+        rm -f "$FILEPATH"
+        break
+    fi
+
+    echo "Cleaning up downloaded archive."
+    rm -f "$FILEPATH"
+
+    zenity --info --title="Done" --text="Archive downloaded and extracted to $EXTRACT_DIR"
+    ;;
 
         download_appimage)
             APPIMAGE_URL=$(zenity --entry --title="Download AppImage" --text="Paste the URL of the .AppImage file:")
