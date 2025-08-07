@@ -365,6 +365,7 @@ zenity_launcher() {
     rm -f "$FILEPATH"
 
     zenity --info --title="Done" --text="Archive downloaded and extracted to $EXTRACT_DIR"
+    aurora shortcut
     ;;
 
         download_appimage)
