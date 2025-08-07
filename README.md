@@ -153,6 +153,7 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 0.03: `Added command to auto-generate shortcuts and icons with pin support. Thanks to Saragon for helping find how to do that. Added starman (steam tar manager) - download and decompress files, quick access menu, and change default apps. Added ability to download AppImages and run them with starman.` <br><br>
 0.04: `Added quick reinstall option, starman AUR emulation, and shortcut ability from AUR emulation. Added ability to build packages using git, python, gcc.` <br><br>
 0.05: `Fixed starman bug with link parsing. Added support for yay, paru, pacaur, and pacman to install packages multiple ways. Added version base 10 support.` <br>
+0.06: `Improved shortcut command. Improved scaling support.`
 
 To do list: Make `aurora shortcut` more intelligent at finding icons for non-standardized paths. 
 
