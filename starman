@@ -12,6 +12,33 @@ if [ -f "$HOME/opt/.flatpak.env" ]; then
     . "$HOME/opt/.flatpak.env"
 fi
 
+add_executables_to_flatpak_env() {
+    local target_dir="$EXPORT_PATH/$pkg"
+
+    mapfile -t exec_dirs < <(find "$target_dir" -type f -executable -exec dirname {} \; | sort -u)
+
+    if [[ ${#exec_dirs[@]} -eq 0 ]]; then
+        echo "No executables found to add to .flatpak.env."
+        return
+    fi
+
+    local env_file="$HOME/opt/.flatpak.env"
+    touch "$env_file"
+
+    for dir in "${exec_dirs[@]}"; do
+        dir=$(realpath "$dir")
+
+        if ! grep -q "add_to_path \"$dir\"" "$env_file"; then
+            echo "add_to_path \"$dir\"" >> "$env_file"
+            echo "Added '$dir' to PATH in $env_file"
+        else
+            echo "'$dir' already in $env_file PATH"
+        fi
+    done
+
+    echo "source $env_file or restart your shell to run new executables."
+}
+
 starman() {
     local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
     local pkg=""
@@ -162,6 +189,10 @@ esac
                 }
             fi
         fi
+    fi
+
+    if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+        add_executables_to_flatpak_env
     fi
 
     [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
