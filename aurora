@@ -150,31 +150,73 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
-    find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
+       find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
         folder_name=$(basename "$pkgdir")
-        base="${folder_name%-bin}"
-        exe="$pkgdir/$base"
-        [[ -x "$exe" ]] || continue
+        exe=""
 
+        candidate=$(find "$pkgdir" -type f -iname "$folder_name" -executable 2>/dev/null | head -n1)
+        if [[ -x "$candidate" ]]; then
+            exe="$candidate"
+        else
+            direct="$pkgdir/$folder_name"
+            [[ -x "$direct" ]] && exe="$direct"
+        fi
+
+        if [[ -z "$exe" ]]; then
+    mapfile -t executables < <(find "$pkgdir" -type f -executable 2>/dev/null \
+        | grep -vEi '\.(so|dll|sh|py|pl|bak|old|txt|md|ini|conf|json|yaml)$')
+
+    match_by_folder=$(find "$pkgdir" -type f -iname "$(basename "$pkgdir")" -executable 2>/dev/null | head -n1)
+    if [[ -n "$match_by_folder" ]]; then
+        exe="$match_by_folder"
+
+    elif [[ ${#executables[@]} -eq 1 ]]; then
+        exe="${executables[0]}"
+
+    else
+        match_top=$(find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null | head -n1)
+        if [[ -n "$match_top" ]]; then
+            exe="$match_top"
+
+        elif [[ ${#executables[@]} -gt 0 ]]; then
+            exe=$(printf "%s\n" "${executables[@]}" \
+                | xargs -I{} stat -c "%s %n" {} 2>/dev/null \
+                | sort -nr | head -n1 | cut -d' ' -f2-)
+        fi
+    fi
+fi
+
+
+        [[ -z "$exe" || ! -x "$exe" ]] && continue
+
+        base=$(basename "$exe")
         shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
         hash=$(echo "$exe" | sha1sum | cut -c1-6)
         uniquename="${shortname}_${hash}"
 
         icon=""
-        for size in 256 128 64; do
-            icon=$(find "$pkgdir" -maxdepth 1 -type f \
-                \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) | head -n1)
-            [[ -n "$icon" ]] && break
-        done
-        [[ -z "$icon" ]] && icon=$(find "$pkgdir" -maxdepth 1 -type f \
-            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) | head -n1)
+        icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
+            \( -iname "*icon*.png" -o -iname "*icon*.svg" -o -iname "*$base*.png" -o -iname "*$base*.svg" \) \
+            2>/dev/null | head -n1)
+
+        if [[ -z "$icon" ]]; then
+            for size in 1024 512 256 128 64; do
+                icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
+                    \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) \
+                    2>/dev/null | head -n1)
+                [[ -n "$icon" ]] && break
+            done
+        fi
+
+        [[ -z "$icon" ]] && icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
+            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
+
         [[ -z "$icon" ]] && continue
 
-        icon_size=$(echo "$icon" | grep -oE '256|128|64' | head -n1)
-        icon_size="${icon_size:-256}"
-        outdir="$ICON_OUTPUT_BASE/${icon_size}x${icon_size}/apps"
+        icon_size=$(echo "$icon" | grep -oE '1024|512|256|128|64' | head -n1)
+        icon_size="${icon_size:-1024}"
+        outdir="$ICON_OUTPUT_BASE/256x256/apps"
         mkdir -p "$outdir"
-
         outfile="$outdir/${uniquename}.png"
         ext="${icon##*.}"
         ext="${ext,,}"
@@ -183,11 +225,11 @@ EOF
             flatpak --user run org.inkscape.Inkscape \
                 --export-type=png \
                 --export-filename="$outfile" \
-                -w "$icon_size" \
-                "$icon" 2>/dev/null
+                -w 256 "$icon" 2>/dev/null
         else
-            cp "$icon" "$outfile"
+            convert "$icon" -resize 256x256 "$outfile" 2>/dev/null || cp "$icon" "$outfile"
         fi
+
         [[ ! -f "$outfile" ]] && continue
 
         binlauncher="$BIN_DIR/${uniquename}.sh"
