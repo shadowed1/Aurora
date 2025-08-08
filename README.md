@@ -5,14 +5,14 @@
 
 ## *Run apps in Borealis using emulated AUR helpers, Flatpak, Git, Python, and GCC for signficantly higher performance than Crostini!*
 
-*With Steam support ending in 2025 this project will be pausing development. A new project will be made for running Steam + apps with similar performance.*
+*With Steam support ending in 2026 this project will be slowing development. A new project will be made for running Steam + apps with similar performance.* <br> <br>
+*When this new program is ready, a link will be available.* <br>
 
 
 ### Requirements: 
 
 - ChromeOS
 - Steam installed and open (log in not required)
-<br>
 <br>
 
 ### How to install:
