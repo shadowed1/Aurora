@@ -157,7 +157,7 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 0.06: `Improved shortcut command. Improved scaling support.` <br><br>
 0.07: `Added bsdtar support for simpler extraction syntax. Improved starman download logic.` <br><br>
 
-To do list: Make `aurora shortcut` more intelligent at finding icons for non-standardized paths. 
+To do list: Convince Google Steam should remain supported. 
 
 <br>
 
