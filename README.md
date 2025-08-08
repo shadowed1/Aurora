@@ -153,9 +153,9 @@ When running Brave:
 Added uninstall and reinstall commands. Thanks to Saragon for the suggestions and teachimg me more about .bashrc.` <br><br>
 0.03: `Added command to auto-generate shortcuts and icons with pin support. Thanks to Saragon for helping find how to do that. Added starman (steam tar manager) - download and decompress files, quick access menu, and change default apps. Added ability to download AppImages and run them with starman.` <br><br>
 0.04: `Added quick reinstall option, starman AUR emulation, and shortcut ability from AUR emulation. Added ability to build packages using git, python, gcc.` <br><br>
-0.05: `Fixed starman bug with link parsing. Added support for yay, paru, pacaur, and pacman to install packages multiple ways. Added version base 10 support.` <br>
-0.06: `Improved shortcut command. Improved scaling support.`
-0.07: `Added bsdtar support for simpler extraction syntax. Improved download_archive support.`
+0.05: `Fixed starman bug with link parsing. Added support for yay, paru, pacaur, and pacman to install packages multiple ways. Added version base 10 support.` <br><br>
+0.06: `Improved shortcut command. Improved scaling support.` <br><br>
+0.07: `Added bsdtar support for simpler extraction syntax. Improved starman download logic.` <br><br>
 
 To do list: Make `aurora shortcut` more intelligent at finding icons for non-standardized paths. 
 
