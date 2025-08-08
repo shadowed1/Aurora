@@ -5,7 +5,8 @@
 
 ## *Run apps in Borealis using emulated AUR helpers, Flatpak, Git, Python, and GCC for signficantly higher performance than Crostini!*
 
-*Under active development. Bugs do exist.*
+*With Steam support ending in 2025 this project will be pausing development. A new project will be made for running Steam + apps with similar performance.*
+
 
 ### Requirements: 
 
