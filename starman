@@ -12,6 +12,33 @@ if [ -f "$HOME/opt/.flatpak.env" ]; then
     . "$HOME/opt/.flatpak.env"
 fi
 
+add_executables_to_flatpak_env() {
+    local target_dir="$EXPORT_PATH/$pkg"
+
+    mapfile -t exec_dirs < <(find "$target_dir" -type f -executable -exec dirname {} \; | sort -u)
+
+    if [[ ${#exec_dirs[@]} -eq 0 ]]; then
+        echo "No executables found to add to .flatpak.env."
+        return
+    fi
+
+    local env_file="$HOME/opt/.flatpak.env"
+    touch "$env_file"
+
+    for dir in "${exec_dirs[@]}"; do
+        dir=$(realpath "$dir")
+
+        if ! grep -q "add_to_path \"$dir\"" "$env_file"; then
+            echo "add_to_path \"$dir\"" >> "$env_file"
+            echo "Added '$dir' to PATH in $env_file"
+        else
+            echo "'$dir' already in $env_file PATH"
+        fi
+    done
+
+    echo "source $env_file or restart your shell to run new executables."
+}
+
 starman() {
     local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
     local pkg=""
@@ -95,37 +122,44 @@ else
 fi
 
     case "$FILE" in
-        *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.xz|*.txz)     tar -xvJf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.zst|*.tzst)   tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz4)          tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lzma)         tar --use-compress-program=lzma -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.zip)              unzip -o "$FILE" -d "$EXPORT_PATH" ;;
-        *.deb)
-            local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
-            mkdir -p "$DEB_DEST"
-            dpkg-deb -x "$FILE" "$DEB_DEST" || {
-                echo "${RED}Failed to extract .deb package.${RESET}" >&2
-                return 1
-            }
-            echo "${GREEN}Extracted .deb to $DEB_DEST${RESET}"
-            ;;
-        *.sh|*.run|*.bin)
-            chmod +x "$FILE"
-            mv "$FILE" "$EXPORT_PATH/"
-            echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
-            downloaded=0
-            ;;
-        *)
-            echo "${RED}Unknown or unsupported file format: $FILE${RESET}"
+    *.tar|*.tar.gz|*.tgz|*.tar.bz2|*.tbz2|*.tar.xz|*.txz|*.tar.zst|*.tzst|*.tar.lz4|*.tar.lzma|*.tar.lz|*.tar.Z)
+        echo "${CYAN}Extracting archive $FILE with bsdtar...${RESET}"
+        bsdtar -xvf "$FILE" -C "$EXPORT_PATH" || {
+            echo "${RED}Failed to extract archive: $FILE${RESET}" >&2
             [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
             return 1
-            ;;
-    esac
+        }
+        ;;
+    *.zip)
+        echo "${CYAN}Extracting ZIP archive $FILE with bsdtar...${RESET}"
+        bsdtar -xvf "$FILE" -C "$EXPORT_PATH" || {
+            echo "${RED}Failed to extract ZIP archive: $FILE${RESET}" >&2
+            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
+            return 1
+        }
+        ;;
+    *.deb)
+        local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
+        mkdir -p "$DEB_DEST"
+        dpkg-deb -x "$FILE" "$DEB_DEST" || {
+            echo "${RED}Failed to extract .deb package.${RESET}" >&2
+            return 1
+        }
+        echo "${GREEN}Extracted .deb to $DEB_DEST${RESET}"
+        ;;
+    *.sh|*.run|*.bin)
+        chmod +x "$FILE"
+        mv "$FILE" "$EXPORT_PATH/"
+        echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
+        downloaded=0
+        ;;
+    *)
+        echo "${RED}Unknown or unsupported file format: $FILE${RESET}"
+        [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
+        return 1
+        ;;
+esac
+
 
     if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         local pkgdir="$EXPORT_PATH/$pkg"
@@ -155,6 +189,10 @@ fi
                 }
             fi
         fi
+    fi
+
+    if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+        add_executables_to_flatpak_env
     fi
 
     [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
@@ -297,14 +335,38 @@ zenity_launcher() {
             zenity --file-selection --directory --title="Select a Folder to Browse"
             ;;
         download_archive)
-            FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the .tar archive:")
-            [[ -z "$FILE_URL" ]] && break
-        
-            EXTRACT_PATH=$(zenity --file-selection --directory --title="Choose Extraction Directory" --filename="$HOME/")
-            [[ -z "$EXTRACT_PATH" ]] && break
-        
-            STARMAN_EXPORT_PATH="$EXTRACT_PATH" starman "$FILE_URL"
-            ;;
+    local DOWNLOAD_DIR="$HOME/opt"
+    local EXTRACT_DIR="$HOME/opt/bin"
+    mkdir -p "$DOWNLOAD_DIR" "$EXTRACT_DIR"
+
+    FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the archive:")
+    if [[ -z "$FILE_URL" ]]; then
+        echo "No URL provided, aborting."
+        break
+    fi
+
+    FILENAME=$(basename "${FILE_URL%%\?*}")
+    FILEPATH="$DOWNLOAD_DIR/$FILENAME"
+
+    echo "Downloading archive to: $FILEPATH"
+    if ! curl -L -o "$FILEPATH" "$FILE_URL"; then
+        zenity --error --title="Download Failed" --text="Failed to download archive from:\n$FILE_URL"
+        break
+    fi
+
+    echo "Extracting archive to: $EXTRACT_DIR"
+    if ! bsdtar -xf "$FILEPATH" -C "$EXTRACT_DIR"; then
+        zenity --error --title="Extraction Failed" --text="Failed to extract archive: $FILEPATH"
+        rm -f "$FILEPATH"
+        break
+    fi
+
+    echo "Cleaning up downloaded archive."
+    rm -f "$FILEPATH"
+
+    zenity --info --title="Done" --text="Archive downloaded and extracted to $EXTRACT_DIR"
+    aurora shortcut
+    ;;
 
         download_appimage)
             APPIMAGE_URL=$(zenity --entry --title="Download AppImage" --text="Paste the URL of the .AppImage file:")
