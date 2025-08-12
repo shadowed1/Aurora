@@ -38,7 +38,6 @@ if command -v xrandr >/dev/null; then
   fi
 fi
 
-# Source existing flatpak env if present
 if [ -f "$HOME/opt/.flatpak.env" ]; then
   . "$HOME/opt/.flatpak.env"
 fi
@@ -70,9 +69,10 @@ fi
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak --user update --appstream
 
-sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
+if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
+  sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
 
-cat << 'EOF' >> "$HOME/.bashrc"
+  cat << 'EOF' >> "$HOME/.bashrc"
 # >>> Aurora Flatpak Setup >>>
 flatpak() {
   case "$1" in
@@ -117,6 +117,7 @@ paru() { starman "$@"; }
 flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
 # <<< Aurora Flatpak Setup <<<
 EOF
+fi
 
 echo ""
 echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Reinitializing .bashrc to enable --user shortcuts${RESET}"
