@@ -37,8 +37,10 @@ if command -v xrandr >/dev/null; then
   fi
 fi
 
-if [ -f "$HOME/opt/.flatpak.env" ]; then
-    . "$HOME/opt/.flatpak.env"
+if [[ -n "$PS1" ]] && [[ "$(basename "$0")" == "bash" ]]; then
+  if [ -f "$HOME/opt/.flatpak.env" ]; then
+    source "$HOME/opt/.flatpak.env"
+  fi
 fi
 
 echo "${MAGENTA}Aurora initializing Flatpak!${RESET}${BLUE}"
