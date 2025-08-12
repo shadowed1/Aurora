@@ -270,6 +270,8 @@ show_help() {
     echo "aurora uninstall           # Launch uninstaller"
     echo "${RESET}${YELLOW}"
     echo "starman                    # Launch starman menu"
+    echo "starman refresh            # Refresh starman applauncher shortcuts"
+    echo "starman help               # Show help"
     echo "${RESET}"
     echo "${GREEN}flatpak list               # Show list of installed apps"
     echo "flatpak --help             # flatpak has a lot of commands!${RESET}"
