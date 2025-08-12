@@ -158,7 +158,7 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 0.07: `Added bsdtar support for simpler extraction syntax. Improved starman download logic.` <br><br>
 0.08: `Added permission fix logic for Starman. Fixed severe bug preventing install due to LD_LIBRARY_PATH being assigned too early.` <br><br>
 
-To do list: Convince Google Steam should remain supported. 
+To do list: Convince Google that Steam should remain supported. 
 
 <br>
 
