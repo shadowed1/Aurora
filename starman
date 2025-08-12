@@ -39,6 +39,17 @@ add_executables_to_flatpak_env() {
     echo "source $env_file or restart your shell to run new executables."
 }
 
+fix_exec_permissions() {
+  local target="$1"
+  if [[ -d "$target" ]]; then
+    echo "Fixing execute permissions in $target ..."
+    # Make all files in bin folders executable
+    find "$target" -type d \( -name bin -o -name sbin \) -exec find {} -type f -exec chmod +x {} \; \;
+    # Also fix any files already executable (preserve those)
+    find "$target" -type f -perm /u+x -exec chmod +x {} \;
+  fi
+}
+
 starman() {
     local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
     local pkg=""
@@ -129,6 +140,9 @@ fi
             [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
             return 1
         }
+    fix_exec_permissions "$EXPORT_PATH/$pkg"
+    fix_exec_permissions "$EXPORT_PATH/usr"
+    fix_exec_permissions "$EXPORT_PATH/bin"
         ;;
     *.zip)
         echo "${CYAN}Extracting ZIP archive $FILE with bsdtar...${RESET}"
@@ -146,6 +160,7 @@ fi
             return 1
         }
         echo "${GREEN}Extracted .deb to $DEB_DEST${RESET}"
+        fix_exec_permissions "$DEB_DEST"
         ;;
     *.sh|*.run|*.bin)
         chmod +x "$FILE"
@@ -361,6 +376,8 @@ zenity_launcher() {
         break
     fi
 
+    fix_exec_permissions "$EXTRACT_DIR"
+
     echo "Cleaning up downloaded archive."
     rm -f "$FILEPATH"
 
@@ -380,6 +397,7 @@ zenity_launcher() {
                     [[ -z "$FILENAME" || ! -f "$FILENAME" ]] && FILENAME=$(basename "${APPIMAGE_URL%%\?*}")
 
                     chmod +x "$FILENAME"
+                    fix_exec_permissions "$HOME/opt/appimages" 
                     "./$FILENAME" &
                     echo "${GREEN}Launched: $FILENAME${RESET}"
                 else
