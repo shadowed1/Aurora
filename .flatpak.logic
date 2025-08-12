@@ -1,5 +1,3 @@
-#!/bin/bash
-
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
@@ -9,11 +7,6 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
-if [ -n "$AURORA_LOGIC_RAN" ]; then
-  return 0
-fi
-export AURORA_LOGIC_RAN=1
-
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.xdg-runtime-dir}"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR"
@@ -21,30 +14,8 @@ echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
 export USER="${USER:-$(id -un)}"
 
-if command -v xrandr >/dev/null; then
-  HIGHEST_WIDTH=0
-  HIGHEST_HEIGHT=0
-  while read -r line; do
-    RES=$(echo "$line" | grep -oE '[0-9]+x[0-9]+' | head -n1)
-    WIDTH=$(echo "$RES" | cut -d'x' -f1)
-    HEIGHT=$(echo "$RES" | cut -d'x' -f2)
-    if [ "$WIDTH" -gt "$HIGHEST_WIDTH" ]; then
-      HIGHEST_WIDTH=$WIDTH
-      HIGHEST_HEIGHT=$HEIGHT
-    fi
-  done < <(xrandr | grep ' connected')
-
-  if [ "$HIGHEST_WIDTH" -ge 3840 ] && [ "$HIGHEST_HEIGHT" -ge 2160 ]; then
-    export AURORA_SCALE=1.5
-  elif [ "$HIGHEST_WIDTH" -ge 2560 ]; then
-    export AURORA_SCALE=1.25
-  else
-    export AURORA_SCALE=1.0
-  fi
-fi
-
 if [ -f "$HOME/opt/.flatpak.env" ]; then
-  . "$HOME/opt/.flatpak.env"
+    . "$HOME/opt/.flatpak.env"
 fi
 
 echo "${MAGENTA}Aurora initializing Flatpak!${RESET}${BLUE}"
@@ -62,7 +33,7 @@ export TMPDIR="$HOME/tmp"
 mkdir -p "$XDG_RUNTIME_DIR" "$TMPDIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 
-export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')
+  export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')
 
 if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
   "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
@@ -74,11 +45,12 @@ fi
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak --user update --appstream
 
-if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
-  sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
+echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
-  cat << 'EOF' >> "$HOME/.bashrc"
-# >>> Aurora Flatpak Setup >>>
+MARKER="# Flatpak --user logic"
+if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
+cat << 'EOF' >> "$HOME/.bashrc"
+# Flatpak --user logic
 flatpak() {
   case "$1" in
     ""|--help|-h|help|--version)
@@ -111,6 +83,8 @@ aurora() {
   esac
 }
 
+
+
 [[ -L "$BIN_DIR/npm" || -e "$BIN_DIR/npm" ]] || ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
 [[ -L "$BIN_DIR/npx" || -e "$BIN_DIR/npx" ]] || ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
@@ -119,20 +93,22 @@ ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
 yay() { starman "$@"; }
 paru() { starman "$@"; }
 
+
+
 flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
-# <<< Aurora Flatpak Setup <<<
+
+
 EOF
-fi
-
 echo ""
-echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Reinitializing .bashrc to enable --user shortcuts${RESET}"
+echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Reinitializing .bashrc to enable --user shortcut"
 sleep 1
 echo "."
 sleep 1
-echo "."
+echo ".${RESET}"
 echo ""
-
-if [ -n "$AURORA_FIRST_RUN" ]; then
-    ~/opt/bin/aurora help
-    unset AURORA_FIRST_RUN
+~/opt/usr/bin/fastfetch
+echo ""
+source ~/.bashrc
+echo ""
+~/opt/bin/aurora help
 fi
