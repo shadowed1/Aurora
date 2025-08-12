@@ -1,7 +1,5 @@
-# Remove any existing Aurora Flatpak Setup block from .bashrc
 sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
 
-# Append the Aurora block with unique start/end markers
 cat << 'EOF' >> "$HOME/.bashrc"
 # >>> Aurora Flatpak Setup >>>
 flatpak() {
