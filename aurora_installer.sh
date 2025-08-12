@@ -626,9 +626,6 @@ chmod +x "$HOME/opt/usr/bin/nano"
 touch "$HOME/.starman_flatpak_cache"
 echo ""
 
-
-export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-
 if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
   export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
   grep -v '^export DBUS_SESSION_BUS_ADDRESS=' "$HOME/opt/.flatpak.env" > "$HOME/opt/.flatpak.env.tmp"
@@ -677,8 +674,8 @@ ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
 
 echo ""
 
-/bin/bash ~/opt/bin/aurora help
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
+/bin/bash ~/opt/bin/aurora help
 
 
 sleep 3
