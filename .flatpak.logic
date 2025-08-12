@@ -9,6 +9,11 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
+if [ -n "$AURORA_LOGIC_RAN" ]; then
+  return 0
+fi
+export AURORA_LOGIC_RAN=1
+
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.xdg-runtime-dir}"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR"
@@ -127,5 +132,7 @@ sleep 1
 echo "."
 echo ""
 
-source ~/.bashrc
-~/opt/bin/aurora help
+if [ -n "$AURORA_FIRST_RUN" ]; then
+    ~/opt/bin/aurora help
+    unset AURORA_FIRST_RUN
+fi
