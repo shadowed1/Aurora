@@ -675,7 +675,7 @@ ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
 echo ""
 
 export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-/bin/bash ~/opt/bin/aurora help
+"$HOME/opt/bin/aurora" help
 
 
 sleep 3
