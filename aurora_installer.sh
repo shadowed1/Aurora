@@ -58,8 +58,6 @@ mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 
 export PATH="$HOME/opt/flatpak/usr/bin:$HOME/opt/flatpak-deps/usr/bin:/bin:/usr/bin:$PATH"
-export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
-
 if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   dbus-daemon --session \
     --address="unix:path=$XDG_RUNTIME_DIR/dbus-session" \
@@ -611,24 +609,26 @@ download_and_extract "$URL" "$HOME/opt/"
 
 
 echo "${MAGENTA}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
+env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o "$HOME/opt/.flatpak.logic"
 echo "${RESET}${BLUE}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
+env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o "$HOME/opt/bin/aurora"
 echo "${RESET}${CYAN}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
+env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o "$HOME/opt/bin/starman"
 echo "${RESET}${BLUE}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
+env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o "$HOME/opt/bin/version"
 echo "${RESET}${MAGENTA}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
+env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o "$HOME/opt/.flatpak.env"
 echo "${RESET}"
-chmod +x ~/opt/bin/aurora
-chmod +x ~/opt/bin/starman
-chmod +x ~/opt/usr/bin/fastfetch
-chmod +x ~/opt/usr/bin/nano
-touch /home/chronos/.starman_flatpak_cache
+
+[ -f "$HOME/opt/bin/aurora" ] && chmod +x "$HOME/opt/bin/aurora"
+[ -f "$HOME/opt/bin/starman" ] && chmod +x "$HOME/opt/bin/starman"
+[ -f "$HOME/opt/usr/bin/fastfetch" ] && chmod +x "$HOME/opt/usr/bin/fastfetch"
+[ -f "$HOME/opt/usr/bin/nano" ] && chmod +x "$HOME/opt/usr/bin/nano"
+
+touch "$HOME/.starman_flatpak_cache"
 echo ""
 
-export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
+
 
 if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
   export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
@@ -679,6 +679,8 @@ ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
 echo ""
 
 /bin/bash ~/opt/bin/aurora help
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
+
 
 sleep 3
 echo "${RESET}${MAGENTA}"
