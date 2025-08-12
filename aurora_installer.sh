@@ -79,11 +79,16 @@ download_and_extract()
     local url="$1"
     local target_dir="$2"
     local FILE SAFE_FILE
+
     echo "${MAGENTA}"
     echo "Downloading: $url"
-    wget --content-disposition --trust-server-names "$url"
+
+    # Run wget with clean env to avoid LD_LIBRARY_PATH interference
+    env -i PATH="$PATH" wget --content-disposition --trust-server-names "$url"
+
     echo "${RESET}${BLUE}"
-    
+
+    # detect file
     if [[ -f "download" ]]; then
         FILE="download"
     else
@@ -96,12 +101,15 @@ download_and_extract()
         FILE="$SAFE_FILE"
     fi
     echo "Extracting $FILE to $target_dir"
-    tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
+
+    env -i PATH="$PATH" tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
+
     rm -f "$FILE"
     chmod +x "$target_dir/usr/bin"/* 2>/dev/null
     chmod +x "$HOME/opt/usr/bin"/* 2>/dev/null
     chmod +x "$HOME/opt/usr/share"/* 2>/dev/null
     echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
+
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$HOME/opt/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
     sleep 1
