@@ -302,8 +302,8 @@ aurora_uninstall() {
     echo "${MAGENTA}${BOLD}Aurora Uninstaller${RESET}"
     echo "${BLUE}${BOLD}Select an option:${RESET}"
     echo "${BLUE}[0] Quit${RESET}"
-    echo "${CYAN}[1] Remove ~/opt (Aurora + Flatpak only; keep Flatpak apps and data)${RESET}"
-    echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, entries created in ~/.bashcr, and dependencies)${RESET}"
+    echo "${CYAN}[1] Remove Aurora & Starman (~/opt/aurora and ~/opt/starman only; keep Flatpak apps and data)${RESET}"
+    echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, ~/.bashrc Aurora entries, and dependencies)${RESET}"
     echo ""
     read -rp "Enter choice [0-2]: " CHOICE
 
@@ -313,28 +313,38 @@ aurora_uninstall() {
             return 0
             ;;
         1)
-            echo "${CYAN}Removing Aurora and Starman - (leaving apps/data)...${RESET}"
-            if [ -d "$HOME/opt" ]; then
-                rm "$HOME/opt/aurora"
-                rm "$HOME/opt/starman"
-                echo "${CYAN}Removed $HOME/opt${RESET}"
+            echo "${CYAN}Removing Aurora and Starman binaries (leaving apps/data)...${RESET}"
+            if [ -e "$HOME/opt/aurora" ]; then
+                rm -f "$HOME/opt/aurora"
+                echo "${CYAN}Removed $HOME/opt/aurora${RESET}"
             else
-                echo "${YELLOW}$HOME/opt not found.${RESET}"
+                echo "${YELLOW}$HOME/opt/aurora not found.${RESET}"
             fi
-            echo "${CYAN}Deleted Aurora + Flatpak, but kept apps + data.${RESET}"
+            if [ -e "$HOME/opt/starman" ]; then
+                rm -f "$HOME/opt/starman"
+                echo "${CYAN}Removed $HOME/opt/starman${RESET}"
+            else
+                echo "${YELLOW}$HOME/opt/starman not found.${RESET}"
+            fi
+            echo "${CYAN}Aurora and Starman binaries removed; Flatpak apps and data retained.${RESET}"
             ;;
-       2)
-            echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashrc entries and ~/.xdg-runtime-dir${RESET}"
-            echo "${RED}${BOLD}Are you sure? This full uninstall will also delete your Flatpak apps' data.${RESET}"
+        2)
+            echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashrc Aurora entries, and ~/.xdg-runtime-dir${RESET}"
+            echo "${RED}${BOLD}WARNING: This will delete all Flatpak apps and their data.${RESET}"
             read -rp "Type 'yes' to confirm: " FULL_CONFIRM
             if [ "$FULL_CONFIRM" != "yes" ]; then
                 echo "${GREEN}Full uninstall aborted. No changes made.${RESET}"
                 return 1
             fi
 
-                sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
-                sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
-                
+            if grep -q "# >>> Aurora Flatpak Setup >>>" "$HOME/.bashrc"; then
+                sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
+                echo "${CYAN}Removed Aurora Flatpak setup block from ~/.bashrc${RESET}"
+            fi
+
+            sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
+            sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
+
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
                     rm -rf "$DIR"
@@ -344,13 +354,7 @@ aurora_uninstall() {
                 fi
             done
 
-            if grep -q "# Flatpak --user logic" "$HOME/.bashrc"; then
-                sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
-                echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
-            fi
-
-            
-            echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, and data removed. ~/.bashrc entries removed. ${RESET}"
+            echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, data, and ~/.bashrc entries removed.${RESET}"
             ;;
         *)
             echo "${RED}Invalid choice. Exiting.${RESET}"
@@ -358,6 +362,7 @@ aurora_uninstall() {
             ;;
     esac
 }
+
 
 case "$1" in
     display)
