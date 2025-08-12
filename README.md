@@ -156,7 +156,7 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 0.05: `Fixed starman bug with link parsing. Added support for yay, paru, pacaur, and pacman to install packages multiple ways. Added version base 10 support.` <br><br>
 0.06: `Improved shortcut command. Improved scaling support.` <br><br>
 0.07: `Added bsdtar support for simpler extraction syntax. Improved starman download logic.` <br><br>
-0.08: `Added permission fix logic for Starman`. <br><br>
+0.08: `Added permission fix logic for Starman. Fixed severe bug preventing install due to LD_LIBRARY_PATH being assigned too early.` <br><br>
 
 To do list: Convince Google Steam should remain supported. 
 
