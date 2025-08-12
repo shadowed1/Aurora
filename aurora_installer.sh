@@ -609,26 +609,24 @@ download_and_extract "$URL" "$HOME/opt/"
 
 
 echo "${MAGENTA}"
-env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o "$HOME/opt/.flatpak.logic"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
 echo "${RESET}${BLUE}"
-env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o "$HOME/opt/bin/aurora"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
 echo "${RESET}${CYAN}"
-env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o "$HOME/opt/bin/starman"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
 echo "${RESET}${BLUE}"
-env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o "$HOME/opt/bin/version"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
 echo "${RESET}${MAGENTA}"
-env -i PATH="$PATH" HOME="$HOME" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o "$HOME/opt/.flatpak.env"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
 echo "${RESET}"
-
-[ -f "$HOME/opt/bin/aurora" ] && chmod +x "$HOME/opt/bin/aurora"
-[ -f "$HOME/opt/bin/starman" ] && chmod +x "$HOME/opt/bin/starman"
-[ -f "$HOME/opt/usr/bin/fastfetch" ] && chmod +x "$HOME/opt/usr/bin/fastfetch"
-[ -f "$HOME/opt/usr/bin/nano" ] && chmod +x "$HOME/opt/usr/bin/nano"
-
-touch "$HOME/.starman_flatpak_cache"
+chmod +x ~/opt/bin/aurora
+chmod +x ~/opt/bin/starman
+chmod +x ~/opt/usr/bin/fastfetch
+chmod +x ~/opt/usr/bin/nano
+touch /home/chronos/.starman_flatpak_cache
 echo ""
 
-
+export LD_LIBRARY_PATH="$HOME/opt/flatpak-deps/usr/lib:$LD_LIBRARY_PATH"
 
 if file "$XDG_RUNTIME_DIR/dbus-session" | grep -q socket; then
   export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address")
@@ -698,3 +696,4 @@ echo ""
         ;;
 esac
 exit 0
+
