@@ -12,6 +12,43 @@ if [ -f "$HOME/opt/.flatpak.env" ]; then
     . "$HOME/opt/.flatpak.env"
 fi
 
+
+add_executables_to_flatpak_env() {
+    local target_dir="$EXPORT_PATH/$pkg"
+
+    mapfile -t exec_dirs < <(find "$target_dir" -type f -executable -exec dirname {} \; | sort -u)
+
+    if [[ ${#exec_dirs[@]} -eq 0 ]]; then
+        echo "No executables found to add to .flatpak.env."
+        return
+    fi
+
+    local env_file="$HOME/opt/.flatpak.env"
+    touch "$env_file"
+
+    for dir in "${exec_dirs[@]}"; do
+        dir=$(realpath "$dir")
+
+        if ! grep -q "add_to_path \"$dir\"" "$env_file"; then
+            echo "add_to_path \"$dir\"" >> "$env_file"
+            echo "Added '$dir' to PATH in $env_file"
+        else
+            echo "'$dir' already in $env_file PATH"
+        fi
+    done
+
+    echo "source $env_file or restart your shell to run new executables."
+}
+
+fix_exec_permissions() {
+  local target="$1"
+  if [[ -d "$target" ]]; then
+    echo "Fixing execute permissions in $target ..."
+    find "$target" -type d \( -name bin -o -name sbin \) -exec find {} -type f -exec chmod +x {} \; \;
+    find "$target" -type f -perm /u+x -exec chmod +x {} \;
+  fi
+}
+
 starman() {
     local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
     local pkg=""
@@ -95,22 +132,63 @@ else
 fi
 
     case "$FILE" in
-        *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.xz|*.txz)     tar -xvJf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.zst|*.tzst)   tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz4)          tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lzma)         tar --use-compress-program=lzma -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.zip)              unzip -o "$FILE" -d "$EXPORT_PATH" ;;
+        *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH"
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH"
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.tar.xz|*.txz)     tar -xvJf "$FILE" -C "$EXPORT_PATH"
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.tar.zst|*.tzst)   tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" 
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.tar.lz4)          tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH"
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.tar.lzma)         tar --use-compress-program=lzma -xvf "$FILE" -C "$EXPORT_PATH" 
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" 
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" 
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" 
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
+        *.zip)              unzip -o "$FILE" -d "$EXPORT_PATH"
+        fix_exec_permissions "$EXPORT_PATH/$pkg"
+        fix_exec_permissions "$EXPORT_PATH/usr"
+        fix_exec_permissions "$EXPORT_PATH/bin"
+        ;;
         *.deb)
             local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
             mkdir -p "$DEB_DEST"
             dpkg-deb -x "$FILE" "$DEB_DEST" || {
                 echo "${RED}Failed to extract .deb package.${RESET}" >&2
                 return 1
+            fix_exec_permissions "$DEB_DEST"
             }
             echo "${GREEN}Extracted .deb to $DEB_DEST${RESET}"
             ;;
@@ -119,6 +197,9 @@ fi
             mv "$FILE" "$EXPORT_PATH/"
             echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
             downloaded=0
+            fix_exec_permissions "$EXPORT_PATH/$pkg"
+            fix_exec_permissions "$EXPORT_PATH/usr"
+            fix_exec_permissions "$EXPORT_PATH/bin"
             ;;
         *)
             echo "${RED}Unknown or unsupported file format: $FILE${RESET}"
@@ -155,6 +236,10 @@ fi
                 }
             fi
         fi
+    fi
+
+    if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+        add_executables_to_flatpak_env
     fi
 
     [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
@@ -285,7 +370,6 @@ zenity_launcher() {
     done < "$APP_LIST_FILE"
 
     MENU_ENTRIES+=("Exit" "Close this menu")
-
     local CHOICE
     CHOICE=$(zenity --list --title="Steam Tar Manager" \
       --width=800 --height=600 \
@@ -311,7 +395,7 @@ zenity_launcher() {
             if [[ -n "$APPIMAGE_URL" ]]; then
                 mkdir -p "$HOME/opt/appimages"
                 cd "$HOME/opt/appimages" || exit 1
-
+                fix_exec_permissions "$HOME/opt/appimages" 
                 echo "${YELLOW}Downloading to: $PWD${RESET}"
                 if curl -L -J -O "$APPIMAGE_URL"; then
                     FILENAME=$(basename "$(curl -s -L -I "$APPIMAGE_URL" | grep -i 'filename=' | sed -E 's/.*filename="?([^"]+)"?/\1/')")
