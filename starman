@@ -41,12 +41,12 @@ add_executables_to_flatpak_env() {
 }
 
 fix_exec_permissions() {
-  local target="$1"
-  if [[ -d "$target" ]]; then
-    echo "Fixing execute permissions in $target ..."
-    find "$target" -type d \( -name bin -o -name sbin \) -exec find {} -type f -exec chmod +x {} \; \;
-    find "$target" -type f -perm /u+x -exec chmod +x {} \;
-  fi
+    local target="$1"
+    if [[ -d "$target" ]]; then
+        echo "Fixing execute permissions in $target ..."
+        find "$target" -type d \( -name bin -o -name sbin \) -exec chmod -R +x {} \;
+        find "$target" -type f -exec chmod +x {} \;
+    fi
 }
 
 starman() {
@@ -127,36 +127,26 @@ starman() {
         return 1
     fi
 
-    case "$FILE" in
-        *.tar.gz|*.tgz)    tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.bz2|*.tbz2)  tar -xvjf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.xz|*.txz|*.tar.lzma)   tar -xvJf "$FILE" -C "$EXPORT_PATH" ;;   # Grouped tar.xz and tar.lzma
-        *.tar.zst|*.tzst)  tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz4)         tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.lz)          tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar.Z)           tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
-        *.tar)             tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
-        *.zip)             unzip -o "$FILE" -d "$EXPORT_PATH" ;;
-        *.deb) 
-            local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
-            mkdir -p "$DEB_DEST"
-            dpkg-deb -x "$FILE" "$DEB_DEST" || {
-                echo "${RED}Failed to extract .deb package.${RESET}" >&2
-                return 1
-            }
-            ;;
-        *.sh|*.run|*.bin)
-            chmod +x "$FILE"
-            mv "$FILE" "$EXPORT_PATH/"
-            echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
-            downloaded=0
-            ;;
-        *)
-            echo "${RED}Unknown or unsupported file format: $FILE${RESET}"
-            [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
-            return 1
-            ;;
-    esac
+   case "$FILE" in
+    *.tar.gz|*.tgz|*.tar.bz2|*.tbz2|*.tar.xz|*.txz|*.tar.lzma|*.tar.zst|*.tzst|*.tar.lz4|*.tar.lz|*.tar.Z|*.tar)
+        echo "Extracting $FILE to $EXPORT_PATH ..."
+        tar_opts=""
+        [[ "$FILE" == *.tar.gz || "$FILE" == *.tgz ]] && tar_opts="xvzf"
+        [[ "$FILE" == *.tar.bz2 || "$FILE" == *.tbz2 ]] && tar_opts="xvjf"
+        [[ "$FILE" == *.tar.xz || "$FILE" == *.txz || "$FILE" == *.tar.lzma ]] && tar_opts="xvJf"
+        [[ "$FILE" == *.tar.zst || "$FILE" == *.tzst ]] && tar_opts="--use-compress-program=unzstd -xvf"
+        [[ "$FILE" == *.tar.lz4 ]] && tar_opts="--use-compress-program=lz4 -xvf"
+        [[ "$FILE" == *.tar.lz ]] && tar_opts="--use-compress-program=lzip -xvf"
+        [[ "$FILE" == *.tar.Z ]] && tar_opts="xvZf"
+        [[ "$FILE" == *.tar ]] && tar_opts="xvf"
+
+        tar $tar_opts "$FILE" -C "$EXPORT_PATH"
+        ;;
+    *.zip)
+        unzip -o "$FILE" -d "$EXPORT_PATH"
+        ;;
+esac
+
 
     fix_exec_permissions "$EXPORT_PATH/$pkg"
     fix_exec_permissions "$EXPORT_PATH/usr"
