@@ -71,135 +71,85 @@ starman() {
     mkdir -p "$EXPORT_PATH"
 
     if [[ "$pkg" =~ ^https?://archlinux.org/packages/.+[^/](/)?$ ]]; then
-    pkg="${pkg%/}/download"
+        pkg="${pkg%/}/download"
+        local real_url
+        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
 
-    local real_url
-    real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$pkg")
+        if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
+            local filename
+            filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+            [[ -z "$filename" ]] && filename=$(basename "$real_url")
+            [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
 
-    if [[ "$real_url" =~ \.(tar\.(gz|bz2|xz|zst|lz4|lzma|lz)?|tgz|sh|run|bin|pkg\.tar\.(zst|xz))$ ]]; then
-        local filename
-        filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
-        [[ -z "$filename" ]] && filename=$(basename "$real_url")
-        [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
-
-        FILE="$HOME/$filename"
-        echo "${YELLOW}Downloading to: $FILE${RESET}"
-        curl -L "$real_url" -o "$FILE" || {
-            echo "${RED}Failed to download file.${RESET}" >&2
+            FILE="$HOME/$filename"
+            echo "${YELLOW}Downloading to: $FILE${RESET}"
+            curl -L "$real_url" -o "$FILE" || {
+                echo "${RED}Failed to download file.${RESET}" >&2
+                return 1
+            }
+            downloaded=1
+        else
+            echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
             return 1
-        }
-        downloaded=1
+        fi
+    elif [[ -f "$pkg" ]]; then
+        FILE="$pkg"
+        echo "${CYAN}starman installing from local file: $FILE${RESET}"
+    elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+        echo "${BLUE}starman assuming package name: $pkg${RESET}"
+
+        local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
+        FILE="$HOME/$pkg.tar.gz"
+        if curl -fsSL "$AUR_URL" -o "$FILE"; then
+            echo "${GREEN}Downloaded AUR package: $pkg${RESET}"
+            downloaded=1
+        else
+            echo "${YELLOW}AUR package not found. Trying official Arch repo...${RESET}"
+
+            local ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/download"
+            real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
+
+            local filename
+            filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
+            [[ -z "$filename" ]] && filename=$(basename "$real_url")
+            [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg}.pkg.tar.zst"
+
+            FILE="$HOME/$filename"
+            echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
+            curl -L "$real_url" -o "$FILE" || {
+                echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
+                return 1
+            }
+            downloaded=1
+        fi
     else
-        echo "${YELLOW}Warning: '$pkg' redirects to an unsupported file format: $real_url${RESET}"
+        echo "${RED}Unrecognized input: $pkg${RESET}"
         return 1
     fi
 
-elif [[ -f "$pkg" ]]; then
-    FILE="$pkg"
-    echo "${CYAN}starman installing from local file: $FILE${RESET}"
-
-elif [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
-    echo "${BLUE}starman assuming package name: $pkg${RESET}"
-
-    local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
-    FILE="$HOME/$pkg.tar.gz"
-    if curl -fsSL "$AUR_URL" -o "$FILE"; then
-        echo "${GREEN}Downloaded AUR package: $pkg${RESET}"
-        downloaded=1
-    else
-        echo "${YELLOW}AUR package not found. Trying official Arch repo...${RESET}"
-
-        local ARCH_URL="https://archlinux.org/packages/extra/x86_64/${pkg}/download"
-        real_url=$(curl -Ls -o /dev/null -w '%{url_effective}' "$ARCH_URL")
-
-        local filename
-        filename=$(curl -sIL "$real_url" | grep -i '^content-disposition:' | sed -n 's/.*filename="\?\([^"]*\)"\?.*/\1/p' | tail -1)
-        [[ -z "$filename" ]] && filename=$(basename "$real_url")
-        [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg}.pkg.tar.zst"
-
-        FILE="$HOME/$filename"
-        echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
-        curl -L "$real_url" -o "$FILE" || {
-            echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
-            return 1
-        }
-        downloaded=1
-    fi
-
-else
-    echo "${RED}Unrecognized input: $pkg${RESET}"
-    return 1
-fi
-
     case "$FILE" in
-        *.tar.gz|*.tgz)     tar -xvzf "$FILE" -C "$EXPORT_PATH"
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.tar.bz2|*.tbz2)   tar -xvjf "$FILE" -C "$EXPORT_PATH"
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.tar.xz|*.txz)     tar -xvJf "$FILE" -C "$EXPORT_PATH"
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.tar.zst|*.tzst)   tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" 
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.tar.lz4)          tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH"
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.tar.lzma)         tar --use-compress-program=lzma -xvf "$FILE" -C "$EXPORT_PATH" 
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.tar.lz)           tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" 
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.tar.Z)            tar -xvZf "$FILE" -C "$EXPORT_PATH" 
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.tar)              tar -xvf "$FILE" -C "$EXPORT_PATH" 
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.zip)              unzip -o "$FILE" -d "$EXPORT_PATH"
-        fix_exec_permissions "$EXPORT_PATH/$pkg"
-        fix_exec_permissions "$EXPORT_PATH/usr"
-        fix_exec_permissions "$EXPORT_PATH/bin"
-        ;;
-        *.deb)
+        *.tar.gz|*.tgz)    tar -xvzf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.bz2|*.tbz2)  tar -xvjf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.xz|*.txz|*.tar.lzma)   tar -xvJf "$FILE" -C "$EXPORT_PATH" ;;   # Grouped tar.xz and tar.lzma
+        *.tar.zst|*.tzst)  tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lz4)         tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.lz)          tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar.Z)           tar -xvZf "$FILE" -C "$EXPORT_PATH" ;;
+        *.tar)             tar -xvf "$FILE" -C "$EXPORT_PATH" ;;
+        *.zip)             unzip -o "$FILE" -d "$EXPORT_PATH" ;;
+        *.deb) 
             local DEB_DEST="$EXPORT_PATH/${pkg%.deb}"
             mkdir -p "$DEB_DEST"
             dpkg-deb -x "$FILE" "$DEB_DEST" || {
                 echo "${RED}Failed to extract .deb package.${RESET}" >&2
                 return 1
-            fix_exec_permissions "$DEB_DEST"
             }
-            echo "${GREEN}Extracted .deb to $DEB_DEST${RESET}"
             ;;
         *.sh|*.run|*.bin)
             chmod +x "$FILE"
             mv "$FILE" "$EXPORT_PATH/"
             echo "${GREEN}Saved executable to $EXPORT_PATH/$(basename "$FILE")${RESET}"
             downloaded=0
-            fix_exec_permissions "$EXPORT_PATH/$pkg"
-            fix_exec_permissions "$EXPORT_PATH/usr"
-            fix_exec_permissions "$EXPORT_PATH/bin"
             ;;
         *)
             echo "${RED}Unknown or unsupported file format: $FILE${RESET}"
@@ -207,6 +157,10 @@ fi
             return 1
             ;;
     esac
+
+    fix_exec_permissions "$EXPORT_PATH/$pkg"
+    fix_exec_permissions "$EXPORT_PATH/usr"
+    fix_exec_permissions "$EXPORT_PATH/bin"
 
     if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         local pkgdir="$EXPORT_PATH/$pkg"
@@ -245,6 +199,7 @@ fi
     [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
     echo "${GREEN}Done.${RESET}"
 }
+
 
 update_app_list_cache() {
     flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
