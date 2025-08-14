@@ -313,7 +313,7 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
 
   for pkg in "${packages[@]}"; do
     echo "${CYAN}[starman] Downloading archive for: $pkg${RESET}"
-    STARMAN_EXPORT_PATH="$HOME/opt" starman "$pkg"
+    STARMAN_EXPORT_PATH="$HOME/opt/bin" starman "$pkg"
   done
   exit 0
 fi
