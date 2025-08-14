@@ -150,45 +150,48 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
-for NATIVE_BIN_DIR in "$HOME/opt/bin" "$HOME/opt"; do
-    find "$NATIVE_BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
-        folder_name=$(basename "$pkgdir")
-        exe=""
-
-        candidate=$(find "$pkgdir" -type f -iname "$folder_name" -executable 2>/dev/null | head -n1)
-        if [[ -x "$candidate" ]]; then
-            exe="$candidate"
-        else
-            direct="$pkgdir/$folder_name"
-            [[ -x "$direct" ]] && exe="$direct"
-        fi
-
-        if [[ -z "$exe" ]]; then
-            mapfile -t elf_executables < <(
-                find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null \
-                    | grep -vEi '\.(so|dll|bak|old|txt|md|ini|conf|json|yaml|sh|py|pl)$' \
-                    | while read -r file; do
-                        file "$file" | grep -q 'ELF .* executable' && echo "$file"
-                    done
-            )
-            
+    # Native/extracted apps (ELF only, one shortcut per app folder)
+    for NATIVE_BIN_DIR in "$HOME/opt/bin" "$HOME/opt"; do
+        find "$NATIVE_BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
+            folder_name=$(basename "$pkgdir")
             exe=""
-            
-            if [[ ${#elf_executables[@]} -eq 1 ]]; then
-                exe="${elf_executables[0]}"
-            elif [[ ${#elf_executables[@]} -gt 1 ]]; then
-                for f in "${elf_executables[@]}"; do
-                    basefile=$(basename "$f")
-                    if [[ "${basefile,,}" == "${folder_name,,}" ]]; then
-                        exe="$f"
-                        break
-                    fi
-                done
-                [[ -z "$exe" ]] && exe="${elf_executables[0]}"
+
+            candidate=$(find "$pkgdir" -type f -iname "$folder_name" -executable 2>/dev/null | head -n1)
+            if [[ -x "$candidate" ]]; then
+                exe="$candidate"
+            else
+                direct="$pkgdir/$folder_name"
+                [[ -x "$direct" ]] && exe="$direct"
             fi
-            
-            [[ -z "$exe" ]] && continue
-        fi
+
+            if [[ -z "$exe" ]]; then
+                mapfile -t elf_executables < <(
+                    find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null \
+                        | grep -vEi '\.(so|dll|bak|old|txt|md|ini|conf|json|yaml|sh|py|pl)$' \
+                        | while read -r file; do
+                            file "$file" | grep -q 'ELF .* executable' && echo "$file"
+                        done
+                )
+
+                # Only pick one ELF main executable per app folder!
+                if [[ ${#elf_executables[@]} -eq 1 ]]; then
+                    exe="${elf_executables[0]}"
+                elif [[ ${#elf_executables[@]} -gt 1 ]]; then
+                    for f in "${elf_executables[@]}"; do
+                        basefile=$(basename "$f")
+                        if [[ "${basefile,,}" == "${folder_name,,}" ]]; then
+                            exe="$f"
+                            break
+                        fi
+                    done
+                    [[ -z "$exe" ]] && exe="${elf_executables[0]}"
+                fi
+
+                [[ -z "$exe" ]] && continue
+            fi
+
+            # Final sanity check (shouldn't be needed, but keep it)
+            [[ -z "$exe" || ! -x "$exe" ]] && continue
 
             base=$(basename "$exe")
             shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
