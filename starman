@@ -134,8 +134,13 @@ starman() {
         [[ "$FILE" == *.tar.gz || "$FILE" == *.tgz ]] && tar_opts="xvzf"
         [[ "$FILE" == *.tar.bz2 || "$FILE" == *.tbz2 ]] && tar_opts="xvjf"
         [[ "$FILE" == *.tar.xz || "$FILE" == *.txz || "$FILE" == *.tar.lzma ]] && tar_opts="xvJf"
-        [[ "$FILE" == *.tar.zst || "$FILE" == *.tzst ]] && tar_opts="--use-compress-program=unzstd -xvf"
-        [[ "$FILE" == *.tar.lz4 ]] && tar_opts="--use-compress-program=lz4 -xvf"
+        if [[ "$FILE" == *.tar.zst || "$FILE" == *.tzst ]]; then
+            echo "Extracting zst archive $FILE ..."
+            mkdir -p "$EXPORT_PATH"
+            tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH"
+        else
+            tar $tar_opts "$FILE" -C "$EXPORT_PATH"
+        fi        [[ "$FILE" == *.tar.lz4 ]] && tar_opts="--use-compress-program=lz4 -xvf"
         [[ "$FILE" == *.tar.lz ]] && tar_opts="--use-compress-program=lzip -xvf"
         [[ "$FILE" == *.tar.Z ]] && tar_opts="xvZf"
         [[ "$FILE" == *.tar ]] && tar_opts="xvf"
@@ -256,10 +261,16 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
     esac
   done
 
-  if [ "${#packages[@]}" -eq 0 ]; then
+  args=()
+for arg in "$@"; do
+    [[ "$arg" =~ ^- ]] && continue
+    args+=("$arg")
+done
+
+if [ "${#args[@]}" -eq 0 ]; then
     echo "${RED}[starman] No packages specified.${RESET}"
     exit 1
-  fi
+fi
 
   for pkg in "${packages[@]}"; do
     echo "${CYAN}[starman] Downloading archive for: $pkg${RESET}"
