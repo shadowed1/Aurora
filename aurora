@@ -120,36 +120,33 @@ shortcut() {
             esac
         fi
 
-        SCRIPT_NAME="${APPID//./_}.sh"
-        BIN_FILE="$BIN_DIR/$SCRIPT_NAME"
+       SCRIPT_NAME="${APPID//./_}.sh"
+BIN_FILE="$BIN_DIR/$SCRIPT_NAME"
 
-        cat > "$BIN_FILE" <<EOF
+cat > "$BIN_FILE" <<EOF
 #!/bin/bash
 exec flatpak run --user $APPID "\$@"
 EOF
 chmod +x "$BIN_FILE"
-        chmod +x "$BIN_FILE"
-        echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
+echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
 
-        raw_name="${APPID##*.}"
-        NAME="$(tr '[:lower:]' '[:upper:]' <<< "${raw_name:0:1}")${raw_name:1}"
+# Desktop shortcut points to wrapper script
+DESKTOP_FILE="$DESKTOP_DIR/${APPID}.desktop"
+raw_name="${APPID##*.}"
+NAME="$(tr '[:lower:]' '[:upper:]' <<< "${raw_name:0:1}")${raw_name:1}"
 
-        DESKTOP_FILE="$DESKTOP_DIR/${APPID}.desktop"
-
-    cat > "$DESKTOP_FILE" <<EOF
+cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Name=$NAME
-Exec=flatpak run --user $APPID
-Icon=${APPID}
+Exec=$BIN_FILE
+Icon=$APPID
 Terminal=false
 Type=Application
 Categories=Utility;
 EOF
 chmod 644 "$DESKTOP_FILE"
+echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
 
-        chmod +x "$DESKTOP_FILE"
-        echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
-    done
 
        find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
         folder_name=$(basename "$pkgdir")
