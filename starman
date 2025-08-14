@@ -212,7 +212,6 @@ if [[ -f "$PKGBUILD" ]]; then
         entry=${entry//\"/}
         entry=${entry//\'/}
 
-        # If entry is of form alias::url
         if [[ "$entry" == *::* ]]; then
             url=${entry#*::}
         else
