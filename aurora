@@ -165,27 +165,34 @@ EOF
             fi
 
             if [[ -z "$exe" ]]; then
-                mapfile -t executables < <(find "$pkgdir" -type f -executable 2>/dev/null \
-                    | grep -vEi '\.(so|dll|sh|py|pl|bak|old|txt|md|ini|conf|json|yaml)$')
-
-                match_by_folder=$(find "$pkgdir" -type f -iname "$(basename "$pkgdir")" -executable 2>/dev/null | head -n1)
-                if [[ -n "$match_by_folder" ]]; then
-                    exe="$match_by_folder"
-                elif [[ ${#executables[@]} -eq 1 ]]; then
-                    exe="${executables[0]}"
-                else
-                    match_top=$(find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null | head -n1)
-                    if [[ -n "$match_top" ]]; then
-                        exe="$match_top"
-                    elif [[ ${#executables[@]} -gt 0 ]]; then
-                        exe=$(printf "%s\n" "${executables[@]}" \
-                            | xargs -I{} stat -c "%s %n" {} 2>/dev/null \
-                            | sort -nr | head -n1 | cut -d' ' -f2-)
-                    fi
+                mapfile -t elf_executables < <(
+                    find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null \
+                        | grep -vEi '\.(so|dll|bak|old|txt|md|ini|conf|json|yaml|sh|py|pl)$' \
+                        | while read -r file; do
+                            file "$file" | grep -q 'ELF .* executable' && echo "$file"
+                        done
+                )
+                
+                exe=""
+                
+                if [[ ${#elf_executables[@]} -eq 1 ]]; then
+                    exe="${elf_executables[0]}"
+                elif [[ ${#elf_executables[@]} -gt 1 ]]; then
+                    # Prefer one named exactly like the folder
+                    for f in "${elf_executables[@]}"; do
+                        basefile=$(basename "$f")
+                        # Match folder name without extension
+                        if [[ "${basefile,,}" == "${folder_name,,}" ]]; then
+                            exe="$f"
+                            break
+                        fi
+                    done
+                    # Fallback: pick the first
+                    [[ -z "$exe" ]] && exe="${elf_executables[0]}"
                 fi
-            fi
-
-            [[ -z "$exe" || ! -x "$exe" ]] && continue
+                
+                # If not found, skip this app folder
+                [[ -z "$exe" ]] && continue
 
             base=$(basename "$exe")
             shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
