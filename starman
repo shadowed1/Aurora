@@ -197,7 +197,7 @@ if [[ -f "$PKGBUILD" ]]; then
     case "$ARCH" in
         x86_64) arch="x86_64" ;;
         aarch64|arm64) arch="aarch64" ;;
-        *) arch="x86_64" ;; # fallback
+        *) arch="x86_64" ;;
     esac
 
     src_line=$(grep "^source_$arch=" "$PKGBUILD")
