@@ -608,16 +608,16 @@ download_and_extract "$URL" "$HOME/opt/"
 #download_and_extract "$URL" "$HOME/opt/"
 
 
-echo "${GREEN}.flatpak.logic${RESET}$${MAGENTA}"
+echo "${GREEN}.flatpak.logic${RESET}${MAGENTA}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
 sleep 1
-echo "${RESET}${GREEN}aurora${RESET}$${BLUE}"
+echo "${RESET}${GREEN}aurora${RESET}${BLUE}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
 sleep 1
-echo "${RESET}${GREEN}starman${RESET}$${CYAN}"
+echo "${RESET}${GREEN}starman${RESET}${CYAN}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
 sleep 1
-echo "${RESET}${GREEN}version${RESET}$${BLUE}"
+echo "${RESET}${GREEN}version${RESET}${BLUE}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
 sleep 1
 echo "${RESET}${GREEN}.flatpak.env${RESET}${MAGENTA}"
