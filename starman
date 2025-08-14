@@ -140,10 +140,17 @@ starman() {
         echo "Extracting $FILE to $EXPORT_PATH ..."
         tar -xvJf "$FILE" -C "$EXPORT_PATH"
         ;;
-    *.tar.zst|*.tzst)
+        *.tar.zst|*.tzst)
         echo "Extracting zst archive $FILE to $EXPORT_PATH ..."
         mkdir -p "$EXPORT_PATH"
-        tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH"
+        if command -v unzstd >/dev/null 2>&1; then
+            tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH"
+        elif command -v zstd >/dev/null 2>&1; then
+            zstd -d "$FILE" -c | tar -xvf - -C "$EXPORT_PATH"
+        else
+            echo "${RED}Error: zstd/unzstd not installed, cannot extract $FILE${RESET}" >&2
+            return 1
+        fi
         ;;
     *.tar.lz4)
         echo "Extracting lz4 archive $FILE to $EXPORT_PATH ..."
