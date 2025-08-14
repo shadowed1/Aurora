@@ -122,30 +122,30 @@ shortcut() {
 
         SCRIPT_NAME="${APPID//./_}.sh"
         BIN_FILE="$BIN_DIR/$SCRIPT_NAME"
-
+        
         cat > "$BIN_FILE" <<EOF
-#!/bin/bash
-exec flatpak run --user $APPID "\$@"
-EOF
-chmod +x "$BIN_FILE"
+        #!/bin/bash
+        exec flatpak run --user $APPID "\$@"
+        EOF
         chmod +x "$BIN_FILE"
         echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
-
+        
+        DESKTOP_FILE="$DESKTOP_DIR/${APPID}.desktop"
         raw_name="${APPID##*.}"
         NAME="$(tr '[:lower:]' '[:upper:]' <<< "${raw_name:0:1}")${raw_name:1}"
+        
+        cat > "$DESKTOP_FILE" <<EOF
+        [Desktop Entry]
+        Name=$NAME
+        Exec=$BIN_FILE
+        Icon=$APPID
+        Terminal=false
+        Type=Application
+        Categories=Utility;
+        EOF
+        chmod 644 "$DESKTOP_FILE"
+        echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
 
-        DESKTOP_FILE="$DESKTOP_DIR/${APPID}.desktop"
-
-    cat > "$DESKTOP_FILE" <<EOF
-[Desktop Entry]
-Name=$NAME
-Exec=flatpak run --user $APPID
-Icon=${APPID}
-Terminal=false
-Type=Application
-Categories=Utility;
-EOF
-chmod 644 "$DESKTOP_FILE"
 
         chmod +x "$DESKTOP_FILE"
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
