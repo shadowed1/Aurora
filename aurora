@@ -125,7 +125,7 @@ shortcut() {
 
         cat > "$BIN_FILE" <<EOF
 #!/bin/bash
-source "\$HOME/.bashrc"
+[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"
 flatpak run --user $APPID "\$@"
 EOF
         chmod +x "$BIN_FILE"
@@ -235,7 +235,7 @@ fi
         binlauncher="$BIN_DIR/${uniquename}.sh"
         cat > "$binlauncher" <<EOF
 #!/bin/bash
-source "\$HOME/.bashrc"
+[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"
 exec "$exe" "\$@"
 EOF
         chmod +x "$binlauncher"
