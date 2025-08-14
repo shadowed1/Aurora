@@ -454,12 +454,14 @@ case "$1" in
                 rm "$HOME/opt/bin/paru" 2>/dev/null
                 rm "$HOME/opt/bin/pacaur" 2>/dev/null
                 rm "$HOME/opt/bin/pacman" 2>/dev/null
+                unset -f yay 2>/dev/null
+                unset -f paru 2>/dev/null
+                unset -f pacaur 2>/dev/null
+                unset -f pacman 2>/dev/null
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
                 ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
-                yay() { starman "$@"; }
-                paru() { starman "$@"; }
 
                 [ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
 
