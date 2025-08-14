@@ -437,7 +437,7 @@ case "$1" in
                 echo "${GREEN}Performing quick reinstall...${RESET}"
                 echo ""
                 mkdir -p ~/opt/bin
-                echo "${MAGENTA}.flatpak.logic"
+                echo ".flatpak.logic${MAGENTA}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
                 sleep 1
                 echo "${RESET}aurora${BLUE}"
@@ -452,7 +452,7 @@ case "$1" in
                 echo "${RESET}.flatpak.env${MAGENTA}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
                 sleep 1
-                echo ".flatpak.env${RESET}"
+                echo "${RESET}.flatpak.env"
                 chmod +x ~/opt/bin/aurora
                 chmod +x ~/opt/bin/starman
                 rm "$HOME/opt/bin/yay" 2>/dev/null
