@@ -170,6 +170,7 @@ starman() {
         ;;
 esac
 
+
     fix_exec_permissions "$EXPORT_PATH/$pkg"
     fix_exec_permissions "$EXPORT_PATH/usr"
     fix_exec_permissions "$EXPORT_PATH/bin"
@@ -278,16 +279,10 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
     esac
   done
 
-  args=()
-for arg in "$@"; do
-    [[ "$arg" =~ ^- ]] && continue
-    args+=("$arg")
-done
-
-if [ "${#args[@]}" -eq 0 ]; then
+  if [ "${#packages[@]}" -eq 0 ]; then
     echo "${RED}[starman] No packages specified.${RESET}"
     exit 1
-fi
+  fi
 
   for pkg in "${packages[@]}"; do
     echo "${CYAN}[starman] Downloading archive for: $pkg${RESET}"
