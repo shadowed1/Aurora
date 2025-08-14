@@ -60,7 +60,7 @@ export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
 export XCURSOR_SIZE
 
 
-hortcut() {
+shortcut() {
     if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
         echo "${BLUE}Inkscape is required. Installing...${RESET}" >&2
         flatpak --user install -y flathub org.inkscape.Inkscape || {
