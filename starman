@@ -127,56 +127,55 @@ starman() {
         return 1
     fi
 
-   case "$FILE" in
-    *.tar.gz|*.tgz)
-        echo "Extracting $FILE to $EXPORT_PATH ..."
-        tar -xvzf "$FILE" -C "$EXPORT_PATH"
-        ;;
-    *.tar.bz2|*.tbz2)
-        echo "Extracting $FILE to $EXPORT_PATH ..."
-        tar -xvjf "$FILE" -C "$EXPORT_PATH"
-        ;;
-    *.tar.xz|*.txz|*.tar.lzma)
-        echo "Extracting $FILE to $EXPORT_PATH ..."
-        tar -xvJf "$FILE" -C "$EXPORT_PATH"
-        ;;
+    case "$FILE" in
+        *.tar.gz|*.tgz)
+            echo "Extracting $FILE to $EXPORT_PATH ..."
+            tar -xvzf "$FILE" -C "$EXPORT_PATH"
+            ;;
+        *.tar.bz2|*.tbz2)
+            echo "Extracting $FILE to $EXPORT_PATH ..."
+            tar -xvjf "$FILE" -C "$EXPORT_PATH"
+            ;;
+        *.tar.xz|*.txz|*.tar.lzma)
+            echo "Extracting $FILE to $EXPORT_PATH ..."
+            tar -xvJf "$FILE" -C "$EXPORT_PATH"
+            ;;
         *.tar.zst|*.tzst)
-        echo "Extracting zst archive $FILE to $EXPORT_PATH ..."
-        mkdir -p "$EXPORT_PATH"
-        if command -v unzstd >/dev/null 2>&1; then
-            tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH"
-        elif command -v zstd >/dev/null 2>&1; then
-            zstd -d "$FILE" -c | tar -xvf - -C "$EXPORT_PATH"
-        else
-            echo "${RED}Error: zstd/unzstd not installed, cannot extract $FILE${RESET}" >&2
-            return 1
-        fi
-        ;;
-    *.tar.lz4)
-        echo "Extracting lz4 archive $FILE to $EXPORT_PATH ..."
-        tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH"
-        ;;
-    *.tar.lz)
-        echo "Extracting lzip archive $FILE to $EXPORT_PATH ..."
-        tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH"
-        ;;
-    *.tar.Z)
-        echo "Extracting compressed tar $FILE to $EXPORT_PATH ..."
-        tar -xvZf "$FILE" -C "$EXPORT_PATH"
-        ;;
-    *.tar)
-        echo "Extracting tar $FILE to $EXPORT_PATH ..."
-        tar -xvf "$FILE" -C "$EXPORT_PATH"
-        ;;
-    *.zip)
-        echo "Extracting zip $FILE to $EXPORT_PATH ..."
-        unzip -o "$FILE" -d "$EXPORT_PATH"
-        ;;
-    *)
-        echo "Unknown archive type: $FILE"
-        ;;
-esac
-
+            echo "Extracting zst archive $FILE to $EXPORT_PATH ..."
+            mkdir -p "$EXPORT_PATH"
+            if command -v unzstd >/dev/null 2>&1; then
+                tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH"
+            elif command -v zstd >/dev/null 2>&1; then
+                zstd -d "$FILE" -c | tar -xvf - -C "$EXPORT_PATH"
+            else
+                echo "${RED}Error: zstd/unzstd not installed, cannot extract $FILE${RESET}" >&2
+                return 1
+            fi
+            ;;
+        *.tar.lz4)
+            echo "Extracting lz4 archive $FILE to $EXPORT_PATH ..."
+            tar --use-compress-program=lz4 -xvf "$FILE" -C "$EXPORT_PATH"
+            ;;
+        *.tar.lz)
+            echo "Extracting lzip archive $FILE to $EXPORT_PATH ..."
+            tar --use-compress-program=lzip -xvf "$FILE" -C "$EXPORT_PATH"
+            ;;
+        *.tar.Z)
+            echo "Extracting compressed tar $FILE to $EXPORT_PATH ..."
+            tar -xvZf "$FILE" -C "$EXPORT_PATH"
+            ;;
+        *.tar)
+            echo "Extracting tar $FILE to $EXPORT_PATH ..."
+            tar -xvf "$FILE" -C "$EXPORT_PATH"
+            ;;
+        *.zip)
+            echo "Extracting zip $FILE to $EXPORT_PATH ..."
+            unzip -o "$FILE" -d "$EXPORT_PATH"
+            ;;
+        *)
+            echo "Unknown archive type: $FILE"
+            ;;
+    esac
 
     fix_exec_permissions "$EXPORT_PATH/$pkg"
     fix_exec_permissions "$EXPORT_PATH/usr"
@@ -188,56 +187,52 @@ esac
         tar -xf "$FILE" -C "$pkgdir"
 
         local PKGBUILD="$pkgdir/PKGBUILD"
-if [[ -f "$PKGBUILD" ]]; then
-    echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
+        if [[ -f "$PKGBUILD" ]]; then
+            echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
+            source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
+            ARCH=$(uname -m)
+            case "$ARCH" in
+                x86_64) arch="x86_64" ;;
+                aarch64|arm64) arch="aarch64" ;;
+                *) arch="x86_64" ;;
+            esac
 
-    source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
+            src_line=$(grep "^source_$arch=" "$PKGBUILD")
+            if [[ -z "$src_line" ]]; then
+                echo "${RED}Could not find source_$arch in PKGBUILD${RESET}"
+                return 1
+            fi
 
-    ARCH=$(uname -m)
-    case "$ARCH" in
-        x86_64) arch="x86_64" ;;
-        aarch64|arm64) arch="aarch64" ;;
-        *) arch="x86_64" ;;
-    esac
-
-    src_line=$(grep "^source_$arch=" "$PKGBUILD")
-    if [[ -z "$src_line" ]]; then
-        echo "${RED}Could not find source_$arch in PKGBUILD${RESET}"
-        return 1
+            src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\((.*)\)/\1/')
+            for entry in $src_array; do
+                entry=${entry//\"/}
+                entry=${entry//\'/}
+                if [[ "$entry" == *::* ]]; then
+                    url=${entry#*::}
+                else
+                    url=$entry
+                fi
+                eval "expanded_url=\"$url\""
+                if [[ "$expanded_url" == http* ]]; then
+                    extfile="$HOME/${pkgname}-${pkgver}-${arch}.${expanded_url##*.}"
+                    echo "${YELLOW}starman downloading source from PKGBUILD: $expanded_url${RESET}"
+                    curl -L "$expanded_url" -o "$extfile" && {
+                        case "$extfile" in
+                            *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
+                            *.tar.gz) tar -xzf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                            *.tar.xz) tar -xJf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                            *.tar.bz2) tar -xjf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                            *.tar.zst) tar --use-compress-program=unzstd -xvf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
+                            *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
+                        esac
+                        rm -f "$extfile"
+                        echo "${GREEN}starman extracted archive to $EXPORT_PATH/$pkgname${RESET}"
+                    }
+                    break # Only need the first valid URL
+                fi
+            done
+        fi
     fi
-
-    src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\((.*)\)/\1/')
-    
-    for entry in $src_array; do
-        entry=${entry//\"/}
-        entry=${entry//\'/}
-
-        if [[ "$entry" == *::* ]]; then
-            url=${entry#*::}
-        else
-            url=$entry
-        fi
-
-    eval "expanded_url=\"$url\""
-        if [[ "$expanded_url" == http* ]]; then
-            extfile="$HOME/${pkgname}-${pkgver}-${arch}.${expanded_url##*.}"
-            echo "${YELLOW}starman downloading source from PKGBUILD: $expanded_url${RESET}"
-            curl -L "$expanded_url" -o "$extfile" && {
-                case "$extfile" in
-                    *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
-                    *.tar.gz) tar -xzf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                    *.tar.xz) tar -xJf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                    *.tar.bz2) tar -xjf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                    *.tar.zst) tar --use-compress-program=unzstd -xvf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                    *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
-                esac
-                rm -f "$extfile"
-                echo "${GREEN}starman extracted archive to $EXPORT_PATH/$pkgname${RESET}"
-            }
-            break # Only need the first valid URL
-        fi
-    done
-fi
 
     if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         add_executables_to_flatpak_env
@@ -246,7 +241,6 @@ fi
     [[ "$downloaded" -eq 1 ]] && rm -f "$FILE"
     echo "${GREEN}Done.${RESET}"
 }
-
 
 update_app_list_cache() {
     flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
@@ -275,7 +269,6 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
 
     case "$arg" in
       -S|-Sy|-Syu|-Syyu|--noconfirm|--needed)
-        # Supported install flags — ignore
         ;;
       -Rns)
         shift
