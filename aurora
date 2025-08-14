@@ -125,8 +125,7 @@ shortcut() {
 
         cat > "$BIN_FILE" <<EOF
 #!/bin/bash
-source "\$HOME/.bashrc"
-flatpak run $APPID "\$@"
+flatpak run --user $APPID "\$@"
 EOF
         chmod +x "$BIN_FILE"
         echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
