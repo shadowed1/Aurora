@@ -125,7 +125,7 @@ shortcut() {
 
         cat > "$BIN_FILE" <<EOF
 #!/bin/bash
-[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"
+[ -f "\$HOME/opt/.flatpak.env" ] && . "\$HOME/opt/.flatpak.env"
 flatpak run --user $APPID "\$@"
 EOF
         chmod +x "$BIN_FILE"
@@ -150,98 +150,96 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
-       find "$BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
-        folder_name=$(basename "$pkgdir")
-        exe=""
+    # Support both ~/opt/bin and ~/opt for native/extracted apps
+    for NATIVE_BIN_DIR in "$HOME/opt/bin" "$HOME/opt"; do
+        find "$NATIVE_BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
+            folder_name=$(basename "$pkgdir")
+            exe=""
 
-        candidate=$(find "$pkgdir" -type f -iname "$folder_name" -executable 2>/dev/null | head -n1)
-        if [[ -x "$candidate" ]]; then
-            exe="$candidate"
-        else
-            direct="$pkgdir/$folder_name"
-            [[ -x "$direct" ]] && exe="$direct"
-        fi
+            candidate=$(find "$pkgdir" -type f -iname "$folder_name" -executable 2>/dev/null | head -n1)
+            if [[ -x "$candidate" ]]; then
+                exe="$candidate"
+            else
+                direct="$pkgdir/$folder_name"
+                [[ -x "$direct" ]] && exe="$direct"
+            fi
 
-        if [[ -z "$exe" ]]; then
-    mapfile -t executables < <(find "$pkgdir" -type f -executable 2>/dev/null \
-        | grep -vEi '\.(so|dll|sh|py|pl|bak|old|txt|md|ini|conf|json|yaml)$')
+            if [[ -z "$exe" ]]; then
+                mapfile -t executables < <(find "$pkgdir" -type f -executable 2>/dev/null \
+                    | grep -vEi '\.(so|dll|sh|py|pl|bak|old|txt|md|ini|conf|json|yaml)$')
 
-    match_by_folder=$(find "$pkgdir" -type f -iname "$(basename "$pkgdir")" -executable 2>/dev/null | head -n1)
-    if [[ -n "$match_by_folder" ]]; then
-        exe="$match_by_folder"
+                match_by_folder=$(find "$pkgdir" -type f -iname "$(basename "$pkgdir")" -executable 2>/dev/null | head -n1)
+                if [[ -n "$match_by_folder" ]]; then
+                    exe="$match_by_folder"
+                elif [[ ${#executables[@]} -eq 1 ]]; then
+                    exe="${executables[0]}"
+                else
+                    match_top=$(find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null | head -n1)
+                    if [[ -n "$match_top" ]]; then
+                        exe="$match_top"
+                    elif [[ ${#executables[@]} -gt 0 ]]; then
+                        exe=$(printf "%s\n" "${executables[@]}" \
+                            | xargs -I{} stat -c "%s %n" {} 2>/dev/null \
+                            | sort -nr | head -n1 | cut -d' ' -f2-)
+                    fi
+                fi
+            fi
 
-    elif [[ ${#executables[@]} -eq 1 ]]; then
-        exe="${executables[0]}"
+            [[ -z "$exe" || ! -x "$exe" ]] && continue
 
-    else
-        match_top=$(find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null | head -n1)
-        if [[ -n "$match_top" ]]; then
-            exe="$match_top"
+            base=$(basename "$exe")
+            shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
+            hash=$(echo "$exe" | sha1sum | cut -c1-6)
+            uniquename="${shortname}_${hash}"
 
-        elif [[ ${#executables[@]} -gt 0 ]]; then
-            exe=$(printf "%s\n" "${executables[@]}" \
-                | xargs -I{} stat -c "%s %n" {} 2>/dev/null \
-                | sort -nr | head -n1 | cut -d' ' -f2-)
-        fi
-    fi
-fi
+            icon=""
+            icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
+                \( -iname "*icon*.png" -o -iname "*icon*.svg" -o -iname "*$base*.png" -o -iname "*$base*.svg" \) \
+                2>/dev/null | head -n1)
 
+            if [[ -z "$icon" ]]; then
+                for size in 1024 512 256 128 64; do
+                    icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
+                        \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) \
+                        2>/dev/null | head -n1)
+                    [[ -n "$icon" ]] && break
+                done
+            fi
 
-        [[ -z "$exe" || ! -x "$exe" ]] && continue
+            [[ -z "$icon" ]] && icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
+                \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
 
-        base=$(basename "$exe")
-        shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
-        hash=$(echo "$exe" | sha1sum | cut -c1-6)
-        uniquename="${shortname}_${hash}"
+            [[ -z "$icon" ]] && continue
 
-        icon=""
-        icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
-            \( -iname "*icon*.png" -o -iname "*icon*.svg" -o -iname "*$base*.png" -o -iname "*$base*.svg" \) \
-            2>/dev/null | head -n1)
+            icon_size=$(echo "$icon" | grep -oE '1024|512|256|128|64' | head -n1)
+            icon_size="${icon_size:-1024}"
+            outdir="$ICON_OUTPUT_BASE/256x256/apps"
+            mkdir -p "$outdir"
+            outfile="$outdir/${uniquename}.png"
+            ext="${icon##*.}"
+            ext="${ext,,}"
 
-        if [[ -z "$icon" ]]; then
-            for size in 1024 512 256 128 64; do
-                icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
-                    \( -iname "*${size}*.png" -o -iname "*${size}*.jpg" -o -iname "*${size}*.svg" \) \
-                    2>/dev/null | head -n1)
-                [[ -n "$icon" ]] && break
-            done
-        fi
+            if [[ "$ext" == "svg" ]]; then
+                flatpak --user run org.inkscape.Inkscape \
+                    --export-type=png \
+                    --export-filename="$outfile" \
+                    -w 256 "$icon" 2>/dev/null
+            else
+                convert "$icon" -resize 256x256 "$outfile" 2>/dev/null || cp "$icon" "$outfile"
+            fi
 
-        [[ -z "$icon" ]] && icon=$(find "$pkgdir" -mindepth 1 -maxdepth 6 -type f \
-            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.svg" \) 2>/dev/null | head -n1)
+            [[ ! -f "$outfile" ]] && continue
 
-        [[ -z "$icon" ]] && continue
-
-        icon_size=$(echo "$icon" | grep -oE '1024|512|256|128|64' | head -n1)
-        icon_size="${icon_size:-1024}"
-        outdir="$ICON_OUTPUT_BASE/256x256/apps"
-        mkdir -p "$outdir"
-        outfile="$outdir/${uniquename}.png"
-        ext="${icon##*.}"
-        ext="${ext,,}"
-
-        if [[ "$ext" == "svg" ]]; then
-            flatpak --user run org.inkscape.Inkscape \
-                --export-type=png \
-                --export-filename="$outfile" \
-                -w 256 "$icon" 2>/dev/null
-        else
-            convert "$icon" -resize 256x256 "$outfile" 2>/dev/null || cp "$icon" "$outfile"
-        fi
-
-        [[ ! -f "$outfile" ]] && continue
-
-        binlauncher="$BIN_DIR/${uniquename}.sh"
-        cat > "$binlauncher" <<EOF
+            binlauncher="$BIN_DIR/${uniquename}.sh"
+            cat > "$binlauncher" <<EOF
 #!/bin/bash
-[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"
+[ -f "\$HOME/opt/.flatpak.env" ] && . "\$HOME/opt/.flatpak.env"
 exec "$exe" "\$@"
 EOF
-        chmod +x "$binlauncher"
+            chmod +x "$binlauncher"
 
-        desktop_file="$DESKTOP_DIR/${uniquename}.desktop"
-        cat > "$desktop_file" <<EOF
+            desktop_file="$DESKTOP_DIR/${uniquename}.desktop"
+            cat > "$desktop_file" <<EOF
 [Desktop Entry]
 Name=$shortname
 Exec=$binlauncher
@@ -250,8 +248,9 @@ Terminal=false
 Type=Application
 Categories=Utility;
 EOF
-        chmod +x "$desktop_file"
-        echo "${CYAN}Created shortcut for $shortname ($uniquename)${RESET}"
+            chmod +x "$desktop_file"
+            echo "${CYAN}Created shortcut for $shortname ($uniquename)${RESET}"
+        done
     done
 }
 
