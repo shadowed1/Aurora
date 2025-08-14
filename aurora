@@ -439,15 +439,19 @@ case "$1" in
                 mkdir -p ~/opt/bin
                 echo "${MAGENTA}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
-                echo "${RESET}${BLUE}"
+                echo "${RESET}.flatpak.logic${BLUE}"
+                sleep 1
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
-                echo "${RESET}${CYAN}"
+                echo "${RESET}aurora${CYAN}"
+                sleep 1
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
-                echo "${RESET}${BLUE}"
+                echo "${RESET}starman${BLUE}"
+                sleep 1
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
-                echo "${RESET}${MAGENTA}"
+                echo "${RESET}version${MAGENTA}"
+                sleep 1
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
-                echo "${RESET}"
+                echo ".flatpak.env${RESET}"
                 chmod +x ~/opt/bin/aurora
                 chmod +x ~/opt/bin/starman
                 rm "$HOME/opt/bin/yay" 2>/dev/null
