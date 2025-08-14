@@ -181,27 +181,28 @@ esac
         tar -xf "$FILE" -C "$pkgdir"
 
         local PKGBUILD="$pkgdir/PKGBUILD"
-        if [[ -f "$PKGBUILD" ]]; then
-            echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
-            source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
-            local zip_url=$(grep -oE 'https?://[^ )"\047]+(\.zip|\.tar\.(gz|xz|bz2|zst))' "$PKGBUILD" | head -1)
-
-            if [[ -n "$zip_url" ]]; then
-                local extfile="$HOME/${pkgname}-${pkgver}.${zip_url##*.}"
+            if [[ -f "$PKGBUILD" ]]; then
+                echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
+                source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
+                ARCH=$(uname -m)
+                case "$ARCH" in
+                    x86_64) arch="x86_64" ;;
+                    aarch64|arm64) arch="aarch64" ;;
+                    *) arch="x86_64" ;; # fallback
+                esac
+                zip_url=$(grep "source_$arch=" "$PKGBUILD" | grep -oE '::https?://[^ )"\047]+\.zip' | cut -d: -f3)
+                if [[ -z "$zip_url" ]]; then
+                    echo "${RED}Could not find zip URL for arch: $arch in PKGBUILD${RESET}"
+                    return 1
+                fi
+                extfile="$HOME/${pkgname}-${pkgver}-${arch}.zip"
                 echo "${YELLOW}starman downloading source from PKGBUILD: $zip_url${RESET}"
                 curl -L "$zip_url" -o "$extfile" && {
-                    case "$extfile" in
-                        *.zip) unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname" ;;
-                        *.tar.gz) tar -xzf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                        *.tar.xz) tar -xJf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                        *.tar.bz2) tar -xjf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                        *.tar.zst) tar --use-compress-program=unzstd -xvf "$extfile" -C "$EXPORT_PATH/$pkgname" ;;
-                        *) echo "${RED}Unsupported archive in PKGBUILD: $extfile${RESET}" ;;
-                    esac
+                    unzip -o "$extfile" -d "$EXPORT_PATH/$pkgname"
                     rm -f "$extfile"
                     echo "${GREEN}starman extracted archive to $EXPORT_PATH/$pkgname${RESET}"
                 }
-            fi
+    y        fi
         fi
     fi
 
