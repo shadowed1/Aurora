@@ -609,20 +609,20 @@ download_and_extract "$URL" "$HOME/opt/"
 
 
 echo "${MAGENTA}"
-env -i PATH="/bin:/usr/bin" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o "$HOME/opt/.flatpak.logic"
-echo "${RESET}${BLUE}"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
+echo "${RESET}.flatpak.logic${BLUE}"
 sleep 1
-env -i PATH="/bin:/usr/bin" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o "$HOME/opt/bin/aurora"
-echo "${RESET}${CYAN}"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
+echo "${RESET}aurora${CYAN}"
 sleep 1
-env -i PATH="/bin:/usr/bin" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o "$HOME/opt/bin/starman"
-echo "${RESET}${BLUE}"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
+echo "${RESET}starman${BLUE}"
 sleep 1
-env -i PATH="/bin:/usr/bin" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o "$HOME/opt/bin/version"
-echo "${RESET}${MAGENTA}"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
+echo "${RESET}version${MAGENTA}"
 sleep 1
-env -i PATH="/bin:/usr/bin" curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o "$HOME/opt/.flatpak.env"
-echo "${RESET}"
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
+echo ".flatpak.env${RESET}"
 chmod +x "$HOME/opt/bin/aurora"
 chmod +x "$HOME/opt/bin/starman"
 chmod +x "$HOME/opt/usr/bin/fastfetch"
