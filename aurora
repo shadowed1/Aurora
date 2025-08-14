@@ -60,7 +60,7 @@ export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
 export XCURSOR_SIZE
 
 
-shortcut() {
+hortcut() {
     if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
         echo "${BLUE}Inkscape is required. Installing...${RESET}" >&2
         flatpak --user install -y flathub org.inkscape.Inkscape || {
@@ -125,10 +125,8 @@ shortcut() {
 
         cat > "$BIN_FILE" <<EOF
 #!/bin/bash
-export PATH="\$HOME/opt/bin:/usr/bin:\$PATH"
-export XDG_DATA_HOME="\$HOME/.local/share"
-export FLATPAK_USER_DIR="\$HOME/.local/share/flatpak"
-exec flatpak run --user $APPID "\$@"
+source "\$HOME/.bashrc"
+flatpak run $APPID "\$@"
 EOF
         chmod +x "$BIN_FILE"
         echo "${BLUE}Launcher script saved to $BIN_FILE${RESET}"
@@ -141,7 +139,7 @@ EOF
         cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Name=$NAME
-Exec=$BIN_FILE %u
+Exec=$BIN_FILE
 Icon=${APPID}
 Terminal=false
 Type=Application
