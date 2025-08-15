@@ -10,10 +10,10 @@ RESET=$(tput sgr0)
 DISPLAY_SCALING=""
 CURSOR_SIZE=""
 ICON_SIZE=256
-ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
+ICON_OUTPUT_BASE=/usr/local/aurora//.local/share/icons/hicolor"
 
-if [ -f "$HOME/opt/.flatpak.env" ]; then
-    . "$HOME/opt/.flatpak.env"
+if [ -f /usr/local/aurora/.flatpak.env" ]; then
+    . /usr/local/aurora/.flatpak.env"
 fi
 
 set_display_scaling() {
@@ -69,13 +69,13 @@ shortcut() {
         }
     fi
 
-    ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
-    BIN_DIR="$HOME/opt/bin"
-    DESKTOP_DIR="$HOME/.local/share/applications"
+    ICON_OUTPUT_BASE=/usr/local/aurora/.local/share/icons/hicolor"
+    BIN_DIR=/usr/local/aurora/bin"
+    DESKTOP_DIR=/usr/local/aurora/.local/share/applications"
     mkdir -p "$BIN_DIR" "$DESKTOP_DIR"
 
     flatpak --user list --columns=application | tail -n +1 | while read -r APPID; do
-        BASE_PATH="$HOME/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
+        BASE_PATH=/usr/local/aurora/.local/share/flatpak/app/$APPID/current/active/export/share/icons/hicolor"
         [[ -d "$BASE_PATH" ]] || continue
 
         flatpak override --user org.inkscape.Inkscape --filesystem="$BASE_PATH"
@@ -125,7 +125,7 @@ shortcut() {
 
         cat > "$BIN_FILE" <<EOF
 #!/bin/bash
-[ -f "\$HOME/opt/.flatpak.env" ] && . "\$HOME/opt/.flatpak.env"
+[ -f "/usr/local/aurora/.flatpak.env" ] && . "/usr/local/aurora/.flatpak.env"
 flatpak run --user $APPID "\$@"
 EOF
         chmod +x "$BIN_FILE"
@@ -151,7 +151,7 @@ EOF
     done
 
     # Native/extracted apps (ELF only, one shortcut per app folder)
-    for NATIVE_BIN_DIR in "$HOME/opt/bin" "$HOME/opt"; do
+    for NATIVE_BIN_DIR in /usr/local/aurora/bin"; do
         find "$NATIVE_BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
             folder_name=$(basename "$pkgdir")
             exe=""
@@ -254,7 +254,7 @@ EOF
             binlauncher="$BIN_DIR/${uniquename}.sh"
             cat > "$binlauncher" <<EOF
 #!/bin/bash
-[ -f "\$HOME/opt/.flatpak.env" ] && . "\$HOME/opt/.flatpak.env"
+[ -f "/usr/local/aurora/.flatpak.env" ] && . "/usr/local/aurora/.flatpak.env"
 exec "$exe" "\$@"
 EOF
             chmod +x "$binlauncher"
@@ -327,8 +327,8 @@ aurora_uninstall() {
     echo "${MAGENTA}${BOLD}Aurora Uninstaller${RESET}"
     echo "${BLUE}${BOLD}Select an option:${RESET}"
     echo "${BLUE}[0] Quit${RESET}"
-    echo "${CYAN}[1] Remove Aurora & Starman (~/opt/aurora and ~/opt/starman only; keep Flatpak apps and data)${RESET}"
-    echo "${MAGENTA}[2] Full uninstall (removes ~/opt, all Flatpak apps/data, ~/.bashrc Aurora entries, and dependencies)${RESET}"
+    echo "${CYAN}[1] Remove Aurora & Starman (/usr/local/aurora/bin/aurora and /usr/local/aurora/bin/starman only; keep Flatpak apps and data)${RESET}"
+    echo "${MAGENTA}[2] Full uninstall (removes /usr/local/aurora/, all Flatpak apps/data, ~/.bashrc Aurora entries, and dependencies)${RESET}"
     echo ""
     read -rp "Enter choice [0-2]: " CHOICE
 
@@ -339,14 +339,14 @@ aurora_uninstall() {
             ;;
         1)
             echo "${CYAN}Removing Aurora and Starman binaries (leaving apps/data)...${RESET}"
-            if [ -e "$HOME/opt/aurora" ]; then
-                rm -f "$HOME/opt/aurora"
+            if [ -e /usr/local/aurora/bin/aurora" ]; then
+                rm -f /usr/local/aurora/bin/aurora"
                 echo "${CYAN}Removed $HOME/opt/aurora${RESET}"
             else
                 echo "${YELLOW}$HOME/opt/aurora not found.${RESET}"
             fi
-            if [ -e "$HOME/opt/starman" ]; then
-                rm -f "$HOME/opt/starman"
+            if [ -e /usr/local/aurora/bin/starman" ]; then
+                rm -f /usr/local/aurora/bin/starman"
                 echo "${CYAN}Removed $HOME/opt/starman${RESET}"
             else
                 echo "${YELLOW}$HOME/opt/starman not found.${RESET}"
@@ -354,7 +354,7 @@ aurora_uninstall() {
             echo "${CYAN}Aurora and Starman binaries removed; Flatpak apps and data retained.${RESET}"
             ;;
         2)
-            echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashrc Aurora entries, and ~/.xdg-runtime-dir${RESET}"
+            echo "${MAGENTA}${BOLD}Full uninstall: Removing /usr/local/aurora/, ~/.local/share/flatpak, ~/.bashrc Aurora entries, and ~/.xdg-runtime-dir${RESET}"
             echo "${RED}${BOLD}WARNING: This will delete all Flatpak apps and their data.${RESET}"
             read -rp "Type 'yes' to confirm: " FULL_CONFIRM
             if [ "$FULL_CONFIRM" != "yes" ]; then
@@ -362,15 +362,15 @@ aurora_uninstall() {
                 return 1
             fi
 
-            if grep -q "# >>> Aurora Flatpak Setup >>>" "$HOME/.bashrc"; then
-                sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
+            if grep -q "# >>> Aurora Flatpak Setup >>>" /usr/local/aurora//.bashrc"; then
+                sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' /usr/local/aurora//.bashrc"
                 echo "${CYAN}Removed Aurora Flatpak setup block from ~/.bashrc${RESET}"
             fi
 
-            sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
-            sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
+            sed -i '/\.flatpak\.env/d' /usr/local/aurora//.bashrc"
+            sed -i '/\.flatpak\.logic/d' /usr/local/aurora//.bashrc"
 
-            for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
+            for DIR in /usr/local/aurora/" /usr/local/aurora//.local/share/flatpak" /usr/local/aurora//.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
                     rm -rf "$DIR"
                     echo "${MAGENTA}Removed $DIR${RESET}"
@@ -456,39 +456,39 @@ case "$1" in
                 echo ""
                 echo "${GREEN}Performing quick reinstall...${RESET}"
                 echo ""
-                mkdir -p ~/opt/bin
+                mkdir -p /usr/local/bin
                 
                 for file in .flatpak.logic aurora starman version .flatpak.env; do
                     echo "${GREEN}Downloading $file...${RESET}"
                     (
                       LD_LIBRARY_PATH=""
-                      curl -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/$file" -o "$HOME/opt/$file"
+                      curl -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/$file" -o /usr/local/aurora/$file"
                     )
                     sleep 1
                 done
 
-                chmod +x ~/opt/bin/aurora
-                chmod +x ~/opt/bin/starman
-                rm "$HOME/opt/bin/yay" 2>/dev/null
-                rm "$HOME/opt/bin/paru" 2>/dev/null
-                rm "$HOME/opt/bin/pacaur" 2>/dev/null
-                rm "$HOME/opt/bin/pacman" 2>/dev/null
+                chmod +x /usr/local/bin/aurora
+                chmod +x /usr/local/bin/starman
+                rm /usr/local/aurora/bin/yay" 2>/dev/null
+                rm /usr/local/aurora/bin/paru" 2>/dev/null
+                rm /usr/local/aurora/bin/pacaur" 2>/dev/null
+                rm /usr/local/aurora/bin/pacman" 2>/dev/null
                 unset -f yay 2>/dev/null
                 unset -f paru 2>/dev/null
                 unset -f pacaur 2>/dev/null
                 unset -f pacman 2>/dev/null
-                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
-                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
-                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
-                ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacman"
+                ln -sf /usr/local/aurora/bin/starman" /usr/local/aurora/bin/yay"
+                ln -sf /usr/local/aurora/bin/starman" /usr/local/aurora/bin/paru"
+                ln -sf /usr/local/aurora/bin/starman" /usr/local/aurora/bin/pacaur"
+                ln -sf /usr/local/aurora/bin/starman" /usr/local/aurora/bin/pacman"
 
-                [ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
+                [ -f /usr/local/aurora//.bashrc" ] || touch /usr/local/aurora//.bashrc"
 
-                FLATPAK_ENV_LINE='[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"'
-                FLATPAK_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
+                FLATPAK_ENV_LINE='[ -f /usr/local/aurora/.flatpak.env" ] && . /usr/local/aurora/.flatpak.env"'
+                FLATPAK_LOGIC_LINE='[ -f /usr/local/aurora/.flatpak.logic" ] && . /usr/local/aurora/.flatpak.logic"'
                 
-                grep -Fxq "$FLATPAK_ENV_LINE" "$HOME/.bashrc" || echo "$FLATPAK_ENV_LINE" >> "$HOME/.bashrc"
-                grep -Fxq "$FLATPAK_LOGIC_LINE" "$HOME/.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "$HOME/.bashrc"
+                grep -Fxq "$FLATPAK_ENV_LINE" /usr/local/aurora//.bashrc" || echo "$FLATPAK_ENV_LINE" >> /usr/local/aurora//.bashrc"
+                grep -Fxq "$FLATPAK_LOGIC_LINE" /usr/local/aurora//.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> /usr/local/aurora//.bashrc"
 
                 echo ""
                 echo "${GREEN}Quick reinstall completed. Open a new vsh borealis tab to finish.${RESET}"
@@ -510,8 +510,8 @@ case "$1" in
         ;;
     # Denny's version checker
     version)
-    if [[ -f "$HOME/opt/bin/version" ]]; then
-        CURRENT_VER=$(cat "$HOME/opt/bin/version")
+    if [[ -f /usr/local/aurora/bin/version" ]]; then
+        CURRENT_VER=$(cat /usr/local/aurora/bin/version")
         CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
         LATEST_VER=$(curl -Ls "https://raw.githubusercontent.com/shadowed1/Aurora/main/version")
