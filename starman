@@ -386,12 +386,12 @@ zenity_launcher() {
         browse_files)
             zenity --file-selection --directory --title="Select a Folder to Browse"
             ;;
-        download_archive)
+           download_archive)
             FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the .tar archive:")
             [[ -z "$FILE_URL" ]] && break
         
-            EXTRACT_PATH=$(zenity --file-selection --directory --title="Choose Extraction Directory" --filename="$HOME/")
-            [[ -z "$EXTRACT_PATH" ]] && break
+            EXTRACT_PATH="$HOME/opt/bin"
+            mkdir -p "$EXTRACT_PATH"
         
             STARMAN_EXPORT_PATH="$EXTRACT_PATH" starman "$FILE_URL"
             ;;
