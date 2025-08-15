@@ -8,8 +8,8 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
-if [ -f "$HOME/opt/.flatpak.env" ]; then
-    . "$HOME/opt/.flatpak.env"
+if [ -f "/usr/local/aurora/.flatpak.env" ]; then
+    . "/usr/local/aurora/.flatpak.env"
 fi
 
 
@@ -23,7 +23,7 @@ add_executables_to_flatpak_env() {
         return
     fi
 
-    local env_file="$HOME/opt/.flatpak.env"
+    local env_file="/usr/local/aurora/.flatpak.env"
     touch "$env_file"
 
     for dir in "${exec_dirs[@]}"; do
@@ -50,7 +50,7 @@ fix_exec_permissions() {
 }
 
 starman() {
-    local EXPORT_PATH="${STARMAN_EXPORT_PATH:-$HOME/opt/bin}"
+    local EXPORT_PATH="${STARMAN_EXPORT_PATH:-/usr/local/aurora/bin}"
     local pkg=""
     local FILE=""
     local downloaded=0
@@ -81,7 +81,7 @@ starman() {
             [[ -z "$filename" ]] && filename=$(basename "$real_url")
             [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg##*/}"
 
-            FILE="$HOME/$filename"
+            FILE="/usr/local/aurora/bin/$filename"
             echo "${YELLOW}Downloading to: $FILE${RESET}"
             curl -L "$real_url" -o "$FILE" || {
                 echo "${RED}Failed to download file.${RESET}" >&2
@@ -99,7 +99,7 @@ starman() {
         echo "${BLUE}starman assuming package name: $pkg${RESET}"
 
         local AUR_URL="https://aur.archlinux.org/cgit/aur.git/snapshot/${pkg}.tar.gz"
-        FILE="$HOME/$pkg.tar.gz"
+        FILE="/usr/local/aurora/$pkg.tar.gz"
         if curl -fsSL "$AUR_URL" -o "$FILE"; then
             echo "${GREEN}Downloaded AUR package: $pkg${RESET}"
             downloaded=1
@@ -114,7 +114,7 @@ starman() {
             [[ -z "$filename" ]] && filename=$(basename "$real_url")
             [[ "$filename" == "download" || -z "$filename" ]] && filename="${pkg}.pkg.tar.zst"
 
-            FILE="$HOME/$filename"
+            FILE="/usr/local/aurora/bin/$filename"
             echo "${YELLOW}Downloading from Arch repo to: $FILE${RESET}"
             curl -L "$real_url" -o "$FILE" || {
                 echo "${RED}Failed to download from Arch repo: $pkg${RESET}" >&2
@@ -225,7 +225,7 @@ fi
                 fi
                 eval "expanded_url=\"$url\""
                 if [[ "$expanded_url" == http* ]]; then
-                    extfile="$HOME/${pkgname}-${pkgver}-${arch}.${expanded_url##*.}"
+                    extfile="/usr/local/aurora/${pkgname}-${pkgver}-${arch}.${expanded_url##*.}"
                     echo "${YELLOW}starman downloading source from PKGBUILD: $expanded_url${RESET}"
                     curl -L "$expanded_url" -o "$extfile" && {
                         case "$extfile" in
@@ -254,12 +254,12 @@ fi
 }
 
 update_app_list_cache() {
-    flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
+    flatpak --user list --columns=application,name | tail -n +1 | sort -u > "/usr/local/aurora/.starman_flatpak_cache"
 }
 
 lookup_flatpak_alias() {
   local name="$1"
-  grep -i "$name" "$HOME/.starman_flatpak_cache" | head -n1 | cut -f1
+  grep -i "$name" "/usr/local/aurora/.starman_flatpak_cache" | head -n1 | cut -f1
 }
 
 cmd_name=$(basename "$0")
@@ -285,7 +285,7 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
         shift
         for pkg in "$@"; do
           local found=""
-          for dir in "$HOME/opt/bin" "$HOME/opt/flatpak-deps" "$HOME/opt/usr/bin"; do
+          for dir in "/usr/local/aurora/bin" "/usr/local/aurora/flatpak-deps" "/usr/local/aurora/usr/bin"; do
             found=$(find "$dir" -maxdepth 1 -type f -name "$pkg" 2>/dev/null | head -n1)
             if [[ -n "$found" ]]; then
               echo "${YELLOW}starman removing $found${RESET}"
@@ -324,7 +324,7 @@ if [[ "$cmd_name" =~ ^(yay|paru|pacaur|pacman)$ ]]; then
 
   for pkg in "${packages[@]}"; do
     echo "${CYAN}[starman] Downloading archive for: $pkg${RESET}"
-    STARMAN_EXPORT_PATH="$HOME/opt/bin" starman "$pkg"
+    STARMAN_EXPORT_PATH="/usr/local/aurora/bin" starman "$pkg"
   done
   exit 0
 fi
@@ -348,13 +348,13 @@ show_help() {
 
 zenity_launcher() {
     local ICON_SIZES=("256" "128")
-    local ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
-    local APP_LIST_FILE="$HOME/.starman_flatpak_cache"
+    local ICON_OUTPUT_BASE="/usr/local/aurora/.local/share/icons/hicolor"
+    local APP_LIST_FILE="/usr/local/aurora/.starman_flatpak_cache"
     local MENU_ENTRIES=()
 
     MENU_ENTRIES+=("browse_files" "Browse - Copy directories to terminal")
     MENU_ENTRIES+=("download_archive" "Automatically detects compression type and extracts tar file. Append your path at the end of link or blank for default")
-    MENU_ENTRIES+=("download_appimage" "Download AppImage: Paste URL, save to ~/opt/appimages, and run it")
+    MENU_ENTRIES+=("download_appimage" "Download AppImage: Paste URL, save to /usr/local/aurora/appimages, and run it")
 
     update_app_list_cache
 
@@ -390,10 +390,10 @@ zenity_launcher() {
             FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the .tar or .zip archive:")
             [[ -z "$FILE_URL" ]] && break
         
-            EXTRACT_PATH="$HOME/opt/bin"
+            EXTRACT_PATH="/usr/local/aurora/bin"
             mkdir -p "$EXTRACT_PATH"
-            mkdir -p "$HOME/tmp"
-            TMP_FILE="$HOME/tmp/$(basename "${FILE_URL%%\?*}")"
+            mkdir -p "/usr/local/aurora/tmp"
+            TMP_FILE="/usr/local/aurora/tmp/$(basename "${FILE_URL%%\?*}")"
         
             echo "${CYAN}[starman] Downloading: $FILE_URL${RESET}"
             if ! curl -L -o "$TMP_FILE" "$FILE_URL"; then
@@ -444,9 +444,9 @@ zenity_launcher() {
         download_appimage)
             APPIMAGE_URL=$(zenity --entry --title="Download AppImage" --text="Paste the URL of the .AppImage file:")
             if [[ -n "$APPIMAGE_URL" ]]; then
-                mkdir -p "$HOME/opt/appimages"
-                cd "$HOME/opt/appimages" || exit 1
-                fix_exec_permissions "$HOME/opt/appimages" 
+                mkdir -p "/usr/local/aurora/appimages"
+                cd "/usr/local/aurora/appimages" || exit 1
+                fix_exec_permissions "/usr/local/aurora/appimages" 
                 echo "${YELLOW}Downloading to: $PWD${RESET}"
                 if curl -L -J -O "$APPIMAGE_URL"; then
                     FILENAME=$(basename "$(curl -s -L -I "$APPIMAGE_URL" | grep -i 'filename=' | sed -E 's/.*filename="?([^"]+)"?/\1/')")
@@ -467,8 +467,8 @@ zenity_launcher() {
         fi
 
         if [[ "$INSTALLER_PATH" =~ ^https?:// ]]; then
-            TMP_INSTALLER="$HOME/tmp/installer_$(date +%s).sh"
-            mkdir -p "$HOME/tmp"
+            TMP_INSTALLER="/usr/local/aurora/tmp/installer_$(date +%s).sh"
+            mkdir -p "/usr/local/aurora/tmp"
             echo "${YELLOW}Downloading installer to $TMP_INSTALLER...${RESET}"
             if curl -L -o "$TMP_INSTALLER" "$INSTALLER_PATH"; then
                 chmod +x "$TMP_INSTALLER"
@@ -498,12 +498,12 @@ esac
 }
 
 reset_app_list() {
-    rm -f "$HOME/.starman_flatpak_cache"
+    rm -f "/usr/local/aurora/.starman_flatpak_cache"
     echo "${YELLOW}Flatpak app list cache cleared.${RESET}"
 }
 
 set_default_app() {
-    local APP_LIST_FILE="$HOME/.starman_flatpak_cache"
+    local APP_LIST_FILE="/usr/local/aurora/.starman_flatpak_cache"
     update_app_list_cache
 
     mapfile -t APPS < <(cut -f1 "$APP_LIST_FILE")
