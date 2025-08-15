@@ -22,7 +22,7 @@
 `vsh borealis`
 
 - Copy Paste in borealis shell: <br>
-<pre>bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")</pre> <br>
+<pre>bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/aurora_installer.sh?$(date +%s)")</pre> <br>
 
 *Aurora needs Borealis; it won't work anywhere else.*
 
