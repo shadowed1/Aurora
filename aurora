@@ -150,6 +150,7 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
+    # Native/extracted apps (ELF only, one shortcut per app folder)
     for NATIVE_BIN_DIR in "$HOME/opt/bin" "$HOME/opt"; do
         find "$NATIVE_BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
             folder_name=$(basename "$pkgdir")
@@ -337,7 +338,7 @@ aurora_uninstall() {
             return 0
             ;;
         1)
-           echo "${CYAN}Removing Aurora and Starman binaries (leaving apps/data)...${RESET}"
+            echo "${CYAN}Removing Aurora and Starman binaries (leaving apps/data)...${RESET}"
             if [ -e "$HOME/opt/aurora" ]; then
                 rm -f "$HOME/opt/aurora"
                 echo "${CYAN}Removed $HOME/opt/aurora${RESET}"
@@ -350,13 +351,6 @@ aurora_uninstall() {
             else
                 echo "${YELLOW}$HOME/opt/starman not found.${RESET}"
             fi
-            
-            # <<< REMOVE AURORA_LOGIC_LINE .bashrc >>>
-            if [ -f "$HOME/.bashrc" ]; then
-                sed -i '/# >>> AURORA_LOGIC_LINE >>>/,/# <<< AURORA_LOGIC_LINE <<</d' "$HOME/.bashrc"
-                sed -i '\|[ -f "$HOME/opt/.flatpak.logic" ] && \. "$HOME/opt/.flatpak.logic"|d' "$HOME/.bashrc"
-            fi
-            echo "${CYAN}Aurora entries removed from .bashrc.${RESET}"
             echo "${CYAN}Aurora and Starman binaries removed; Flatpak apps and data retained.${RESET}"
             ;;
         2)
@@ -368,11 +362,13 @@ aurora_uninstall() {
                 return 1
             fi
 
-           # <<< REMOVE AURORA_LOGIC_LINE .bashrc >>>
-            if [ -f "$HOME/.bashrc" ]; then
-                sed -i '/# >>> AURORA_LOGIC_LINE >>>/,/# <<< AURORA_LOGIC_LINE <<</d' "$HOME/.bashrc"
-                sed -i '\|[ -f "$HOME/opt/.flatpak.logic" ] && \. "$HOME/opt/.flatpak.logic"|d' "$HOME/.bashrc"
+            if grep -q "# >>> Aurora Flatpak Setup >>>" "$HOME/.bashrc"; then
+                sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
+                echo "${CYAN}Removed Aurora Flatpak setup block from ~/.bashrc${RESET}"
             fi
+
+            sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
+            sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
 
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
