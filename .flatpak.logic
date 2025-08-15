@@ -47,10 +47,10 @@ flatpak --user update --appstream
 
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
-MARKER="# Flatpak --user logic"
+# <<< FLATPAK_LOGIC_LINE <<<
 if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
 cat << 'EOF' >> "$HOME/.bashrc"
-# Flatpak --user logic
+# <<< FLATPAK_LOGIC_LINE <<<
 flatpak() {
   case "$1" in
     ""|--help|-h|help|--version)
