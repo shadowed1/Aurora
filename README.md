@@ -170,5 +170,11 @@ https://github.com/Saragon4005
 
 - Thanks to DennisLfromGA for finding bugs, making great suggestions, and finding issues to running certain apps:
 https://github.com/DennisLfromGA
+
+<br>
+
+__Support__
+
+- Feel free to post any issues or on the ChromeOS discord - there is a thread dedicated to Aurora: https://discord.gg/chromeos
   
 
