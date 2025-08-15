@@ -157,7 +157,7 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 0.06: `Improved shortcut command. Improved scaling support.` <br><br>
 0.07: `Added bsdtar support for simpler extraction syntax. Improved starman download logic.` <br><br>
 0.08: `Added permission fix logic for Starman. Fixed severe bug preventing install due to LD_LIBRARY_PATH being assigned too early.` <br><br>
-0.09: `Improved shortcut logic. Significantly improved starman's ability to read PKGBUILD's for convenient downloading. Added /tmp/ folder support for cleaning up extracting packages. 
+0.09: `Fixed segfault issue on fresh install/reinstall. Improved shortcut fallback logic support. Significantly improved starman's ability to read PKGBUILD's for convenient downloading. Added /tmp/ folder support for cleaning up extracting packages. Fixed various syntax errors` <br><br>
 
 To do list: Convince Google that Steam should remain supported. 
 
