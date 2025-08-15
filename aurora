@@ -165,32 +165,47 @@ EOF
             fi
 
             if [[ -z "$exe" ]]; then
-                mapfile -t elf_executables < <(
+               mapfile -t elf_executables < <(
                     find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null \
                         | grep -vEi '\.(so|dll|bak|old|txt|md|ini|conf|json|yaml|sh|py|pl)$' \
                         | while read -r file; do
                             file "$file" | grep -q 'ELF .* executable' && echo "$file"
                         done
                 )
-
-                # Only pick one ELF main executable per app folder!
-                if [[ ${#elf_executables[@]} -eq 1 ]]; then
-                    exe="${elf_executables[0]}"
-                elif [[ ${#elf_executables[@]} -gt 1 ]]; then
+                
+                # Sanity blacklist
+                helpers_regex='chrome-sandbox|chrome_crashpad_handler|xdg-mime|xdg-settings|resources\.pak|.*_pak$|v8_context_snapshot\.bin|lib.*\.so|MEIPreload|.*\.desktop'
+                
+                exe=""
+                
+                for f in "${elf_executables[@]}"; do
+                    basefile=$(basename "$f")
+                    # Lowercase, ignore extensions
+                    if [[ "${basefile,,}" =~ ${folder_name,,} ]] && ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
+                        exe="$f"
+                        break
+                    fi
+                done
+                
+                if [[ -z "$exe" ]]; then
                     for f in "${elf_executables[@]}"; do
                         basefile=$(basename "$f")
-                        if [[ "${basefile,,}" == "${folder_name,,}" ]]; then
+                        if ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
                             exe="$f"
                             break
                         fi
                     done
-                    [[ -z "$exe" ]] && exe="${elf_executables[0]}"
                 fi
-
+                
+                if [[ -z "$exe" && ${#elf_executables[@]} -gt 0 ]]; then
+                    exe=$(printf "%s\n" "${elf_executables[@]}" \
+                        | xargs -I{} stat -c "%s %n" {} 2>/dev/null \
+                        | sort -nr | head -n1 | cut -d' ' -f2-)
+                fi
+                
                 [[ -z "$exe" ]] && continue
             fi
 
-            # Final sanity check (shouldn't be needed, but keep it)
             [[ -z "$exe" || ! -x "$exe" ]] && continue
 
             base=$(basename "$exe")
