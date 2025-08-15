@@ -56,8 +56,6 @@ flatpak() {
     ""|--help|-h|help|--version)
       command flatpak "$@"
       ;;
-      command flatpak --user "$@"
-      ;;
     *)
       command flatpak --user "$@"
       ;;
