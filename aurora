@@ -362,13 +362,13 @@ aurora_uninstall() {
                 return 1
             fi
 
-            if grep -q "# >>> Aurora Flatpak Setup >>>" /usr/local/aurora//.bashrc"; then
-                sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' /usr/local/aurora//.bashrc"
+            if grep -q "# >>> Aurora Flatpak Setup >>>" /usr/local/aurora/.aurorabashrc"; then
+                sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' /usr/local/aurora/.aurorabashrc"
                 echo "${CYAN}Removed Aurora Flatpak setup block from ~/.bashrc${RESET}"
             fi
 
-            sed -i '/\.flatpak\.env/d' /usr/local/aurora//.bashrc"
-            sed -i '/\.flatpak\.logic/d' /usr/local/aurora//.bashrc"
+            sed -i '/\.flatpak\.env/d' /usr/local/aurora/.aurorabashrc"
+            sed -i '/\.flatpak\.logic/d' /usr/local/aurora/.aurorabashrc"
 
             for DIR in /usr/local/aurora/" /usr/local/aurora//.local/share/flatpak" /usr/local/aurora//.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
@@ -462,7 +462,7 @@ case "$1" in
                     echo "${GREEN}Downloading $file...${RESET}"
                     (
                       LD_LIBRARY_PATH=""
-                      curl -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/$file" -o /usr/local/aurora/$file"
+                      curl -L "https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/$file" -o /usr/local/aurora/$file"
                     )
                     sleep 1
                 done
@@ -482,13 +482,13 @@ case "$1" in
                 ln -sf /usr/local/aurora/bin/starman" /usr/local/aurora/bin/pacaur"
                 ln -sf /usr/local/aurora/bin/starman" /usr/local/aurora/bin/pacman"
 
-                [ -f /usr/local/aurora//.bashrc" ] || touch /usr/local/aurora//.bashrc"
+                [ -f /usr/local/aurora/.aurorabashrc" ] || touch /usr/local/aurora/.aurorabashrc"
 
                 FLATPAK_ENV_LINE='[ -f /usr/local/aurora/.flatpak.env" ] && . /usr/local/aurora/.flatpak.env"'
                 FLATPAK_LOGIC_LINE='[ -f /usr/local/aurora/.flatpak.logic" ] && . /usr/local/aurora/.flatpak.logic"'
                 
-                grep -Fxq "$FLATPAK_ENV_LINE" /usr/local/aurora//.bashrc" || echo "$FLATPAK_ENV_LINE" >> /usr/local/aurora//.bashrc"
-                grep -Fxq "$FLATPAK_LOGIC_LINE" /usr/local/aurora//.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> /usr/local/aurora//.bashrc"
+                grep -Fxq "$FLATPAK_ENV_LINE" /usr/local/aurora/.aurorabashrc" || echo "$FLATPAK_ENV_LINE" >> /usr/local/aurora/.aurorabashrc"
+                grep -Fxq "$FLATPAK_LOGIC_LINE" /usr/local/aurora/.aurorabashrc" || echo "$FLATPAK_LOGIC_LINE" >> /usr/local/aurora/.aurorabashrc"
 
                 echo ""
                 echo "${GREEN}Quick reinstall completed. Open a new vsh borealis tab to finish.${RESET}"
@@ -497,7 +497,7 @@ case "$1" in
             2)
                 echo ""
                 echo "${YELLOW}Launching full reinstall...${RESET}"
-                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/aurora_installer.sh?$(date +%s)")
                 ;;
             *)
                 echo "${RED}Invalid choice. Please enter 0, 1, or 2.${RESET}"
@@ -514,7 +514,7 @@ case "$1" in
         CURRENT_VER=$(cat /usr/local/aurora/bin/version")
         CURRENT_VER_NO=$(echo "$CURRENT_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
-        LATEST_VER=$(curl -Ls "https://raw.githubusercontent.com/shadowed1/Aurora/main/version")
+        LATEST_VER=$(curl -Ls "https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/version")
         LATEST_VER_NO=$(echo "$LATEST_VER" | sed -e 's/VERSION=//' -e 's/"//g' -e 's/\.//g' -e 's/^0*//')
 
         if [[ "$CURRENT_VER_NO" =~ ^[0-9]+$ && "$LATEST_VER_NO" =~ ^[0-9]+$ ]]; then
@@ -523,7 +523,7 @@ case "$1" in
                 read -rp "Would you like to 'reinstall' to get $LATEST_VER ? (Y/n): " choice
                 if [[ "$choice" =~ ^[Yy]$ || -z "$choice" ]]; then
                     echo "${CYAN}Reinstalling!${RESET}"
-                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+                    bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/aurora_installer.sh?$(date +%s)")
                 else
                     echo "${YELLOW}Skipping reinstall.${RESET}"
                 fi
