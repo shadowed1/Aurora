@@ -175,6 +175,6 @@ https://github.com/DennisLfromGA
 
 __Support__
 
-- Feel free to post any issues or on the ChromeOS discord - there is a thread dedicated to Aurora: https://discord.gg/chromeos
+- Feel free to post any issues here or on the ChromeOS discord - there is a thread dedicated to Aurora: https://discord.gg/chromeos
   
 
