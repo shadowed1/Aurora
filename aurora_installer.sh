@@ -636,8 +636,12 @@ else
 fi
 
 [ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
-AURORA_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
-grep -Fxq "$AURORA_LOGIC_LINE" "$HOME/.bashrc" || echo "$AURORA_LOGIC_LINE" >> "$HOME/.bashrc"
+
+FLATPAK_ENV_LINE='[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"'
+FLATPAK_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
+
+grep -Fxq "$FLATPAK_ENV_LINE" "$HOME/.bashrc" || echo "$FLATPAK_ENV_LINE" >> "$HOME/.bashrc"
+grep -Fxq "$FLATPAK_LOGIC_LINE" "$HOME/.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "$HOME/.bashrc"
 
 
 if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
@@ -694,4 +698,3 @@ echo ""
         ;;
 esac
 exit 0
-
