@@ -7,15 +7,15 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.xdg-runtime-dir}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/usr/local/aurora/.xdg-runtime-dir}"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR"
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 
 export USER="${USER:-$(id -un)}"
 
-if [ -f "$HOME/opt/.flatpak.env" ]; then
-    . "$HOME/opt/.flatpak.env"
+if [ -f "/usr/local/aurora/.flatpak.env" ]; then
+    . "/usr/local/aurora/.flatpak.env"
 fi
 
 echo "${MAGENTA}Aurora initializing Flatpak!${RESET}${BLUE}"
@@ -29,17 +29,17 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
   sleep 1
 fi
 
-export TMPDIR="$HOME/tmp"
+export TMPDIR="/usr/local/aurora/tmp"
 mkdir -p "$XDG_RUNTIME_DIR" "$TMPDIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 
   export DBUS_SESSION_BUS_ADDRESS=$(grep -E '^unix:' "$XDG_RUNTIME_DIR/dbus-session.address" | head -n1 | tr -d '\n')
 
-if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
-  "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
+if [ -x "/usr/local/aurora/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal-gtk > /dev/null; then
+  "/usr/local/aurora/flatpak-deps/usr/lib/xdg-desktop-portal-gtk" &
 fi
-if [ -x "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal$ > /dev/null; then
-  "$HOME/opt/flatpak-deps/usr/lib/xdg-desktop-portal" &
+if [ -x "/usr/local/aurora/flatpak-deps/usr/lib/xdg-desktop-portal" ] && [ -n "$USER" ] && ! pgrep -u "$USER" -f xdg-desktop-portal$ > /dev/null; then
+  "/usr/local/aurora/flatpak-deps/usr/lib/xdg-desktop-portal" &
 fi
 
 flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -48,8 +48,8 @@ flatpak --user update --appstream
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
 # <<< FLATPAK_LOGIC_LINE <<<
-if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
-cat << 'EOF' >> "$HOME/.bashrc"
+if ! grep -q 'aurora() {' "/usr/local/aurora/.bashrc"; then
+cat << 'EOF' >> "/usr/local/aurora/.bashrc"
 # <<< FLATPAK_LOGIC_LINE <<<
 flatpak() {
   case "$1" in
@@ -63,7 +63,7 @@ flatpak() {
 }
 
 aurora() {
-  local AURORA_SCRIPT="$HOME/opt/bin/aurora"
+  local AURORA_SCRIPT="/usr/local/aurora/bin/aurora"
 
   "$AURORA_SCRIPT" "$@"
 
@@ -80,15 +80,15 @@ aurora() {
 
 [[ -L "$BIN_DIR/npm" || -e "$BIN_DIR/npm" ]] || ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
 [[ -L "$BIN_DIR/npx" || -e "$BIN_DIR/npx" ]] || ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
-ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"
-ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"
-ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"
+ln -sf "/usr/local/aurora/bin/starman" "/usr/local/aurora/bin/yay"
+ln -sf "/usr/local/aurora/bin/starman" "/usr/local/aurora/bin/paru"
+ln -sf "/usr/local/aurora/bin/starman" "/usr/local/aurora/bin/pacaur"
 yay() { starman "$@"; }
 paru() { starman "$@"; }
 
 
 
-flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
+flatpak --user list --columns=application,name | tail -n +1 | sort -u > "/usr/local/aurora/.starman_flatpak_cache"
 
 
 EOF
@@ -99,9 +99,9 @@ echo "."
 sleep 1
 echo ".${RESET}"
 echo ""
-~/opt/usr/bin/fastfetch
+~/usr/bin/fastfetch
 echo ""
 source ~/.bashrc
 echo ""
-~/opt/bin/aurora help
+~/bin/aurora help
 fi
