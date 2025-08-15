@@ -103,8 +103,8 @@ Use ls /app/bin to help find the app in these situations.
 
 <br>
 
-- Apps and their data are saved in ~/.local/share/flatpak and Aurora + Flatpak are stored in~/opt/.
-- --user argument is built-in for this Flatpak since we have no root access.
+- Apps and their data are saved in ~/opt/bin, ~/.local/share/flatpak, and Aurora + Flatpak are stored in~/opt/.
+- --user argument is built-in for this Flatpak since we lack root access.
 - Some apps will not run the conventional way. Brave or Visual Studio are good examples.<br>
 - Both Brave and Visual Studio run significantly easier without Flatpak by downloading them straight from their websites!
 
