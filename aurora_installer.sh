@@ -36,11 +36,11 @@ echo ""
 echo "${CYAN}${BOLD}About to start downloading Flatpak, Git, GCC, Python and their dependencies! Download can take up to 5 minutes.${RESET}"
 sleep 5
 
-sed -i '/\.flatpak\.env/d' "/usr/local/aurora//.bashrc"
-sed -i '/\.flatpak\.logic/d' "/usr/local/aurora//.bashrc"
+sed -i '/\.flatpak\.env/d' "/usr/local/aurora/.aurorabashrc"
+sed -i '/\.flatpak\.logic/d' "/usr/local/aurora/.aurorabashrc"
 
-if grep -q "# Flatpak --user logic" "/usr/local/aurora//.bashrc"; then
-sed -i '/# Flatpak --user logic/,/^}/d' "/usr/local/aurora//.bashrc"
+if grep -q "# Flatpak --user logic" "/usr/local/aurora/.aurorabashrc"; then
+sed -i '/# Flatpak --user logic/,/^}/d' "/usr/local/aurora/.aurorabashrc"
 echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
 fi
 
@@ -630,13 +630,13 @@ else
   echo "dbus socket not found."
 fi
 
-[ -f "/usr/local/aurora//.bashrc" ] || touch "/usr/local/aurora//.bashrc"
+[ -f "/usr/local/aurora/.aurorabashrc" ] || touch "/usr/local/aurora/.aurorabashrc"
 
 FLATPAK_ENV_LINE='[ -f "/usr/local/aurora/.flatpak.env" ] && . "/usr/local/aurora/.flatpak.env"'
 FLATPAK_LOGIC_LINE='[ -f "/usr/local/aurora/.flatpak.logic" ] && . "/usr/local/aurora/.flatpak.logic"'
 
-grep -Fxq "$FLATPAK_ENV_LINE" "/usr/local/aurora//.bashrc" || echo "$FLATPAK_ENV_LINE" >> "/usr/local/aurora//.bashrc"
-grep -Fxq "$FLATPAK_LOGIC_LINE" "/usr/local/aurora//.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "/usr/local/aurora//.bashrc"
+grep -Fxq "$FLATPAK_ENV_LINE" "/usr/local/aurora/.aurorabashrc" || echo "$FLATPAK_ENV_LINE" >> "/usr/local/aurora/.aurorabashrc"
+grep -Fxq "$FLATPAK_LOGIC_LINE" "/usr/local/aurora/.aurorabashrc" || echo "$FLATPAK_LOGIC_LINE" >> "/usr/local/aurora/.aurorabashrc"
 
 
 if [ ! -f "/usr/local/aurora/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
