@@ -81,12 +81,10 @@ download_and_extract()
     echo "${MAGENTA}"
     echo "Downloading: $url"
 
-    # Run wget with clean env to avoid LD_LIBRARY_PATH interference
     env -i PATH="$PATH" wget --content-disposition --trust-server-names "$url"
 
     echo "${RESET}${BLUE}"
 
-    # detect file
     if [[ -f "download" ]]; then
         FILE="download"
     else
@@ -607,6 +605,21 @@ download_and_extract "$URL" "$HOME/opt/"
 #URL"https://archlinux.org/packages/extra/x86_64/thunar/download"
 #download_and_extract "$URL" "$HOME/opt/"
 
+
+for file in .flatpak.logic aurora starman version .flatpak.env; do
+    echo "${GREEN}Downloading $file...${RESET}"
+    (
+      LD_LIBRARY_PATH=""
+      curl -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/$file" -o "$HOME/opt/$file"
+    )
+    sleep 1
+done
+
+chmod +x "$HOME/opt/bin/aurora"
+chmod +x "$HOME/opt/bin/starman"
+chmod +x "$HOME/opt/usr/bin/fastfetch"
+chmod +x "$HOME/opt/usr/bin/nano"
+touch "$HOME/.starman_flatpak_cache"
 
 echo "${GREEN}.flatpak.logic${RESET}${MAGENTA}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
