@@ -368,13 +368,11 @@ aurora_uninstall() {
                 return 1
             fi
 
-            if grep -q "# >>> Aurora Flatpak Setup >>>" "$HOME/.bashrc"; then
-                sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
-                echo "${CYAN}Removed Aurora Flatpak setup block from ~/.bashrc${RESET}"
+           # <<< REMOVE AURORA_LOGIC_LINE .bashrc >>>
+            if [ -f "$HOME/.bashrc" ]; then
+                sed -i '/# >>> AURORA_LOGIC_LINE >>>/,/# <<< AURORA_LOGIC_LINE <<</d' "$HOME/.bashrc"
+                sed -i '\|[ -f "$HOME/opt/.flatpak.logic" ] && \. "$HOME/opt/.flatpak.logic"|d' "$HOME/.bashrc"
             fi
-
-            sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
-            sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
 
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
