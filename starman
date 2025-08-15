@@ -177,6 +177,17 @@ starman() {
             ;;
     esac
 
+if [[ -d "$EXPORT_PATH/usr/bin" ]]; then
+    echo "Adding usr/bin executables to $EXPORT_PATH"
+    cp -a "$EXPORT_PATH/usr/bin/." "$EXPORT_PATH/"
+fi
+
+if [[ -d "$EXPORT_PATH/usr/lib" ]]; then
+    mkdir -p "$EXPORT_PATH/lib"
+    echo "Adding usr/lib shared libraries to $EXPORT_PATH/lib"
+    cp -a "$EXPORT_PATH/usr/lib/." "$EXPORT_PATH/lib/"
+fi
+
     fix_exec_permissions "$EXPORT_PATH/$pkg"
     fix_exec_permissions "$EXPORT_PATH/usr"
     fix_exec_permissions "$EXPORT_PATH/bin"
