@@ -7,6 +7,8 @@ CYAN=$(tput setaf 6)
 BOLD=$(tput bold)
 RESET=$(tput sgr0)
 
+# <<< FLATPAK_LOGIC_LINE <<<
+
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.xdg-runtime-dir}"
 mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 chmod 700 "$XDG_RUNTIME_DIR"
@@ -47,7 +49,6 @@ flatpak --user update --appstream
 
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
-# <<< FLATPAK_LOGIC_LINE <<<
 if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
 cat << 'EOF' >> "$HOME/.bashrc"
 # <<< FLATPAK_LOGIC_LINE <<<
@@ -90,6 +91,8 @@ paru() { starman "$@"; }
 
 flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"
 
+# <<< FLATPAK_LOGIC_LINE <<<
+
 
 EOF
 echo ""
@@ -105,3 +108,4 @@ source ~/.bashrc
 echo ""
 ~/opt/bin/aurora help
 fi
+
