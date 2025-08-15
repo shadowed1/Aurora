@@ -457,22 +457,16 @@ case "$1" in
                 echo "${GREEN}Performing quick reinstall...${RESET}"
                 echo ""
                 mkdir -p ~/opt/bin
-                echo "${GREEN}.flatpak.logic${RESET}${MAGENTA}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
-                sleep 1
-                echo "${RESET}${GREEN}aurora${RESET}${BLUE}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
-                sleep 1
-                echo "${RESET}${GREEN}starman${RESET}${CYAN}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
-                sleep 1
-                echo "${RESET}${GREEN}version${RESET}${BLUE}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
-                sleep 1
-                echo "${RESET}${GREEN}.flatpak.env${RESET}${MAGENTA}"
-                curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
-                sleep 1
-                echo "${RESET}"
+                
+                for file in .flatpak.logic aurora starman version .flatpak.env; do
+                    echo "${GREEN}Downloading $file...${RESET}"
+                    (
+                      LD_LIBRARY_PATH=""
+                      curl -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/$file" -o "$HOME/opt/$file"
+                    )
+                    sleep 1
+                done
+
                 chmod +x ~/opt/bin/aurora
                 chmod +x ~/opt/bin/starman
                 rm "$HOME/opt/bin/yay" 2>/dev/null
