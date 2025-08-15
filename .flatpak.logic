@@ -51,7 +51,6 @@ echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
 if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
 cat << 'EOF' >> "$HOME/.bashrc"
-# <<< FLATPAK_LOGIC_LINE <<<
 flatpak() {
   case "$1" in
     ""|--help|-h|help|--version)
