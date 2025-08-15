@@ -73,15 +73,15 @@ echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 chmod +x "$HOME/opt/bin/aurora"
 chmod +x "$HOME/opt/bin/starman"
 echo "${MAGENTA}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.logic -o ~/opt/.flatpak.logic
 echo "${RESET}${BLUE}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/aurora -o ~/opt/bin/aurora
 echo "${RESET}${CYAN}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/starman -o ~/opt/bin/starman
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/starman -o ~/opt/bin/starman
 echo "${RESET}${BLUE}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/version -o ~/opt/bin/version
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/version -o ~/opt/bin/version
 echo "${RESET}${MAGENTA}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.env -o ~/opt/.flatpak.env
+curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.env -o ~/opt/.flatpak.env
 echo "${RESET}"
 chmod +x ~/opt/bin/aurora
 chmod +x ~/opt/bin/starman
