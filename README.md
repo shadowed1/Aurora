@@ -13,6 +13,7 @@
 
 - ChromeOS
 - Steam installed and open (log in not required)
+- Steam (Borealis) VM can be enabled in chrome://flags for x86 users if below hardware requirements.  
 <br>
 
 ### How to install:
