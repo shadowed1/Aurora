@@ -387,13 +387,58 @@ zenity_launcher() {
             zenity --file-selection --directory --title="Select a Folder to Browse"
             ;;
            download_archive)
-            FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the .tar archive:")
+            FILE_URL=$(zenity --entry --title="Steam Tar Manager" --text="Enter the URL of the .tar or .zip archive:")
             [[ -z "$FILE_URL" ]] && break
         
             EXTRACT_PATH="$HOME/opt/bin"
             mkdir -p "$EXTRACT_PATH"
+            mkdir -p "$HOME/tmp"
+            TMP_FILE="$HOME/tmp/$(basename "${FILE_URL%%\?*}")"
         
-            STARMAN_EXPORT_PATH="$EXTRACT_PATH" starman "$FILE_URL"
+            echo "${CYAN}[starman] Downloading: $FILE_URL${RESET}"
+            if ! curl -L -o "$TMP_FILE" "$FILE_URL"; then
+                zenity --error --title="Download Failed" --text="Failed to download $FILE_URL"
+                break
+            fi
+        
+            echo "${CYAN}[starman] Extracting $TMP_FILE to $EXTRACT_PATH${RESET}"
+            case "$TMP_FILE" in
+                *.tar.gz|*.tgz)
+                    tar -xvzf "$TMP_FILE" -C "$EXTRACT_PATH" ;;
+                *.tar.bz2|*.tbz2)
+                    tar -xvjf "$TMP_FILE" -C "$EXTRACT_PATH" ;;
+                *.tar.xz|*.txz|*.tar.lzma)
+                    tar -xvJf "$TMP_FILE" -C "$EXTRACT_PATH" ;;
+                *.tar.zst|*.tzst)
+                    if command -v unzstd >/dev/null 2>&1; then
+                        tar --use-compress-program=unzstd -xvf "$TMP_FILE" -C "$EXTRACT_PATH"
+                    elif command -v zstd >/dev/null 2>&1; then
+                        zstd -d "$TMP_FILE" -c | tar -xvf - -C "$EXTRACT_PATH"
+                    else
+                        zenity --error --title="Extraction Failed" --text="zstd/unzstd not installed, cannot extract $TMP_FILE"
+                        break
+                    fi
+                    ;;
+                *.tar.lz4)
+                    tar --use-compress-program=lz4 -xvf "$TMP_FILE" -C "$EXTRACT_PATH" ;;
+                *.tar.lz)
+                    tar --use-compress-program=lzip -xvf "$TMP_FILE" -C "$EXTRACT_PATH" ;;
+                *.tar.Z)
+                    tar -xvZf "$TMP_FILE" -C "$EXTRACT_PATH" ;;
+                *.tar)
+                    tar -xvf "$TMP_FILE" -C "$EXTRACT_PATH" ;;
+                *.zip)
+                    unzip -o "$TMP_FILE" -d "$EXTRACT_PATH" ;;
+                *)
+                    zenity --error --title="Extraction Failed" --text="Unknown archive type: $TMP_FILE"
+                    break
+                    ;;
+            esac
+        
+            echo "${GREEN}[starman] Extraction complete to $EXTRACT_PATH${RESET}"
+            rm -f "$TMP_FILE"
+            fix_exec_permissions "$EXTRACT_PATH"
+
             ;;
 
         download_appimage)
