@@ -41,7 +41,7 @@ sed -i '/\.flatpak\.logic/d' "/usr/local/aurora/.aurorabashrc"
 
 if grep -q "# Flatpak --user logic" "/usr/local/aurora/.aurorabashrc"; then
 sed -i '/# Flatpak --user logic/,/^}/d' "/usr/local/aurora/.aurorabashrc"
-echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
+echo "${CYAN}Removed Flatpak function from .aurorabashrc${RESET}"
 fi
 
  mkdir -p /usr/local/aurora/flatpak
