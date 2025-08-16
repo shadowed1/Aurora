@@ -36,6 +36,12 @@ echo ""
 echo "${CYAN}${BOLD}About to start downloading Flatpak, Git, GCC, Python and their dependencies! Download can take up to 5 minutes.${RESET}"
 sleep 5
 
+
+
+ sudo mkdir -p /usr/local/aurora/flatpak
+ sudo mkdir -p /usr/local/aurora/flatpak-deps
+ sudo mkdir -p /usr/local/aurora/bin
+
 sudo touch /usr/local/aurora/.aurorabashrc
 
 sed -i '/\.flatpak\.env/d' "/usr/local/aurora/.aurorabashrc"
@@ -45,10 +51,6 @@ if grep -q "# Flatpak --user logic" "/usr/local/aurora/.aurorabashrc"; then
 sed -i '/# Flatpak --user logic/,/^}/d' "/usr/local/aurora/.aurorabashrc"
 echo "${CYAN}Removed Flatpak function from .aurorabashrc${RESET}"
 fi
-
- sudo mkdir -p /usr/local/aurora/flatpak
- sudo mkdir -p /usr/local/aurora/flatpak-deps
- sudo mkdir -p /usr/local/aurora/bin
  
 export XDG_RUNTIME_DIR="/usr/local/aurora/.xdg-runtime-dir"
 sudo mkdir -p "$XDG_RUNTIME_DIR"
