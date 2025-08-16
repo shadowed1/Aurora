@@ -72,63 +72,61 @@ echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
 sudo chmod +x "/usr/local/aurora/bin/aurora"
 sudo chmod +x "/usr/local/aurora/bin/starman"
 echo "${MAGENTA}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.logic -o /usr/local/aurora/.flatpak.logic
+sudo curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.logic -o /usr/local/aurora/.flatpak.logic
 echo "${RESET}${BLUE}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/aurora -o /usr/local/aurora/bin/aurora
+sudo curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/aurora -o /usr/local/aurora/bin/aurora
 echo "${RESET}${CYAN}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/starman -o /usr/local/aurora/bin/starman
+sudo curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/starman -o /usr/local/aurora/bin/starman
 echo "${RESET}${BLUE}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/version -o /usr/local/aurora/bin/version
+sudo curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/version -o /usr/local/aurora/bin/version
 echo "${RESET}${MAGENTA}"
-curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.env -o /usr/local/aurora/.flatpak.env
+sudo curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.env -o /usr/local/aurora/.flatpak.env
 echo "${RESET}"
 sudo chmod +x /usr/local/aurora/bin/aurora
 sudo chmod +x /usr/local/aurora/bin/starman
 
 echo ""
 
-download_and_extract()
-{
-    local url="$1"
-    local target_dir="$2"
-    local FILE SAFE_FILE
-
-    echo "${MAGENTA}"
-    echo "Downloading: $url"
-
-    env -i PATH="$PATH" wget --content-disposition --trust-server-names "$url"
-
-    echo "${RESET}${BLUE}"
-
-    if [[ -f "download" ]]; then
-        FILE="download"
-    else
+    download_and_extract()
+    {
+        local url="$1"
+        local target_dir="$2"
+        local FILE SAFE_FILE
+    
+        echo "${MAGENTA}"
+        echo "Downloading: $url"
+    
+        env -i PATH="$PATH" curl -L --remote-header-name --remote-name "$url"
+    
+        echo "${RESET}${BLUE}"
+    
         FILE=$(ls -t *.pkg.tar.zst 2>/dev/null | head -n 1)
-    fi
-
-    SAFE_FILE="${FILE//:/}"
-    if [[ "$FILE" != "$SAFE_FILE" ]]; then
-        mv "$FILE" "$SAFE_FILE"
-        FILE="$SAFE_FILE"
-    fi
-    echo "Extracting $FILE to $target_dir"
-
-    env -i PATH="$PATH" tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
-
-    rm -f "$FILE"
-    sudo chmod +x "$target_dir/usr/bin"/* 2>/dev/null
-    sudo chmod +x "/usr/local/aurora/usr/bin"/* 2>/dev/null
-    sudo chmod +x "/usr/local/aurora/usr/share"/* 2>/dev/null
-    echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
-
-    export LD_LIBRARY_PATH="$target_dir/usr/lib:/usr/local/aurora/usr/lib:$LD_LIBRARY_PATH"
-    export FLATPAK_USER_DIR="/usr/local/aurora/.local/share/flatpak"
-    sleep 1
-}
-
-# Flatpak Core
-URL="https://archlinux.org/packages/extra/x86_64/flatpak/download"
-download_and_extract "$URL" "/usr/local/aurora/flatpak"
+    
+        SAFE_FILE="${FILE//:/}"
+        if [[ "$FILE" != "$SAFE_FILE" ]]; then
+            mv "$FILE" "$SAFE_FILE"
+            FILE="$SAFE_FILE"
+        fi
+    
+        echo "Extracting $FILE to $target_dir"
+        mkdir -p "$target_dir"
+    
+        env -i PATH="$PATH" tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
+    
+        rm -f "$FILE"
+        sudo chmod +x "$target_dir/usr/bin"/* 2>/dev/null
+        sudo chmod +x "/usr/local/aurora/usr/bin"/* 2>/dev/null
+        sudo chmod +x "/usr/local/aurora/usr/share"/* 2>/dev/null
+        echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
+    
+        export LD_LIBRARY_PATH="$target_dir/usr/lib:/usr/local/aurora/usr/lib:$LD_LIBRARY_PATH"
+        export FLATPAK_USER_DIR="/usr/local/aurora/.local/share/flatpak"
+        sleep 1
+    }
+    
+    # Flatpak Core
+    URL="https://archlinux.org/packages/extra/x86_64/flatpak/download"
+    download_and_extract "$URL" "/usr/local/aurora/flatpak"
 
 URL="https://archlinux.org/packages/extra/x86_64/ostree/download"
 download_and_extract "$URL" "/usr/local/aurora/flatpak-deps"
