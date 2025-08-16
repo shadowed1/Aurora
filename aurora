@@ -10,7 +10,7 @@ RESET=$(tput sgr0)
 DISPLAY_SCALING=""
 CURSOR_SIZE=""
 ICON_SIZE=256
-ICON_OUTPUT_BASE=/usr/local/aurora//.local/share/icons/hicolor"
+ICON_OUTPUT_BASE=/usr/local/aurora/.local/share/icons/hicolor"
 
 if [ -f /usr/local/aurora/.flatpak.env" ]; then
     . /usr/local/aurora/.flatpak.env"
@@ -328,7 +328,7 @@ aurora_uninstall() {
     echo "${BLUE}${BOLD}Select an option:${RESET}"
     echo "${BLUE}[0] Quit${RESET}"
     echo "${CYAN}[1] Remove Aurora & Starman (/usr/local/aurora/bin/aurora and /usr/local/aurora/bin/starman only; keep Flatpak apps and data)${RESET}"
-    echo "${MAGENTA}[2] Full uninstall (removes /usr/local/aurora/, all Flatpak apps/data, ~/.bashrc Aurora entries, and dependencies)${RESET}"
+    echo "${MAGENTA}[2] Full uninstall (removes /usr/local/aurora/, all Flatpak apps/data, /usr/local/aurora/.aurorabashrc Aurora entries, and dependencies)${RESET}"
     echo ""
     read -rp "Enter choice [0-2]: " CHOICE
 
@@ -354,7 +354,7 @@ aurora_uninstall() {
             echo "${CYAN}Aurora and Starman binaries removed; Flatpak apps and data retained.${RESET}"
             ;;
         2)
-            echo "${MAGENTA}${BOLD}Full uninstall: Removing /usr/local/aurora/, ~/.local/share/flatpak, ~/.bashrc Aurora entries, and ~/.xdg-runtime-dir${RESET}"
+            echo "${MAGENTA}${BOLD}Full uninstall: Removing /usr/local/aurora/, /usr/local/aurora/.local/share/flatpak, /usr/local/aurora/.aurorabashrc Aurora entries, and /usr/local/aurora/.xdg-runtime-dir${RESET}"
             echo "${RED}${BOLD}WARNING: This will delete all Flatpak apps and their data.${RESET}"
             read -rp "Type 'yes' to confirm: " FULL_CONFIRM
             if [ "$FULL_CONFIRM" != "yes" ]; then
@@ -364,13 +364,13 @@ aurora_uninstall() {
 
             if grep -q "# >>> Aurora Flatpak Setup >>>" /usr/local/aurora/.aurorabashrc"; then
                 sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' /usr/local/aurora/.aurorabashrc"
-                echo "${CYAN}Removed Aurora Flatpak setup block from ~/.bashrc${RESET}"
+                echo "${CYAN}Removed Aurora Flatpak setup block from /usr/local/aurora/.aurorabashrc${RESET}"
             fi
 
             sed -i '/\.flatpak\.env/d' /usr/local/aurora/.aurorabashrc"
             sed -i '/\.flatpak\.logic/d' /usr/local/aurora/.aurorabashrc"
 
-            for DIR in /usr/local/aurora/" /usr/local/aurora//.local/share/flatpak" /usr/local/aurora//.xdg-runtime-dir"; do
+            for DIR in /usr/local/aurora/" /usr/local/aurora/.local/share/flatpak" /usr/local/aurora/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
                     rm -rf "$DIR"
                     echo "${MAGENTA}Removed $DIR${RESET}"
@@ -379,7 +379,7 @@ aurora_uninstall() {
                 fi
             done
 
-            echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, data, and ~/.bashrc entries removed.${RESET}"
+            echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, data, and /usr/local/aurora/.aurorabashrc entries removed.${RESET}"
             ;;
         *)
             echo "${RED}Invalid choice. Exiting.${RESET}"
