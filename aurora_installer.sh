@@ -46,13 +46,13 @@ sed -i '/# Flatpak --user logic/,/^}/d' "/usr/local/aurora/.aurorabashrc"
 echo "${CYAN}Removed Flatpak function from .aurorabashrc${RESET}"
 fi
 
- mkdir -p /usr/local/aurora/flatpak
- mkdir -p /usr/local/aurora/flatpak-deps
- mkdir -p /usr/local/aurora/bin
+ sudo mkdir -p /usr/local/aurora/flatpak
+ sudo mkdir -p /usr/local/aurora/flatpak-deps
+ sudo mkdir -p /usr/local/aurora/bin
  
-export XDG_RUNTIME_DIR="/usr/local/aurora//.xdg-runtime-dir"
-mkdir -p "$XDG_RUNTIME_DIR"
-chmod 700 "$XDG_RUNTIME_DIR"
+export XDG_RUNTIME_DIR="/usr/local/aurora/.xdg-runtime-dir"
+sudo mkdir -p "$XDG_RUNTIME_DIR"
+sudo chmod 700 "$XDG_RUNTIME_DIR"
 
 export PATH="/usr/local/aurora/flatpak/usr/bin:/usr/local/aurora/flatpak-deps/usr/bin:/bin:/usr/bin:$PATH"
 if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
@@ -65,10 +65,10 @@ if [ ! -S "$XDG_RUNTIME_DIR/dbus-session" ]; then
 fi
 export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 
-mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
+sudo mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
-chmod +x "/usr/local/aurora/bin/aurora"
-chmod +x "/usr/local/aurora/bin/starman"
+sudo chmod +x "/usr/local/aurora/bin/aurora"
+sudo chmod +x "/usr/local/aurora/bin/starman"
 echo "${MAGENTA}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.logic -o /usr/local/aurora/.flatpak.logic
 echo "${RESET}${BLUE}"
@@ -80,8 +80,8 @@ curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/version -o /u
 echo "${RESET}${MAGENTA}"
 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.env -o /usr/local/aurora/.flatpak.env
 echo "${RESET}"
-chmod +x /usr/local/aurora/bin/aurora
-chmod +x /usr/local/aurora/bin/starman
+sudo chmod +x /usr/local/aurora/bin/aurora
+sudo chmod +x /usr/local/aurora/bin/starman
 
 echo ""
 
@@ -114,9 +114,9 @@ download_and_extract()
     env -i PATH="$PATH" tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
 
     rm -f "$FILE"
-    chmod +x "$target_dir/usr/bin"/* 2>/dev/null
-    chmod +x "/usr/local/aurora/usr/bin"/* 2>/dev/null
-    chmod +x "/usr/local/aurora/usr/share"/* 2>/dev/null
+    sudo chmod +x "$target_dir/usr/bin"/* 2>/dev/null
+    sudo chmod +x "/usr/local/aurora/usr/bin"/* 2>/dev/null
+    sudo chmod +x "/usr/local/aurora/usr/share"/* 2>/dev/null
     echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
 
     export LD_LIBRARY_PATH="$target_dir/usr/lib:/usr/local/aurora/usr/lib:$LD_LIBRARY_PATH"
@@ -618,8 +618,8 @@ download_and_extract "$URL" "/usr/local/aurora/"
 #URL"https://archlinux.org/packages/extra/x86_64/thunar/download"
 #download_and_extract "$URL" "/usr/local/aurora/"
 
-chmod +x "/usr/local/aurora/usr/bin/fastfetch"
-chmod +x "/usr/local/aurora/usr/bin/nano"
+sudo chmod +x "/usr/local/aurora/usr/bin/fastfetch"
+sudo chmod +x "/usr/local/aurora/usr/bin/nano"
 touch "/usr/local/aurora//.starman_flatpak_cache"
 echo ""
 
@@ -653,15 +653,15 @@ NPM_BASE="/usr/local/aurora/usr/lib/node_modules/npm"
 NVM_DIR="/usr/local/aurora/usr/share/nvm"
 BIN_DIR="/usr/local/aurora/usr/bin"
 
-mkdir -p "$BIN_DIR"
-mkdir -p /usr/local/aurora/etc/xdg/xfce4/xfwm4
+sudo mkdir -p "$BIN_DIR"
+sudo mkdir -p /usr/local/aurora/etc/xdg/xfce4/xfwm4
 
 rm -f "$BIN_DIR/npm" "$BIN_DIR/npx"
 
 ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"
 ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"
 
-chmod +x "$NPM_BASE/bin/"*.js
+sudo chmod +x "$NPM_BASE/bin/"*.js
 
 unset -f yay 2>/dev/null
 unset -f paru 2>/dev/null
