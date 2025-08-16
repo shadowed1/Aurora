@@ -68,7 +68,7 @@ starman() {
         return 1
     fi
 
-    mkdir -p "$EXPORT_PATH"
+    sudo bash ""$EXPORT_PATH"
 
     if [[ "$pkg" =~ ^https?://archlinux.org/packages/.+[^/](/)?$ ]]; then
         pkg="${pkg%/}/download"
@@ -142,7 +142,7 @@ starman() {
             ;;
         *.tar.zst|*.tzst)
             echo "Extracting zst archive $FILE to $EXPORT_PATH ..."
-            mkdir -p "$EXPORT_PATH"
+            sudo bash ""$EXPORT_PATH"
             if command -v unzstd >/dev/null 2>&1; then
                 tar --use-compress-program=unzstd -xvf "$FILE" -C "$EXPORT_PATH"
             elif command -v zstd >/dev/null 2>&1; then
@@ -183,7 +183,7 @@ if [[ -d "$EXPORT_PATH/usr/bin" ]]; then
 fi
 
 if [[ -d "$EXPORT_PATH/usr/lib" ]]; then
-    mkdir -p "$EXPORT_PATH/lib"
+    sudo bash ""$EXPORT_PATH/lib"
     echo "Adding usr/lib shared libraries to $EXPORT_PATH/lib"
     cp -a "$EXPORT_PATH/usr/lib/." "$EXPORT_PATH/lib/"
 fi
@@ -194,7 +194,7 @@ fi
 
     if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         local pkgdir="$EXPORT_PATH/$pkg"
-        mkdir -p "$pkgdir"
+        sudo bash ""$pkgdir"
         tar -xf "$FILE" -C "$pkgdir"
 
         local PKGBUILD="$pkgdir/PKGBUILD"
@@ -391,8 +391,8 @@ zenity_launcher() {
             [[ -z "$FILE_URL" ]] && break
         
             EXTRACT_PATH="/usr/local/aurora/bin"
-            mkdir -p "$EXTRACT_PATH"
-            mkdir -p "/usr/local/aurora/tmp"
+            sudo bash ""$EXTRACT_PATH"
+            sudo bash ""/usr/local/aurora/tmp"
             TMP_FILE="/usr/local/aurora/tmp/$(basename "${FILE_URL%%\?*}")"
         
             echo "${CYAN}[starman] Downloading: $FILE_URL${RESET}"
@@ -444,7 +444,7 @@ zenity_launcher() {
         download_appimage)
             APPIMAGE_URL=$(zenity --entry --title="Download AppImage" --text="Paste the URL of the .AppImage file:")
             if [[ -n "$APPIMAGE_URL" ]]; then
-                mkdir -p "/usr/local/aurora/appimages"
+                sudo bash ""/usr/local/aurora/appimages"
                 cd "/usr/local/aurora/appimages" || exit 1
                 fix_exec_permissions "/usr/local/aurora/appimages" 
                 echo "${YELLOW}Downloading to: $PWD${RESET}"
@@ -452,7 +452,7 @@ zenity_launcher() {
                     FILENAME=$(basename "$(curl -s -L -I "$APPIMAGE_URL" | grep -i 'filename=' | sed -E 's/.*filename="?([^"]+)"?/\1/')")
                     [[ -z "$FILENAME" || ! -f "$FILENAME" ]] && FILENAME=$(basename "${APPIMAGE_URL%%\?*}")
 
-                    chmod +x "$FILENAME"
+                    sudo chmod +x "$FILENAME"
                     "./$FILENAME" &
                     echo "${GREEN}Launched: $FILENAME${RESET}"
                 else
@@ -468,21 +468,21 @@ zenity_launcher() {
 
         if [[ "$INSTALLER_PATH" =~ ^https?:// ]]; then
             TMP_INSTALLER="/usr/local/aurora/tmp/installer_$(date +%s).sh"
-            mkdir -p "/usr/local/aurora/tmp"
+            sudo bash ""/usr/local/aurora/tmp"
             echo "${YELLOW}Downloading installer to $TMP_INSTALLER...${RESET}"
             if curl -L -o "$TMP_INSTALLER" "$INSTALLER_PATH"; then
-                chmod +x "$TMP_INSTALLER"
+                sudo chmod +x "$TMP_INSTALLER"
                 echo "${GREEN}Running installer...${RESET}"
-                bash "$TMP_INSTALLER"
+                sudo bash "$TMP_INSTALLER"
                 rm -f "$TMP_INSTALLER"
             else
                 zenity --error --title="Download Failed" --text="Failed to download installer script."
             fi
         else
             if [[ -f "$INSTALLER_PATH" && "$INSTALLER_PATH" == *.sh ]]; then
-                chmod +x "$INSTALLER_PATH"
+                sudo chmod +x "$INSTALLER_PATH"
                 echo "${GREEN}Running local installer...${RESET}"
-                bash "$INSTALLER_PATH"
+                sudo bash "$INSTALLER_PATH"
             else
                 zenity --error --title="Invalid File" --text="The specified file is not a valid .sh script."
             fi
