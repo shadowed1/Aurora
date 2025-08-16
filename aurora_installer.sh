@@ -69,8 +69,6 @@ export DBUS_SESSION_BUS_ADDRESS=$(cat "$XDG_RUNTIME_DIR/dbus-session.address")
 
 sudo mkdir -p "$XDG_RUNTIME_DIR/doc/portal"
 echo 3 > "$XDG_RUNTIME_DIR/doc/portal/version"
-sudo chmod +x "/usr/local/aurora/bin/aurora"
-sudo chmod +x "/usr/local/aurora/bin/starman"
 echo "${MAGENTA}"
 sudo curl -L https://raw.githubusercontent.com/shadowed1/Aurora/Aurora2/.flatpak.logic -o /usr/local/aurora/.flatpak.logic
 echo "${RESET}${BLUE}"
