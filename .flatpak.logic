@@ -48,8 +48,8 @@ flatpak --user update --appstream
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
 # <<< FLATPAK_LOGIC_LINE <<<
-if ! grep -q 'aurora() {' "/usr/local/aurora/.bashrc"; then
-cat << 'EOF' >> "/usr/local/aurora/.bashrc"
+if ! grep -q 'aurora() {' "/usr/local/aurora/.aurorabashrc"; then
+cat << 'EOF' >> "/usr/local/aurora/.aurorabashrc"
 # <<< FLATPAK_LOGIC_LINE <<<
 flatpak() {
   case "$1" in
@@ -93,7 +93,7 @@ flatpak --user list --columns=application,name | tail -n +1 | sort -u > "/usr/lo
 
 EOF
 echo ""
-echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Reinitializing .bashrc to enable --user shortcut"
+echo "${BOLD}${CYAN}Aurora has successfully finished setting up Flatpak! Reinitializing .aurorabashrc to enable --user shortcut"
 sleep 1
 echo "."
 sleep 1
@@ -101,7 +101,7 @@ echo ".${RESET}"
 echo ""
 ~/usr/bin/fastfetch
 echo ""
-source ~/.bashrc
+source ~/.aurorabashrc
 echo ""
 ~/bin/aurora help
 fi
