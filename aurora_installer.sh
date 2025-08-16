@@ -36,6 +36,8 @@ echo ""
 echo "${CYAN}${BOLD}About to start downloading Flatpak, Git, GCC, Python and their dependencies! Download can take up to 5 minutes.${RESET}"
 sleep 5
 
+sudo touch /usr/local/aurora/.aurorabashrc
+
 sed -i '/\.flatpak\.env/d' "/usr/local/aurora/.aurorabashrc"
 sed -i '/\.flatpak\.logic/d' "/usr/local/aurora/.aurorabashrc"
 
