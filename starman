@@ -203,7 +203,6 @@ fi
         if [[ -f "$PKGBUILD" || -f "$SRCINFO" ]]; then
             echo "${CYAN}starman found PKGBUILD or .SRCINFO. Attempting to parse...${RESET}"
     
-            # Prefer PKGBUILD for pkgname and pkgver
             if [[ -f "$PKGBUILD" ]]; then
                 source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
             else
@@ -220,8 +219,10 @@ fi
     
             src_line=""
             if [[ -f "$PKGBUILD" ]]; then
-                src_line=$(grep "^source_$arch=" "$PKGBUILD")
-                [[ -z "$src_line" ]] && src_line=$(grep "^source=" "$PKGBUILD")
+                # Try arch-specific first
+                src_line=$(grep -E "^source_${arch}=" "$PKGBUILD")
+                # fallback to generic source=
+                [[ -z "$src_line" ]] && src_line=$(grep -E "^source=" "$PKGBUILD")
             fi
             
             if [[ -z "$src_line" && -f "$SRCINFO" ]]; then
@@ -233,7 +234,6 @@ fi
                 return 1
             fi
             
-            # Extract array contents safely
             src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\((.*)\)/\1/' | tr -d '"'\''')
             read -ra src_entries <<< "$src_array"
             
