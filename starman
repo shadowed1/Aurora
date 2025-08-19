@@ -223,18 +223,20 @@ fi
                 src_line=$(grep "^source_$arch=" "$PKGBUILD")
                 [[ -z "$src_line" ]] && src_line=$(grep "^source=" "$PKGBUILD")
             fi
+            
             if [[ -z "$src_line" && -f "$SRCINFO" ]]; then
                 src_line=$(grep "^source" "$SRCINFO" | awk '{print $3}')
             fi
-    
+            
             if [[ -z "$src_line" ]]; then
                 echo "${RED}Could not find any source in PKGBUILD or .SRCINFO${RESET}"
                 return 1
             fi
-    
-            src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\((.*)\)/\1/' | tr -d '"\'')
+            
+            # Extract array contents safely
+            src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\((.*)\)/\1/' | tr -d '"'\''')
             read -ra src_entries <<< "$src_array"
-    
+            
             for entry in "${src_entries[@]}"; do
                 if [[ "$entry" == *::* ]]; then
                     url=${entry#*::}
