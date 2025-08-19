@@ -219,14 +219,15 @@ fi
     
             src_line=""
             if [[ -f "$PKGBUILD" ]]; then
-                # Try arch-specific first
-                src_line=$(grep -E "^source_${arch}=" "$PKGBUILD")
-                # fallback to generic source=
-                [[ -z "$src_line" ]] && src_line=$(grep -E "^source=" "$PKGBUILD")
+                # Trim leading spaces and try arch-specific source first
+                src_line=$(grep -E "^\s*source_${arch}=" "$PKGBUILD")
+                # Fallback to plain source=
+                [[ -z "$src_line" ]] && src_line=$(grep -E "^\s*source=" "$PKGBUILD")
             fi
             
+            # If still empty, try .SRCINFO
             if [[ -z "$src_line" && -f "$SRCINFO" ]]; then
-                src_line=$(grep "^source" "$SRCINFO" | awk '{print $3}')
+                src_line=$(grep -E "^\s*source" "$SRCINFO" | awk '{print $3}')
             fi
             
             if [[ -z "$src_line" ]]; then
@@ -234,10 +235,12 @@ fi
                 return 1
             fi
             
-            src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\((.*)\)/\1/' | tr -d '"'\''')
+            # Remove the array parentheses and quotes
+            src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\(\s*(.*)\s*\)/\1/' | tr -d '"'\''')
             read -ra src_entries <<< "$src_array"
             
             for entry in "${src_entries[@]}"; do
+                # Handle 'name::url' format
                 if [[ "$entry" == *::* ]]; then
                     url=${entry#*::}
                 else
