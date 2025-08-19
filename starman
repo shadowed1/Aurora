@@ -257,7 +257,7 @@ fi
                         rm -f "$extfile"
                         echo "${GREEN}starman extracted archive to $EXPORT_PATH/$pkgname${RESET}"
                     }
-                    break # Only need the first valid URL
+                    break
                 fi
             done
         fi
