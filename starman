@@ -191,33 +191,51 @@ fi
     fix_exec_permissions "$EXPORT_PATH/$pkg"
     fix_exec_permissions "$EXPORT_PATH/usr"
     fix_exec_permissions "$EXPORT_PATH/bin"
-
+    
     if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         local pkgdir="$EXPORT_PATH/$pkg"
         mkdir -p "$pkgdir"
         tar -xf "$FILE" -C "$pkgdir"
-
+    
         local PKGBUILD="$pkgdir/PKGBUILD"
-        if [[ -f "$PKGBUILD" ]]; then
-            echo "${CYAN}starman found PKGBUILD. Attempting to parse...${RESET}"
-            source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
+        local SRCINFO="$pkgdir/.SRCINFO"
+    
+        if [[ -f "$PKGBUILD" || -f "$SRCINFO" ]]; then
+            echo "${CYAN}starman found PKGBUILD or .SRCINFO. Attempting to parse...${RESET}"
+    
+            # Prefer PKGBUILD for pkgname and pkgver
+            if [[ -f "$PKGBUILD" ]]; then
+                source <(grep -E '^(pkgname|pkgver)=' "$PKGBUILD")
+            else
+                pkgname=$(grep -E '^pkgname\s*=' "$SRCINFO" | awk '{print $3}')
+                pkgver=$(grep -E '^pkgver\s*=' "$SRCINFO" | awk '{print $3}')
+            fi
+    
             ARCH=$(uname -m)
             case "$ARCH" in
                 x86_64) arch="x86_64" ;;
                 aarch64|arm64) arch="aarch64" ;;
                 *) arch="x86_64" ;;
             esac
-
-            src_line=$(grep "^source_$arch=" "$PKGBUILD")
+    
+            src_line=""
+            if [[ -f "$PKGBUILD" ]]; then
+                src_line=$(grep "^source_$arch=" "$PKGBUILD")
+                [[ -z "$src_line" ]] && src_line=$(grep "^source=" "$PKGBUILD")
+            fi
+            if [[ -z "$src_line" && -f "$SRCINFO" ]]; then
+                src_line=$(grep "^source" "$SRCINFO" | awk '{print $3}')
+            fi
+    
             if [[ -z "$src_line" ]]; then
-                echo "${RED}Could not find source_$arch in PKGBUILD${RESET}"
+                echo "${RED}Could not find any source in PKGBUILD or .SRCINFO${RESET}"
                 return 1
             fi
-
-            src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\((.*)\)/\1/')
-            for entry in $src_array; do
-                entry=${entry//\"/}
-                entry=${entry//\'/}
+    
+            src_array=$(echo "$src_line" | sed -E 's/^[^=]+=\((.*)\)/\1/' | tr -d '"\'')
+            read -ra src_entries <<< "$src_array"
+    
+            for entry in "${src_entries[@]}"; do
                 if [[ "$entry" == *::* ]]; then
                     url=${entry#*::}
                 else
@@ -244,6 +262,7 @@ fi
             done
         fi
     fi
+
 
     if [[ "$pkg" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
         add_executables_to_flatpak_env
