@@ -150,63 +150,43 @@ EOF
         echo "${CYAN}Shortcut saved to $DESKTOP_FILE${RESET}"
     done
 
-    # Native/extracted apps (ELF only, one shortcut per app folder)
     for NATIVE_BIN_DIR in "$HOME/opt/bin" "$HOME/opt"; do
         find "$NATIVE_BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
             folder_name=$(basename "$pkgdir")
             exe=""
 
-            candidate=$(find "$pkgdir" -type f -iname "$folder_name" -executable 2>/dev/null | head -n1)
-            if [[ -x "$candidate" ]]; then
-                exe="$candidate"
-            else
-                direct="$pkgdir/$folder_name"
-                [[ -x "$direct" ]] && exe="$direct"
-            fi
+            mapfile -t elf_executables < <(
+                find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null \
+                    | grep -vEi '\.(so|dll|bak|old|txt|md|ini|conf|json|yaml|sh|pl)$' \
+                    | while read -r file; do
+                        file "$file" | grep -q 'ELF .* executable' && echo "$file"
+                    done
+            )
+
+            helpers_regex='chrome-sandbox|chrome_crashpad_handler|xdg-mime|xdg-settings|resources\.pak|.*_pak$|v8_context_snapshot\.bin|lib.*\.so|MEIPreload|.*\.desktop'
+            exe=""
+
+            # Pick the first executable that matches folder name, then fallback to any ELF not blacklisted
+            for f in "${elf_executables[@]}"; do
+                basefile=$(basename "$f")
+                if [[ "${basefile,,}" =~ ${folder_name,,} ]] && ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
+                    exe="$f"
+                    break
+                fi
+            done
 
             if [[ -z "$exe" ]]; then
-               mapfile -t elf_executables < <(
-                    find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null \
-                        | grep -vEi '\.(so|dll|bak|old|txt|md|ini|conf|json|yaml|sh|py|pl)$' \
-                        | while read -r file; do
-                            file "$file" | grep -q 'ELF .* executable' && echo "$file"
-                        done
-                )
-                
-                # Sanity blacklist
-                helpers_regex='chrome-sandbox|chrome_crashpad_handler|xdg-mime|xdg-settings|resources\.pak|.*_pak$|v8_context_snapshot\.bin|lib.*\.so|MEIPreload|.*\.desktop'
-                
-                exe=""
-                
                 for f in "${elf_executables[@]}"; do
                     basefile=$(basename "$f")
-                    # Lowercase, ignore extensions
-                    if [[ "${basefile,,}" =~ ${folder_name,,} ]] && ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
+                    if ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
                         exe="$f"
                         break
                     fi
                 done
-                
-                if [[ -z "$exe" ]]; then
-                    for f in "${elf_executables[@]}"; do
-                        basefile=$(basename "$f")
-                        if ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
-                            exe="$f"
-                            break
-                        fi
-                    done
-                fi
-                
-                if [[ -z "$exe" && ${#elf_executables[@]} -gt 0 ]]; then
-                    exe=$(printf "%s\n" "${elf_executables[@]}" \
-                        | xargs -I{} stat -c "%s %n" {} 2>/dev/null \
-                        | sort -nr | head -n1 | cut -d' ' -f2-)
-                fi
-                
-                [[ -z "$exe" ]] && continue
             fi
 
-            [[ -z "$exe" || ! -x "$exe" ]] && continue
+            [[ -z "$exe" ]] && continue
+            [[ ! -x "$exe" ]] && continue
 
             base=$(basename "$exe")
             shortname="$(tr '[:lower:]' '[:upper:]' <<< ${base:0:1})${base:1}"
@@ -274,6 +254,7 @@ EOF
         done
     done
 }
+
 
 show_help() {
     echo "${MAGENTA}${BOLD}"
