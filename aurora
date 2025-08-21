@@ -154,7 +154,8 @@ EOF
         find "$NATIVE_BIN_DIR" -mindepth 1 -maxdepth 1 -type d | while read -r pkgdir; do
             folder_name=$(basename "$pkgdir")
             exe=""
-
+    
+            # Find all executable ELF files in the folder (maxdepth 1)
             mapfile -t elf_executables < <(
                 find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null \
                     | grep -vEi '\.(so|dll|bak|old|txt|md|ini|conf|json|yaml|sh|pl)$' \
@@ -162,28 +163,18 @@ EOF
                         file "$file" | grep -q 'ELF .* executable' && echo "$file"
                     done
             )
-
+    
             helpers_regex='chrome-sandbox|chrome_crashpad_handler|xdg-mime|xdg-settings|resources\.pak|.*_pak$|v8_context_snapshot\.bin|lib.*\.so|MEIPreload|.*\.desktop'
-            exe=""
-
+    
+            # Pick the first executable that is not blacklisted
             for f in "${elf_executables[@]}"; do
                 basefile=$(basename "$f")
-                if [[ "${basefile,,}" =~ ${folder_name,,} ]] && ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
+                if ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
                     exe="$f"
                     break
                 fi
             done
-
-            if [[ -z "$exe" ]]; then
-                for f in "${elf_executables[@]}"; do
-                    basefile=$(basename "$f")
-                    if ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
-                        exe="$f"
-                        break
-                    fi
-                done
-            fi
-
+    
             [[ -z "$exe" ]] && continue
             [[ ! -x "$exe" ]] && continue
 
