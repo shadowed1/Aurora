@@ -119,16 +119,17 @@ download_flatpak() {
     echo "${RESET}${CYAN}"
     echo "Extracting $archive to $target ..."
     echo ""
-    tar --use-compress-program=unzstd -xvf "$archive" -C "$target"
+    tar --use-compress-program=unzstd -xvpf "$archive" -C "$target"
 
     rm -f "$archive"
 
     echo "${RESET}${MAGENTA}"
     echo "Setting permissions..."
 
-    find "$target" -type d -name bin -exec chmod -R +x {}/* 2>/dev/null \;
-    find "$target" -type d -name lib -exec chmod -R 755 {}/* 2>/dev/null \;
-    find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} \;
+    find "$target" -type d -name bin -exec chmod -R +x {} + 2>/dev/null
+    find "$target" -type d -name lib -exec chmod -R 755 {} + 2>/dev/null
+    find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} + 2>/dev/null
+
     echo "${RESET}${BLUE}"
     echo "Extraction and permissions set for $(basename "$archive")."
     echo "${RESET}"
@@ -170,8 +171,8 @@ download_flatpakdeps() {
 
     echo "${RESET}${CYAN}"
     echo "Extracting $archive to $target ..."
-    tar --use-compress-program=unzstd -xvf "$archive" -C "$target"
     echo ""
+    tar --use-compress-program=unzstd -xvpf "$archive" -C "$target"
 
     rm -f "$archive"
 
@@ -179,9 +180,9 @@ download_flatpakdeps() {
     echo "Setting permissions..."
     echo ""
 
-    find "$target" -type d -name bin -exec chmod -R +x {}/* 2>/dev/null \;
-    find "$target" -type d -name lib -exec chmod -R 755 {}/* 2>/dev/null \;
-    find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} \;
+    find "$target" -type d -name bin -exec chmod -R +x {} + 2>/dev/null
+    find "$target" -type d -name lib -exec chmod -R 755 {} + 2>/dev/null
+    find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} + 2>/dev/null
 
     echo "${RESET}${BLUE}"
     echo "Extraction and permissions set for $(basename "$archive")."
@@ -238,7 +239,7 @@ download_core() {
     echo "${RESET}${CYAN}"
     echo "Extracting $archive to $target ..."
     echo ""
-    tar --use-compress-program=unzstd -xvf "$archive" -C "$target"
+    tar --use-compress-program=unzstd -xvpf "$archive" -C "$target"
 
     rm -f "$archive"
 
@@ -246,11 +247,9 @@ download_core() {
     echo "Setting permissions..."
     echo ""
 
-    find "$target" -type d -name bin -exec chmod -R +x {}/* 2>/dev/null \;
-
-    find "$target" -type d -name lib -exec chmod -R 755 {}/* 2>/dev/null \;
-
-    find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} \;
+    find "$target" -type d -name bin -exec chmod -R +x {} + 2>/dev/null
+    find "$target" -type d -name lib -exec chmod -R 755 {} + 2>/dev/null
+    find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} + 2>/dev/null
 
     echo "${RESET}${BLUE}"
     echo "Extraction and permissions set for $(basename "$archive")."
