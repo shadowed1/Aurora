@@ -90,34 +90,32 @@ download_and_extract()
 {
     local url="$1"
     local target_dir="$2"
-    local TMP_DIR="$HOME/opt/tmp"
-    local FILE SAFE_FILE
-
-    mkdir -p "$TMP_DIR" "$target_dir"
+    local FILE
 
     echo "${MAGENTA}"
     echo "Downloading: $url"
 
-    env -i PATH="$PATH" wget --content-disposition --trust-server-names -P "$TMP_DIR" "$url"
+    wget --content-disposition --trust-server-names -O "$HOME/$(basename "$url").pkg.tar.zst" "$url"
 
     echo "${RESET}${BLUE}"
 
-    FILE=$(ls -t "$TMP_DIR"/*.pkg.tar.zst 2>/dev/null | head -n 1)
+    FILE=$(ls -t "$HOME"/*.pkg.tar.zst 2>/dev/null | head -n 1)
 
-    SAFE_FILE="${FILE//:/}"
-    if [[ "$FILE" != "$SAFE_FILE" ]]; then
-        mv "$FILE" "$SAFE_FILE"
-        FILE="$SAFE_FILE"
+    if [[ -z "$FILE" || ! -f "$FILE" ]]; then
+        echo "Download failed: no package file found."
+        return 1
     fi
 
     echo "Extracting $(basename "$FILE") to $target_dir"
-    env -i PATH="$PATH" tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
+    mkdir -p "$target_dir"
+    tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
 
     rm -f "$FILE"
 
     chmod +x "$target_dir/usr/bin"/* 2>/dev/null
     chmod +x "$HOME/opt/usr/bin"/* 2>/dev/null
     chmod +x "$HOME/opt/usr/share"/* 2>/dev/null
+
     echo "${RESET}${CYAN}$(basename "$FILE") extracted.${RESET}"
 
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$HOME/opt/usr/lib:$LD_LIBRARY_PATH"
@@ -125,7 +123,6 @@ download_and_extract()
     sleep 1
 }
 
-}
 
 # Flatpak Core
 URL="https://archlinux.org/packages/extra/x86_64/flatpak/download"
