@@ -98,7 +98,6 @@ download_and_extract() {
 
     echo "${RESET}${BLUE}"
 
-    # Determine which file we got
     if [[ -f "$HOME/download" ]]; then
         FILE="$HOME/download"
     else
@@ -132,8 +131,6 @@ download_and_extract() {
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
     sleep 1
 }
-
-
 
 # Flatpak Core
 URL="https://archlinux.org/packages/extra/x86_64/flatpak/download"
