@@ -90,39 +90,41 @@ download_and_extract()
 {
     local url="$1"
     local target_dir="$2"
+    local TMP_DIR="$HOME/opt/tmp"
     local FILE SAFE_FILE
+
+    mkdir -p "$TMP_DIR" "$target_dir"
 
     echo "${MAGENTA}"
     echo "Downloading: $url"
 
-    env -i PATH="$PATH" wget --content-disposition --trust-server-names "$url"
+    env -i PATH="$PATH" wget --content-disposition --trust-server-names -P "$TMP_DIR" "$url"
 
     echo "${RESET}${BLUE}"
 
-    if [[ -f "download" ]]; then
-        FILE="download"
-    else
-        FILE=$(ls -t *.pkg.tar.zst 2>/dev/null | head -n 1)
-    fi
+    FILE=$(ls -t "$TMP_DIR"/*.pkg.tar.zst 2>/dev/null | head -n 1)
 
     SAFE_FILE="${FILE//:/}"
     if [[ "$FILE" != "$SAFE_FILE" ]]; then
         mv "$FILE" "$SAFE_FILE"
         FILE="$SAFE_FILE"
     fi
-    echo "Extracting $FILE to $target_dir"
 
+    echo "Extracting $(basename "$FILE") to $target_dir"
     env -i PATH="$PATH" tar --use-compress-program=unzstd -xvf "$FILE" -C "$target_dir"
 
     rm -f "$FILE"
+
     chmod +x "$target_dir/usr/bin"/* 2>/dev/null
     chmod +x "$HOME/opt/usr/bin"/* 2>/dev/null
     chmod +x "$HOME/opt/usr/share"/* 2>/dev/null
-    echo "${RESET}${CYAN}${FILE} extracted.${RESET}"
+    echo "${RESET}${CYAN}$(basename "$FILE") extracted.${RESET}"
 
     export LD_LIBRARY_PATH="$target_dir/usr/lib:$HOME/opt/usr/lib:$LD_LIBRARY_PATH"
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
     sleep 1
+}
+
 }
 
 # Flatpak Core
