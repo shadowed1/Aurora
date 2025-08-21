@@ -41,6 +41,10 @@ echo ""
 echo "${CYAN}${BOLD}About to start downloading Flatpak, Git, GCC, Python and their dependencies! Download can take up to 5 minutes.${RESET}"
 sleep 5
 
+mkdir -p ~/opt/flatpak
+mkdir -p ~/opt/flatpak-deps
+mkdir -p ~/opt/bin
+
 sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
 sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
 
