@@ -49,10 +49,6 @@ sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
 echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
 fi
 
- mkdir -p ~/opt/flatpak
- mkdir -p ~/opt/flatpak-deps
- mkdir -p ~/opt/bin
- 
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
@@ -114,10 +110,14 @@ download_flatpak() {
     tar --use-compress-program=unzstd -xvf "$archive" -C "$target"
 
     rm -f "$archive"
-    chmod +x "$target/usr/bin"/* 2>/dev/null
-    chmod +x "$target/usr/share"/* 2>/dev/null
 
-    echo "Extraction complete for $(basename "$archive")."
+    echo "Setting permissions..."
+
+    find "$target" -type d -name bin -exec chmod -R +x {}/* 2>/dev/null \;
+    find "$target" -type d -name lib -exec chmod -R 755 {}/* 2>/dev/null \;
+    find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} \;
+
+    echo "Extraction and permission fix complete for $(basename "$archive")."
     sleep 1
 }
 
@@ -129,9 +129,10 @@ download_flatpakdeps() {
     local url="$1"
     local target="$HOME/opt/flatpak-deps"
     local archive="$HOME/$(basename "$url")"
+
     mkdir -p "$target"
+
     echo "Downloading $url ..."
-   
     if command -v curl >/dev/null 2>&1; then
         curl -L --insecure -o "$archive" "$url" || true
     fi
@@ -153,12 +154,16 @@ download_flatpakdeps() {
 
     rm -f "$archive"
 
-    chmod +x "$target/usr/bin"/* 2>/dev/null
-    chmod +x "$target/usr/share"/* 2>/dev/null
+    echo "Setting permissions..."
 
-    echo "Extraction complete for $(basename "$archive")."
+    find "$target" -type d -name bin -exec chmod -R +x {}/* 2>/dev/null \;
+    find "$target" -type d -name lib -exec chmod -R 755 {}/* 2>/dev/null \;
+    find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} \;
+
+    echo "Extraction and permission fix complete for $(basename "$archive")."
     sleep 1
 }
+
 
 download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/ostree/download"
 download_flatpakdeps "https://archlinux.org/packages/core/x86_64/libxml2/download"
@@ -179,7 +184,6 @@ download_core() {
     local target="$HOME/opt"
     local archive="$HOME/$(basename "$url")"
 
-    # Ensure target directory exists
     mkdir -p "$target"
 
     echo "Downloading $url ..."
