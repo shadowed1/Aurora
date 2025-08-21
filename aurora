@@ -166,7 +166,6 @@ EOF
             helpers_regex='chrome-sandbox|chrome_crashpad_handler|xdg-mime|xdg-settings|resources\.pak|.*_pak$|v8_context_snapshot\.bin|lib.*\.so|MEIPreload|.*\.desktop'
             exe=""
 
-            # Pick the first executable that matches folder name, then fallback to any ELF not blacklisted
             for f in "${elf_executables[@]}"; do
                 basefile=$(basename "$f")
                 if [[ "${basefile,,}" =~ ${folder_name,,} ]] && ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
@@ -276,6 +275,7 @@ show_help() {
     echo "starman example:"
     echo "pacman https://archlinux.org/packages/extra/x86_64/libvlc/"
     echo "pacman vlc"
+    echo "curl -fsS https://dl.brave.com/install.sh | sh"
     echo "${RESET}"
     echo "${GREEN}flatpak list               # Show list of installed apps"
     echo "flatpak --help             # flatpak has a lot of commands!${RESET}"
