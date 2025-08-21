@@ -86,24 +86,34 @@ chmod +x ~/opt/bin/starman
 
 echo ""
 
-download_and_extract()
-{
+download_and_extract() {
     local url="$1"
     local target_dir="$2"
-    local FILE
+    local FILE SAFE_FILE
 
     echo "${MAGENTA}"
     echo "Downloading: $url"
 
-    wget --content-disposition --trust-server-names -O "$HOME/$(basename "$url").pkg.tar.zst" "$url"
+    wget --content-disposition --trust-server-names "$url"
 
     echo "${RESET}${BLUE}"
 
-    FILE=$(ls -t "$HOME"/*.pkg.tar.zst 2>/dev/null | head -n 1)
+    # Determine which file we got
+    if [[ -f "$HOME/download" ]]; then
+        FILE="$HOME/download"
+    else
+        FILE=$(ls -t "$HOME"/*.pkg.tar.zst 2>/dev/null | head -n 1)
+    fi
 
-    if [[ -z "$FILE" || ! -f "$FILE" ]]; then
-        echo "Download failed: no package file found."
+    if [[ -z "$FILE" || ! -s "$FILE" ]]; then
+        echo "Download failed: no package file found or file is empty."
         return 1
+    fi
+
+    SAFE_FILE="${FILE//:/}"
+    if [[ "$FILE" != "$SAFE_FILE" ]]; then
+        mv "$FILE" "$SAFE_FILE"
+        FILE="$SAFE_FILE"
     fi
 
     echo "Extracting $(basename "$FILE") to $target_dir"
@@ -122,6 +132,7 @@ download_and_extract()
     export FLATPAK_USER_DIR="$HOME/.local/share/flatpak"
     sleep 1
 }
+
 
 
 # Flatpak Core
