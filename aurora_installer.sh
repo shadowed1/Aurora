@@ -93,8 +93,9 @@ download_flatpak() {
     local archive="$HOME/$(basename "$url")"
 
     mkdir -p "$target"
-
+    echo "${RESET}${MAGENTA}"
     echo "Downloading $url ..."
+    echo ""
     if command -v curl >/dev/null 2>&1; then
         curl -L --insecure -o "$archive" "$url" || true
     fi
@@ -106,23 +107,31 @@ download_flatpak() {
     fi
 
     if [[ ! -s "$archive" ]]; then
+        echo "${RESET}${RED}"
         echo "Error: Failed to download $url"
+        echo "${RESET}"
         return 1
     fi
+    echo "${RESET}${BLUE}"
     echo "Download complete: $archive"
+    echo ""
 
+    echo "${RESET}${CYAN}"
     echo "Extracting $archive to $target ..."
+    echo ""
     tar --use-compress-program=unzstd -xvf "$archive" -C "$target"
 
     rm -f "$archive"
 
+    echo "${RESET}${MAGENTA}"
     echo "Setting permissions..."
 
     find "$target" -type d -name bin -exec chmod -R +x {}/* 2>/dev/null \;
     find "$target" -type d -name lib -exec chmod -R 755 {}/* 2>/dev/null \;
     find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} \;
-
-    echo "Extraction and permission fix complete for $(basename "$archive")."
+    echo "${RESET}${BLUE}"
+    echo "Extraction and permissions set for $(basename "$archive")."
+    echo "${RESET}"
     sleep 1
 }
 
@@ -136,8 +145,9 @@ download_flatpakdeps() {
     local archive="$HOME/$(basename "$url")"
 
     mkdir -p "$target"
-
+    echo "${RESET}${MAGENTA}"
     echo "Downloading $url ..."
+    echo ""
     if command -v curl >/dev/null 2>&1; then
         curl -L --insecure -o "$archive" "$url" || true
     fi
@@ -149,23 +159,33 @@ download_flatpakdeps() {
     fi
 
     if [[ ! -s "$archive" ]]; then
+        echo "${RESET}${RED}"
         echo "Error: Failed to download $url"
+        echo "${RESET}"
         return 1
     fi
+    echo "${RESET}${BLUE}"
     echo "Download complete: $archive"
+    echo ""
 
+    echo "${RESET}${CYAN}"
     echo "Extracting $archive to $target ..."
     tar --use-compress-program=unzstd -xvf "$archive" -C "$target"
+    echo ""
 
     rm -f "$archive"
 
+    echo "${RESET}${MAGENTA}"
     echo "Setting permissions..."
+    echo ""
 
     find "$target" -type d -name bin -exec chmod -R +x {}/* 2>/dev/null \;
     find "$target" -type d -name lib -exec chmod -R 755 {}/* 2>/dev/null \;
     find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} \;
 
-    echo "Extraction and permission fix complete for $(basename "$archive")."
+    echo "${RESET}${BLUE}"
+    echo "Extraction and permissions set for $(basename "$archive")."
+    echo ""
     sleep 1
 }
 
@@ -191,7 +211,9 @@ download_core() {
 
     mkdir -p "$target"
 
+    echo "${RESET}${MAGENTA}"
     echo "Downloading $url ..."
+    echo ""
     if command -v curl >/dev/null 2>&1; then
         curl -L --insecure -o "$archive" "$url" || true
     fi
@@ -203,17 +225,26 @@ download_core() {
     fi
 
     if [[ ! -s "$archive" ]]; then
+        echo "${RESET}${RED}"
         echo "Error: Failed to download $url"
+        echo "${RESET}"
         return 1
     fi
-    echo "Download complete: $archive"
 
+    echo "${RESET}${BLUE}"
+    echo "Download complete: $archive"
+    echo ""
+
+    echo "${RESET}${CYAN}"
     echo "Extracting $archive to $target ..."
+    echo ""
     tar --use-compress-program=unzstd -xvf "$archive" -C "$target"
 
     rm -f "$archive"
 
+    echo "${RESET}${MAGENTA}"
     echo "Setting permissions..."
+    echo ""
 
     find "$target" -type d -name bin -exec chmod -R +x {}/* 2>/dev/null \;
 
@@ -221,7 +252,9 @@ download_core() {
 
     find "$target" -type f ! -path "*/bin/*" ! -path "*/lib/*" -exec chmod 644 {} \;
 
-    echo "Extraction and permission fix complete for $(basename "$archive")."
+    echo "${RESET}${BLUE}"
+    echo "Extraction and permissions set for $(basename "$archive")."
+    echo ""
     sleep 1
 }
 
