@@ -155,7 +155,6 @@ EOF
             folder_name=$(basename "$pkgdir")
             exe=""
     
-            # Find all executable ELF files in the folder (maxdepth 1)
             mapfile -t elf_executables < <(
                 find "$pkgdir" -maxdepth 1 -type f -executable 2>/dev/null \
                     | grep -vEi '\.(so|dll|bak|old|txt|md|ini|conf|json|yaml|sh|pl)$' \
@@ -166,7 +165,6 @@ EOF
     
             helpers_regex='chrome-sandbox|chrome_crashpad_handler|xdg-mime|xdg-settings|resources\.pak|.*_pak$|v8_context_snapshot\.bin|lib.*\.so|MEIPreload|.*\.desktop'
     
-            # Pick the first executable that is not blacklisted
             for f in "${elf_executables[@]}"; do
                 basefile=$(basename "$f")
                 if ! [[ "${basefile,,}" =~ $helpers_regex ]]; then
