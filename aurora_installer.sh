@@ -38,7 +38,7 @@ case "$choice" in
         ;;
     1)
 echo ""
-echo "${CYAN}${BOLD}About to start downloading Flatpak, Git, GCC, Python and their dependencies! Download can take up to 5 minutes.${RESET}"
+echo "${CYAN}${BOLD}About to start downloading Flatpak, Git, GCC, Python and their dependencies! Download can take up to 10 minutes.${RESET}"
 sleep 5
 
 mkdir -p ~/opt/flatpak
