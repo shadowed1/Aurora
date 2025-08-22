@@ -47,6 +47,22 @@ flatpak --user update --appstream
 
 echo "${RESET}${CYAN}Flatpak ready!${RESET}"
 
+# --- Denny's Borealis countdown ---
+BorealisDaysLeft() {
+    local now target days
+    now=$(date +%s)
+    target=$(date +%s -d "2026-01-01")
+    days=$(( (target - now) / 86400 ))
+    if (( days < 0 )); then
+        echo "${RED}Borealis and Aurora have officially ended!${RESET}"
+    else
+        echo "${YELLOW}Days until Borealis dies and, unfortunately, Aurora along with it: $days${RESET}"
+    fi
+}
+
+BorealisDaysLeft
+# --- end countdown ---
+
 # <<< FLATPAK_LOGIC_LINE <<<
 if ! grep -q 'aurora() {' "$HOME/.bashrc"; then
 cat << 'EOF' >> "$HOME/.bashrc"
