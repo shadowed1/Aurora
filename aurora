@@ -51,9 +51,7 @@ EOF
             eval "$exports"
         else
             echo "$exports"
-            echo "${BLUE}Run:"
-            echo "source $0 display $scale"
-            echo "to apply immediately or open new vsh borealis shell.${RESET}"
+            echo "${YELLOW}Run 'source $0 display $scale' to apply immediately or open new vsh borealis shell.${RESET}" >&2
         fi
 
         echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
@@ -78,9 +76,7 @@ set_cursor_scaling() {
         export XCURSOR_SIZE=$CURSOR_SIZE
     else
         echo "export XCURSOR_SIZE=$CURSOR_SIZE"
-        echo "${BLUE}Run:"
-        echo "source $0 cursor $CURSOR_SIZE"
-        echo "to apply immediately or open a new vsh borealis shell.${RESET}"
+        echo "${YELLOW}Run 'source $0 cursor $CURSOR_SIZE' to apply immediately.${RESET}" >&2
     fi
 
     echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
@@ -475,7 +471,7 @@ reinstall)
                 echo ""
                 mkdir -p ~/opt/bin
                 
-                echo "${MAGENTA}"
+               echo "${MAGENTA}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
                 echo "${RESET}${BLUE}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
