@@ -12,32 +12,26 @@ CURSOR_SIZE=""
 ICON_SIZE=256
 ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
 
+
+
 if [ -f "$HOME/opt/.flatpak.env" ]; then
     . "$HOME/opt/.flatpak.env"
 fi
 
-# --- Defaults ---
 : "${AURORA_SCALE:=1.25}"
 : "${XCURSOR_SIZE:=32}"
 
-# --- Display scaling ---
 set_display_scaling() {
     local input="$1"
 
     if [[ "$input" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
         local scale=$(printf "%.2f" "$input")
-
-        if (( $(awk "BEGIN {print ($scale < 0.25)}") )); then
-            echo "${YELLOW}Warning: DISPLAY_SCALING below 0.25, resetting to 1.0${RESET}" >&2
-            scale=1.0
-        elif (( $(awk "BEGIN {print ($scale > 4.0)}") )); then
-            echo "${YELLOW}Warning: DISPLAY_SCALING above 4.0, resetting to 4.0${RESET}" >&2
-            scale=4.0
-        fi
+        (( $(awk "BEGIN {print ($scale < 0.25)}") )) && scale=1.0
+        (( $(awk "BEGIN {print ($scale > 4.0)}") )) && scale=4.0
 
         AURORA_SCALE="$scale"
 
-        cat <<EOF
+        local exports=$(cat <<EOF
 export AURORA_SCALE=$AURORA_SCALE
 export GDK_SCALE=$AURORA_SCALE
 export GDK_DPI_SCALE=1
@@ -46,6 +40,13 @@ export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$AURORA_SCALE
 export _JAVA_OPTIONS=-Dsun.java2d.uiScale=$AURORA_SCALE
 EOF
+)
+        # Apply exports to current shell if sourced
+        if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+            eval "$exports"
+        else
+            echo "$exports"
+        fi
 
         echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
     else
@@ -54,23 +55,23 @@ EOF
     fi
 }
 
-# --- Cursor scaling ---
 set_cursor_scaling() {
-    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+    local input="$1"
+    if ! [[ "$input" =~ ^[0-9]+$ ]]; then
         echo "${RED}Error: Cursor size must be an integer.${RESET}" >&2
         return 1
     fi
 
-    CURSOR_SIZE=$1
-    if (( CURSOR_SIZE < 8 )); then
-        echo "${YELLOW}Warning: Cursor size below 8, resetting to 8.${RESET}" >&2
-        CURSOR_SIZE=8
-    elif (( CURSOR_SIZE > 200 )); then
-        echo "${YELLOW}Warning: Cursor size above 200, resetting to 200.${RESET}" >&2
-        CURSOR_SIZE=200
+    CURSOR_SIZE=$input
+    (( CURSOR_SIZE < 8 )) && CURSOR_SIZE=8
+    (( CURSOR_SIZE > 200 )) && CURSOR_SIZE=200
+
+    if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+        export XCURSOR_SIZE=$CURSOR_SIZE
+    else
+        echo "export XCURSOR_SIZE=$CURSOR_SIZE"
     fi
 
-    export XCURSOR_SIZE=$CURSOR_SIZE
     echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
 }
 
@@ -374,11 +375,10 @@ aurora_uninstall() {
 
 
 case "$1" in
-   display)
+    display)
         if [[ -z "$2" ]]; then
             echo "Current display scaling: $AURORA_SCALE"
         else
-            # Print commands to update parent shell
             set_display_scaling "$2"
         fi
         ;;
