@@ -380,7 +380,7 @@ case "$1" in
             echo "${GREEN}Current display scaling: $AURORA_SCALE ${RESET}"
             echo
         else
-            apply_display_scaling "$2"
+            set_display_scaling "$2"
         fi
         ;;
     cursor)
@@ -389,7 +389,7 @@ case "$1" in
             echo "${GREEN}Current cursor size: $XCURSOR_SIZE ${RESET}"
             echo
         else
-            apply_cursor_scaling "$2"
+            set_cursor_scaling "$2"
         fi
         ;;
     --h|-h|h|--help|-help|help)
