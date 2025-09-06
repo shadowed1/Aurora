@@ -1,31 +1,11 @@
-#!/bin/bash
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
-MAGENTA=$(tput setaf 5)
-CYAN=$(tput setaf 6)
-BOLD=$(tput bold)
-RESET=$(tput sgr0)
-DISPLAY_SCALING=""
-CURSOR_SIZE=""
-ICON_SIZE=256
-ICON_OUTPUT_BASE="$HOME/.local/share/icons/hicolor"
+update_env_file() {
+    local var="$1"
+    local value="$2"
+    local env_file="$HOME/opt/.flatpak.env"
 
-
-
-if [ -f "$HOME/opt/.flatpak.env" ]; then
-    . "$HOME/opt/.flatpak.env"
-fi
-
-: "${AURORA_SCALE:=1.25}"
-: "${XCURSOR_SIZE:=32}"
-
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
-    SOURCED=true
-else
-    SOURCED=false
-fi
+    sed -i "/^export $var=/d" "$env_file"
+    echo "export $var=$value" >> "$env_file"
+}
 
 set_display_scaling() {
     local input="$1"
@@ -36,25 +16,22 @@ set_display_scaling() {
         (( $(awk "BEGIN {print ($scale > 4.0)}") )) && scale=4.0
 
         AURORA_SCALE="$scale"
+        GDK_SCALE="$scale"
+        QT_SCALE_FACTOR="$scale"
+        ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$scale"
+        _JAVA_OPTIONS="-Dsun.java2d.uiScale=$scale"
 
-        local exports=$(cat <<EOF
-export AURORA_SCALE=$AURORA_SCALE
-export GDK_SCALE=$AURORA_SCALE
-export GDK_DPI_SCALE=1
-export QT_SCALE_FACTOR=$AURORA_SCALE
-export QT_AUTO_SCREEN_SCALE_FACTOR=1
-export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$AURORA_SCALE
-export _JAVA_OPTIONS=-Dsun.java2d.uiScale=$AURORA_SCALE
-EOF
-)
-        if $SOURCED; then
-            eval "$exports"
-        else
-            echo "$exports"
-            echo "${YELLOW}Run 'source $0 display $scale' to apply immediately or open new vsh borealis shell.${RESET}" >&2
-        fi
+        export AURORA_SCALE GDK_SCALE GDK_DPI_SCALE=1 QT_SCALE_FACTOR \
+               QT_AUTO_SCREEN_SCALE_FACTOR=1 ELECTRON_FORCE_DEVICE_SCALE_FACTOR _JAVA_OPTIONS
 
-        echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
+        update_env_file "AURORA_SCALE" "$AURORA_SCALE"
+        update_env_file "GDK_SCALE" "$GDK_SCALE"
+        update_env_file "QT_SCALE_FACTOR" "$QT_SCALE_FACTOR"
+        update_env_file "QT_AUTO_SCREEN_SCALE_FACTOR" "1"
+        update_env_file "ELECTRON_FORCE_DEVICE_SCALE_FACTOR" "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR"
+        update_env_file "_JAVA_OPTIONS" "$_JAVA_OPTIONS"
+
+        echo "${GREEN}Display scaling set to $AURORA_SCALE and saved to future shells.${RESET}" >&2
     else
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0${RESET}" >&2
         return 1
@@ -72,24 +49,12 @@ set_cursor_scaling() {
     (( CURSOR_SIZE < 8 )) && CURSOR_SIZE=8
     (( CURSOR_SIZE > 200 )) && CURSOR_SIZE=200
 
-    if $SOURCED; then
-        export XCURSOR_SIZE=$CURSOR_SIZE
-    else
-        echo "export XCURSOR_SIZE=$CURSOR_SIZE"
-        echo "${YELLOW}Run 'source $0 cursor $CURSOR_SIZE' to apply immediately.${RESET}" >&2
-    fi
+    export XCURSOR_SIZE=$CURSOR_SIZE
 
-    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
+    update_env_file "XCURSOR_SIZE" "$CURSOR_SIZE"
+
+    echo "${GREEN}Cursor size set to $CURSOR_SIZE and saved to future shells.${RESET}" >&2
 }
-
-apply_display_scaling() {
-    set_display_scaling "$1"
-}
-
-apply_cursor_scaling() {
-    set_cursor_scaling "$1"
-}
-
 
 shortcut() {
     if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
@@ -471,7 +436,7 @@ reinstall)
                 echo ""
                 mkdir -p ~/opt/bin
                 
-               echo "${MAGENTA}"
+                echo "${MAGENTA}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/.flatpak.logic -o ~/opt/.flatpak.logic
                 echo "${RESET}${BLUE}"
                 curl -L https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora -o ~/opt/bin/aurora
