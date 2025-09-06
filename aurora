@@ -49,7 +49,7 @@ set_display_scaling() {
         update_env_file "ELECTRON_FORCE_DEVICE_SCALE_FACTOR" "$ELECTRON_FORCE_DEVICE_SCALE_FACTOR"
         update_env_file "_JAVA_OPTIONS" "$_JAVA_OPTIONS"
 
-        echo "${GREEN}Display scaling set to $AURORA_SCALE and saved to future shells.${RESET}" >&2
+        echo "${GREEN}Display scaling set to $AURORA_SCALE .${RESET}" >&2
     else
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0${RESET}" >&2
         return 1
@@ -71,7 +71,7 @@ set_cursor_scaling() {
 
     update_env_file "XCURSOR_SIZE" "$CURSOR_SIZE"
 
-    echo "${GREEN}Cursor size set to $CURSOR_SIZE and saved to future shells.${RESET}" >&2
+    echo "${GREEN}Cursor size set to $CURSOR_SIZE ${RESET}" >&2
 }
 
 shortcut() {
