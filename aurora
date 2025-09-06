@@ -55,8 +55,6 @@ set_display_scaling() {
 : "${XCURSOR_SIZE:=32}"
 
 apply_scaling
-set_cursor_scaling "$XCURSOR_SIZE"
-
 
 set_cursor_scaling() {
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then
@@ -78,6 +76,7 @@ set_cursor_scaling() {
     echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
 }
 
+set_cursor_scaling "$XCURSOR_SIZE"
 
 
 shortcut() {
