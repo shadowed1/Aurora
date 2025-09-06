@@ -431,7 +431,7 @@ case "$1" in
         echo "${MAGENTA}XCURSOR_SIZE = $XCURSOR_SIZE${RESET}" || \
         echo "${BLUE}XCURSOR_SIZE remains default.${RESET}"
     ;;
-      reinstall)
+reinstall)
         echo ""
         echo "${MAGENTA}${BOLD}Aurora Reinstall:${RESET}"
         echo ""
@@ -488,7 +488,7 @@ case "$1" in
             2)
                 echo ""
                 echo "${YELLOW}Launching full reinstall...${RESET}"
-                bash <(curl -s "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+                bash <(curl -Ls -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
                 ;;
             *)
                 echo "${RED}Invalid choice. Please enter 0, 1, or 2.${RESET}"
