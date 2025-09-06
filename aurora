@@ -48,6 +48,25 @@ set_display_scaling() {
 : "${AURORA_SCALE:=1.25}"
 : "${XCURSOR_SIZE:=32}"
 
+set_cursor_scaling() {
+    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+        echo "${RED}Error: Cursor size must be an integer.${RESET}" >&2
+        return 1
+    fi
+
+    CURSOR_SIZE=$1
+
+    if (( CURSOR_SIZE < 8 )); then
+        echo "${YELLOW}Warning: Cursor size below 8, resetting to 8.${RESET}" >&2
+        CURSOR_SIZE=8
+    elif (( CURSOR_SIZE > 200 )); then
+        echo "${YELLOW}Warning: Cursor size above 200, resetting to 200.${RESET}" >&2
+        CURSOR_SIZE=200
+    fi
+
+echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
+export XCURSOR_SIZE=$CURSOR_SIZE
+
 export GDK_SCALE="$AURORA_SCALE"
 export GDK_DPI_SCALE=1
 
@@ -57,7 +76,6 @@ export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$AURORA_SCALE"
 export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
 
-export XCURSOR_SIZE
 
 
 shortcut() {
