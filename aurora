@@ -31,12 +31,12 @@ set_display_scaling() {
         fi
 
         export AURORA_SCALE="$scale"
-        export GDK_SCALE="$AURORA_SCALE"
+        export GDK_SCALE="$scale"
         export GDK_DPI_SCALE=1
-        export QT_SCALE_FACTOR="$AURORA_SCALE"
+        export QT_SCALE_FACTOR="$scale"
         export QT_AUTO_SCREEN_SCALE_FACTOR=1
-        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$AURORA_SCALE"
-        export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
+        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$scale"
+        export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$scale"
 
         echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
     else
