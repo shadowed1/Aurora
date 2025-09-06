@@ -1,3 +1,4 @@
+
 #!/bin/bash
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
@@ -16,6 +17,17 @@ if [ -f "$HOME/opt/.flatpak.env" ]; then
     . "$HOME/opt/.flatpak.env"
 fi
 
+apply_scaling() {
+    export GDK_SCALE="$AURORA_SCALE"
+    export GDK_DPI_SCALE=1
+
+    export QT_SCALE_FACTOR="$AURORA_SCALE"
+    export QT_AUTO_SCREEN_SCALE_FACTOR=1
+
+    export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$AURORA_SCALE"
+    export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$AURORA_SCALE"
+}
+
 set_display_scaling() {
     local input="$1"
 
@@ -31,13 +43,7 @@ set_display_scaling() {
         fi
 
         export AURORA_SCALE="$scale"
-        export GDK_SCALE="$scale"
-        export GDK_DPI_SCALE=1
-        export QT_SCALE_FACTOR="$scale"
-        export QT_AUTO_SCREEN_SCALE_FACTOR=1
-        export ELECTRON_FORCE_DEVICE_SCALE_FACTOR="$scale"
-        export _JAVA_OPTIONS="-Dsun.java2d.uiScale=$scale"
-
+        apply_scaling
         echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
     else
         echo "${RED}Error: DISPLAY_SCALING must be a number between 0.25 and 4.0 (e.g., 1, 1.5, 2.25)${RESET}" >&2
@@ -47,6 +53,10 @@ set_display_scaling() {
 
 : "${AURORA_SCALE:=1.25}"
 : "${XCURSOR_SIZE:=32}"
+
+apply_scaling
+set_cursor_scaling "$XCURSOR_SIZE"
+
 
 set_cursor_scaling() {
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then
@@ -64,8 +74,8 @@ set_cursor_scaling() {
         CURSOR_SIZE=200
     fi
 
-echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
-export XCURSOR_SIZE=$CURSOR_SIZE
+    export XCURSOR_SIZE=$CURSOR_SIZE
+    echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
 }
 
 
@@ -370,8 +380,12 @@ aurora_uninstall() {
 
 
 case "$1" in
-    display)
-        set_display_scaling "$2"
+   display)
+        if [[ -z "$2" ]]; then
+            echo "Current display scaling: $AURORA_SCALE"
+        else
+            set_display_scaling "$2"
+        fi
         ;;
     cursor)
         set_cursor_scaling "$2"
