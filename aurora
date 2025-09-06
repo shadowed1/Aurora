@@ -21,6 +21,12 @@ fi
 : "${AURORA_SCALE:=1.25}"
 : "${XCURSOR_SIZE:=32}"
 
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    SOURCED=true
+else
+    SOURCED=false
+fi
+
 set_display_scaling() {
     local input="$1"
 
@@ -41,11 +47,11 @@ export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=$AURORA_SCALE
 export _JAVA_OPTIONS=-Dsun.java2d.uiScale=$AURORA_SCALE
 EOF
 )
-        # Apply exports to current shell if sourced
-        if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+        if $SOURCED; then
             eval "$exports"
         else
             echo "$exports"
+            echo "${YELLOW}Run 'source $0 display $scale' to apply immediately.${RESET}" >&2
         fi
 
         echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
@@ -66,14 +72,24 @@ set_cursor_scaling() {
     (( CURSOR_SIZE < 8 )) && CURSOR_SIZE=8
     (( CURSOR_SIZE > 200 )) && CURSOR_SIZE=200
 
-    if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    if $SOURCED; then
         export XCURSOR_SIZE=$CURSOR_SIZE
     else
         echo "export XCURSOR_SIZE=$CURSOR_SIZE"
+        echo "${YELLOW}Run 'source $0 cursor $CURSOR_SIZE' to apply immediately.${RESET}" >&2
     fi
 
     echo "${GREEN}Cursor size set to $CURSOR_SIZE${RESET}" >&2
 }
+
+apply_display_scaling() {
+    set_display_scaling "$1"
+}
+
+apply_cursor_scaling() {
+    set_cursor_scaling "$1"
+}
+
 
 shortcut() {
     if ! flatpak --user info org.inkscape.Inkscape &>/dev/null; then
@@ -379,14 +395,14 @@ case "$1" in
         if [[ -z "$2" ]]; then
             echo "Current display scaling: $AURORA_SCALE"
         else
-            set_display_scaling "$2"
+            apply_display_scaling "$2"
         fi
         ;;
     cursor)
         if [[ -z "$2" ]]; then
             echo "Current cursor size: $XCURSOR_SIZE"
         else
-            set_cursor_scaling "$2"
+            apply_cursor_scaling "$2"
         fi
         ;;
     --h|-h|h|--help|-help|help)
