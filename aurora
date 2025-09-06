@@ -450,7 +450,7 @@ case "$1" in
                     echo "${GREEN}Downloading $file...${RESET}"
                     (
                       LD_LIBRARY_PATH=""
-                      curl -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/$file" -o "$HOME/opt/$file"
+                      curl -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/$file" -o "$HOME/opt/bin/$file"
                     )
                     sleep 1
                 done
