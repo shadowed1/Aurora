@@ -51,7 +51,7 @@ EOF
             eval "$exports"
         else
             echo "$exports"
-            echo "${YELLOW}Run 'source $0 display $scale' to apply immediately.${RESET}" >&2
+            echo "${YELLOW}Run 'source $0 display $scale' to apply immediately or open new vsh borealis shell.${RESET}" >&2
         fi
 
         echo "${GREEN}Display scaling set to $AURORA_SCALE${RESET}" >&2
