@@ -393,14 +393,14 @@ aurora_uninstall() {
 case "$1" in
     display)
         if [[ -z "$2" ]]; then
-            echo "Current display scaling: $AURORA_SCALE"
+            echo "${GREEN}Current display scaling: $AURORA_SCALE ${RESET}"
         else
             apply_display_scaling "$2"
         fi
         ;;
     cursor)
         if [[ -z "$2" ]]; then
-            echo "Current cursor size: $XCURSOR_SIZE"
+            echo "${GREEN}Current cursor size: $XCURSOR_SIZE ${RESET}"
         else
             apply_cursor_scaling "$2"
         fi
