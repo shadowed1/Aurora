@@ -202,6 +202,7 @@ download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-dbus-proxy
 download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal/download"
 download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal-gtk/download"
 download_flatpakdeps "https://archlinux.org/packages/extra/any/node-gyp/download"
+download_flatpakdeps "https://archlinux.org/packages/core/x86_64/glib2/download"
 
 sleep 1
 
