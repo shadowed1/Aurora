@@ -161,7 +161,7 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 0.09: `Fixed segfault issue on fresh install/reinstall. Improved shortcut fallback logic support. Significantly improved starman's ability to read PKGBUILD's for convenient downloading. Added /tmp/ folder support for cleaning up extracting packages. Fixed various syntax errors.` <br><br>
 0.10: `Updated installer to be compatible with archlinux servers under a perpetual DDOS attack` <br><br>
 0.11: `Fixed aurora cursor command, fixed reinstall command, introduced source syntax to make it clear how to update in-shell.` <br><br>
-0.12: `Fixed libostree error affecting some Borealis users. Removed leftover.bashrc entries on reinstall/uninstall.` 
+0.12: `Fixed libostree error affecting some Borealis users. Removed leftover.bashrc entries on reinstall/uninstall.` <br> <br>
 To do list: Convince Google that Steam should remain supported. 
 
 <br>
