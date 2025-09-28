@@ -44,9 +44,18 @@ sleep 5
 mkdir -p ~/opt/flatpak
 mkdir -p ~/opt/flatpak-deps
 mkdir -p ~/opt/bin
-
-sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
-sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
+sed -i.bak -e '/# <<< FLATPAK_LOGIC_LINE <<</,/^}$/d' \
+           -e '/aurora()/,/^}$/d' \
+           -e '/flatpak --user list --columns=application,name/d' \
+           -e '/\[ -f "\$HOME\/opt\/\.flatpak\.logic" \] && \. "\$HOME\/opt\/\.flatpak\.logic"/d' \
+           -e '/\[\[ -L "\$BIN_DIR\/npm"/d' \
+           -e '/\[\[ -L "\$BIN_DIR\/npx"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/yay"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/paru"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/pacaur"/d' \
+           -e '/^yay()/,/^}$/d' \
+           -e '/^paru()/,/^}$/d' \
+    ~/.bashrc
 
 if grep -q "# Flatpak --user logic" "$HOME/.bashrc"; then
 sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
