@@ -336,6 +336,19 @@ aurora_uninstall() {
                 echo "${YELLOW}$HOME/opt/starman not found.${RESET}"
             fi
             echo "${CYAN}Aurora and Starman binaries removed; Flatpak apps and data retained.${RESET}"
+            sed -i.bak -e '/# <<< FLATPAK_LOGIC_LINE <<</,/^}$/d' \
+           -e '/aurora()/,/^}$/d' \
+           -e '/flatpak --user list --columns=application,name/d' \
+           -e '/\[ -f "\$HOME\/opt\/\.flatpak\.logic" \] && \. "\$HOME\/opt\/\.flatpak\.logic"/d' \
+           -e '/\[\[ -L "\$BIN_DIR\/npm"/d' \
+           -e '/\[\[ -L "\$BIN_DIR\/npx"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/yay"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/paru"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/pacaur"/d' \
+           -e '/^yay()/,/^}$/d' \
+           -e '/^paru()/,/^}$/d' \
+            ~/.bashrc
+
             ;;
         2)
             echo "${MAGENTA}${BOLD}Full uninstall: Removing ~/opt, ~/.local/share/flatpak, ~/.bashrc Aurora entries, and ~/.xdg-runtime-dir${RESET}"
@@ -350,9 +363,20 @@ aurora_uninstall() {
                 sed -i '/# >>> Aurora Flatpak Setup >>>/,/# <<< Aurora Flatpak Setup <<</d' "$HOME/.bashrc"
                 echo "${CYAN}Removed Aurora Flatpak setup block from ~/.bashrc${RESET}"
             fi
+            
+            sed -i.bak -e '/# <<< FLATPAK_LOGIC_LINE <<</,/^}$/d' \
+           -e '/aurora()/,/^}$/d' \
+           -e '/flatpak --user list --columns=application,name/d' \
+           -e '/\[ -f "\$HOME\/opt\/\.flatpak\.logic" \] && \. "\$HOME\/opt\/\.flatpak\.logic"/d' \
+           -e '/\[\[ -L "\$BIN_DIR\/npm"/d' \
+           -e '/\[\[ -L "\$BIN_DIR\/npx"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/yay"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/paru"/d' \
+           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/pacaur"/d' \
+           -e '/^yay()/,/^}$/d' \
+           -e '/^paru()/,/^}$/d' \
+            ~/.bashrc
 
-            sed -i '/\.flatpak\.env/d' "$HOME/.bashrc"
-            sed -i '/\.flatpak\.logic/d' "$HOME/.bashrc"
 
             for DIR in "$HOME/opt" "$HOME/.local/share/flatpak" "$HOME/.xdg-runtime-dir"; do
                 if [ -e "$DIR" ]; then
