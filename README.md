@@ -109,6 +109,12 @@ Use ls /app/bin to help find the app in these situations.
 - Some apps will not run the conventional way. Brave or Visual Studio are good examples.<br>
 - Both Brave and Visual Studio run significantly easier without Flatpak by downloading them straight from their websites!
 
+  ### Appimages
+  Appimages are not supported due to fuse mount issues. To bypass, run the .AppImage like this:
+  `~/opt/usr/src/Brave-Web-Browser-stable-1.82.172-x86_64.AppImage --appimage-extract-and-run 2>/dev/null`
+  Thanks to DennyL for finding this.
+
+
 When running VS:
   
 `flatpak run --command=sh com.visualstudio.code` <br>
