@@ -6,7 +6,7 @@
 ## *Run apps in Borealis using emulated AUR helpers, Flatpak, Git, Python, and GCC for signficantly higher performance than Crostini!*
 
 **With Steam support ending in 2026, a new project is here!** <br> <br>
-Run apps and games *natively* in ChromeOS with GUI, audio, and full GPU acceleration: <pre>https://github.com/shadowed1/chard</pre>
+Run apps and games *natively* in ChromeOS with GUI, audio, and full GPU acceleration: <pre>https://github.com/shadowed1/chard</pre> <br>
 
 
 ### Requirements: 
