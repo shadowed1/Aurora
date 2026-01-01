@@ -167,6 +167,7 @@ Added uninstall and reinstall commands. Thanks to Saragon for the suggestions an
 0.10: `Updated installer to be compatible with archlinux servers under a perpetual DDOS attack` <br><br>
 0.11: `Fixed aurora cursor command, fixed reinstall command, introduced source syntax to make it clear how to update in-shell.` <br><br>
 0.12: `Fixed libostree error affecting some Borealis users. Removed leftover.bashrc entries on reinstall/uninstall.` <br> <br>
+0.13: `Fixed libpcre2 error.` <br><br>
 To do list: Convince Google that Steam should remain supported. 
 
 <br>
