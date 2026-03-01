@@ -44,23 +44,49 @@ sleep 5
 mkdir -p ~/opt/flatpak
 mkdir -p ~/opt/flatpak-deps
 mkdir -p ~/opt/bin
-sed -i.bak -e '/# <<< FLATPAK_LOGIC_LINE <<</,/^}$/d' \
-           -e '/aurora()/,/^}$/d' \
-           -e '/flatpak --user list --columns=application,name/d' \
-           -e '/\[ -f "\$HOME\/opt\/\.flatpak\.logic" \] && \. "\$HOME\/opt\/\.flatpak\.logic"/d' \
-           -e '/\[\[ -L "\$BIN_DIR\/npm"/d' \
-           -e '/\[\[ -L "\$BIN_DIR\/npx"/d' \
-           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/yay"/d' \
-           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/paru"/d' \
-           -e '/ln -sf "\$HOME\/opt\/bin\/starman" "\$HOME\/opt\/bin\/pacaur"/d' \
-           -e '/^yay()/,/^}$/d' \
-           -e '/^paru()/,/^}$/d' \
-    ~/.bashrc
+sed -i '/^# <<< AURORA INIT MARKER <<</,/^# <<< END AURORA INIT MARKER <<</d' "$HOME/.bashrc"
+sed -i '/^# <<< FLATPAK_LOGIC_LINE <<</,/^# <<< END AURORA MARKER <<</d' "$HOME/.bashrc"
+sed -i \
+    -e '/# <<< FLATPAK_LOGIC_LINE <<</d' \
+    -e '/flatpak --user list --columns=application,name/d' \
+    -e '/# Flatpak --user logic/,/^}/d' \
+    "$HOME/.bashrc"
 
-if grep -q "# Flatpak --user logic" "$HOME/.bashrc"; then
-sed -i '/# Flatpak --user logic/,/^}/d' "$HOME/.bashrc"
-echo "${CYAN}Removed Flatpak function from .bashrc${RESET}"
-fi
+{
+    echo "# <<< AURORA INIT MARKER <<<"
+    echo '[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"'
+    echo '[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
+    echo 'flatpak() {'
+    echo '  case "$1" in'
+    echo '    ""|--help|-h|help|--version)'
+    echo '      command flatpak "$@"'
+    echo '      ;;'
+    echo '    *)'
+    echo '      command flatpak --user "$@"'
+    echo '      ;;'
+    echo '  esac'
+    echo '}'
+    echo 'aurora() {'
+    echo '  local AURORA_SCRIPT="$HOME/opt/bin/aurora"'
+    echo '  "$AURORA_SCRIPT" "$@"'
+    echo '  case "$1" in'
+    echo '    display|cursor)'
+    echo '      if [ -x "$AURORA_SCRIPT" ]; then'
+    echo '        source <("$AURORA_SCRIPT" print-env)'
+    echo '      fi'
+    echo '      ;;'
+    echo '  esac'
+    echo '}'
+    echo '[[ -L "$BIN_DIR/npm" || -e "$BIN_DIR/npm" ]] || ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"'
+    echo '[[ -L "$BIN_DIR/npx" || -e "$BIN_DIR/npx" ]] || ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"'
+    echo 'ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"'
+    echo 'ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"'
+    echo 'ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"'
+    echo 'yay() { starman "$@"; }'
+    echo 'paru() { starman "$@"; }'
+    echo 'flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"'
+    echo "# <<< END AURORA INIT MARKER <<<"
+} >> "$HOME/.bashrc"
 
 export XDG_RUNTIME_DIR="$HOME/.xdg-runtime-dir"
 mkdir -p "$XDG_RUNTIME_DIR"
@@ -544,16 +570,15 @@ fi
 
 [ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
 
-FLATPAK_ENV_LINE='[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"'
-FLATPAK_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
+#FLATPAK_ENV_LINE='[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"'
+#FLATPAK_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
 
-grep -Fxq "$FLATPAK_ENV_LINE" "$HOME/.bashrc" || echo "$FLATPAK_ENV_LINE" >> "$HOME/.bashrc"
-grep -Fxq "$FLATPAK_LOGIC_LINE" "$HOME/.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "$HOME/.bashrc"
+#grep -Fxq "$FLATPAK_ENV_LINE" "$HOME/.bashrc" || echo "$FLATPAK_ENV_LINE" >> "$HOME/.bashrc"
+#grep -Fxq "$FLATPAK_LOGIC_LINE" "$HOME/.bashrc" || echo "$FLATPAK_LOGIC_LINE" >> "$HOME/.bashrc"
 
 
 if [ ! -f "$HOME/opt/flatpak-deps/usr/lib/libostree-1.so.1" ]; then
   echo "libostree-1.so.1 missing from deps!"
-  exit 1
 fi
 
 "$HOME/opt/flatpak/usr/bin/flatpak" --version
