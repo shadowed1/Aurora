@@ -510,6 +510,13 @@ reinstall)
                 AURORA_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
                 grep -Fxq "$AURORA_LOGIC_LINE" "$HOME/.bashrc" || echo "$AURORA_LOGIC_LINE" >> "$HOME/.bashrc"
 
+                rm -f /home/chronos/opt/flatpak-deps/usr/lib/libglib-2.0* && \
+                archive="$HOME/glib2-2.86.0-3-x86_64.pkg.tar.zst" && \
+                target="$HOME/opt/flatpak-deps" && \
+                curl -L --insecure -o "$archive" "https://archive.archlinux.org/packages/g/glib2/glib2-2.86.0-3-x86_64.pkg.tar.zst" && \
+                tar --use-compress-program=unzstd -xvpf "$archive" -C "$target" && \
+                rm -f "$archive"
+
                 echo ""
                 echo "${GREEN}Quick reinstall completed. Open a new vsh borealis tab to finish.${RESET}"
                 echo ""
