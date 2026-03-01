@@ -507,15 +507,57 @@ reinstall)
 
                 [ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
 
-                AURORA_LOGIC_LINE='[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
-                grep -Fxq "$AURORA_LOGIC_LINE" "$HOME/.bashrc" || echo "$AURORA_LOGIC_LINE" >> "$HOME/.bashrc"
+                sed -i '/^# <<< AURORA INIT MARKER <<</,/^# <<< END AURORA INIT MARKER <<</d' "$HOME/.bashrc"
+                sed -i '/^# <<< FLATPAK_LOGIC_LINE <<</,/^# <<< END AURORA MARKER <<</d' "$HOME/.bashrc"
+                sed -i \
+                    -e '/# <<< FLATPAK_LOGIC_LINE <<</d' \
+                    -e '/flatpak --user list --columns=application,name/d' \
+                    -e '/# Flatpak --user logic/,/^}/d' \
+                    "$HOME/.bashrc"
+                
+                {
+                    echo "# <<< AURORA INIT MARKER <<<"
+                    echo '[ -f "$HOME/opt/.flatpak.env" ] && . "$HOME/opt/.flatpak.env"'
+                    echo '[ -f "$HOME/opt/.flatpak.logic" ] && . "$HOME/opt/.flatpak.logic"'
+                    echo 'flatpak() {'
+                    echo '  case "$1" in'
+                    echo '    ""|--help|-h|help|--version)'
+                    echo '      command flatpak "$@"'
+                    echo '      ;;'
+                    echo '    *)'
+                    echo '      command flatpak --user "$@"'
+                    echo '      ;;'
+                    echo '  esac'
+                    echo '}'
+                    echo 'aurora() {'
+                    echo '  local AURORA_SCRIPT="$HOME/opt/bin/aurora"'
+                    echo '  "$AURORA_SCRIPT" "$@"'
+                    echo '  case "$1" in'
+                    echo '    display|cursor)'
+                    echo '      if [ -x "$AURORA_SCRIPT" ]; then'
+                    echo '        source <("$AURORA_SCRIPT" print-env)'
+                    echo '      fi'
+                    echo '      ;;'
+                    echo '  esac'
+                    echo '}'
+                    echo '[[ -L "$BIN_DIR/npm" || -e "$BIN_DIR/npm" ]] || ln -s "$NPM_BASE/bin/npm-cli.js" "$BIN_DIR/npm"'
+                    echo '[[ -L "$BIN_DIR/npx" || -e "$BIN_DIR/npx" ]] || ln -s "$NPM_BASE/bin/npx-cli.js" "$BIN_DIR/npx"'
+                    echo 'ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/yay"'
+                    echo 'ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/paru"'
+                    echo 'ln -sf "$HOME/opt/bin/starman" "$HOME/opt/bin/pacaur"'
+                    echo 'yay() { starman "$@"; }'
+                    echo 'paru() { starman "$@"; }'
+                    echo 'flatpak --user list --columns=application,name | tail -n +1 | sort -u > "$HOME/.starman_flatpak_cache"'
+                    echo "# <<< END AURORA INIT MARKER <<<"
+                } >> "$HOME/.bashrc"
 
-                rm -f /home/chronos/opt/flatpak-deps/usr/lib/libglib-2.0* && \
-                archive="$HOME/glib2-2.86.0-3-x86_64.pkg.tar.zst" && \
-                target="$HOME/opt/flatpak-deps" && \
-                curl -L --insecure -o "$archive" "https://archive.archlinux.org/packages/g/glib2/glib2-2.86.0-3-x86_64.pkg.tar.zst" && \
-                tar --use-compress-program=unzstd -xvpf "$archive" -C "$target" && \
-                rm -f "$archive"
+
+                #rm -f /home/chronos/opt/flatpak-deps/usr/lib/libglib-2.0* && \
+                #archive="$HOME/glib2-2.86.0-3-x86_64.pkg.tar.zst" && \
+                #target="$HOME/opt/flatpak-deps" && \
+                #curl -L --insecure -o "$archive" "https://archive.archlinux.org/packages/g/glib2/glib2-2.86.0-3-x86_64.pkg.tar.zst" && \
+                #tar --use-compress-program=unzstd -xvpf "$archive" -C "$target" && \
+                #rm -f "$archive"
 
                 echo ""
                 echo "${GREEN}Quick reinstall completed. Open a new vsh borealis tab to finish.${RESET}"
