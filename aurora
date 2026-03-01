@@ -562,11 +562,13 @@ reinstall)
                 echo ""
                 echo "${GREEN}Quick reinstall completed. Open a new vsh borealis tab to finish.${RESET}"
                 echo ""
+                exit 0
                 ;;
             2)
                 echo ""
                 echo "${YELLOW}Launching full reinstall...${RESET}"
                 bash <(curl -Ls -L "https://raw.githubusercontent.com/shadowed1/Aurora/main/aurora_installer.sh?$(date +%s)")
+                exit 0
                 ;;
             *)
                 echo "${RED}Invalid choice. Please enter 0, 1, or 2.${RESET}"
