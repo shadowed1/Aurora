@@ -238,6 +238,7 @@ download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-desktop-po
 download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal-gtk/download"
 download_flatpakdeps "https://archlinux.org/packages/extra/any/node-gyp/download"
 download_flatpakdeps "https://archive.archlinux.org/packages/g/glib2/glib2-2.86.0-3-x86_64.pkg.tar.zst"
+download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/ostree//download"
 
 sleep 1
 
