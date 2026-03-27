@@ -154,7 +154,7 @@ download_flatpak() {
     echo "${RESET}${CYAN}"
     echo "Extracting $archive to $target ..."
     echo ""
-    tar --use-compress-program=unzstd -xvpf "$archive" -C "$target"
+    tar -xvpf "$archive" --zstd -C "$target"
 
     rm -f "$archive"
 
@@ -207,7 +207,7 @@ download_flatpakdeps() {
     echo "${RESET}${CYAN}"
     echo "Extracting $archive to $target ..."
     echo ""
-    tar --use-compress-program=unzstd -xvpf "$archive" -C "$target"
+    tar -xvpf "$archive" --zstd -C "$target"
 
     rm -f "$archive"
 
@@ -237,7 +237,7 @@ download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-dbus-proxy
 download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal/download"
 download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal-gtk/download"
 download_flatpakdeps "https://archlinux.org/packages/extra/any/node-gyp/download"
-download_flatpakdeps "https://archive.archlinux.org/packages/g/glib2/glib2-2.86.0-3-x86_64.pkg.tar.zst"
+download_flatpakdeps "https://archlinux.org/packages/core/x86_64/glib2/download/"
 download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/ostree//download"
 
 sleep 1
