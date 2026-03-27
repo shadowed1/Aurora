@@ -388,6 +388,9 @@ download_core "https://archlinux.org/packages/extra/x86_64/giflib/download"
 download_core "https://archlinux.org/packages/core/x86_64/libisl/download"
 download_core "https://archlinux.org/packages/extra/any/node-gyp/download"
 download_core "https://archlinux.org/packages/extra/x86_64/unzip/download"
+download_core "https://archlinux.org/packages/core/x86_64/glib2/download"
+download_core "https://archlinux.org/packages/extra/x86_64/libgpgme/download"
+download_core "https://archlinux.org/packages/core/x86_64/util-linux-libs/download"
 
 #xfce4
 #URL"https://archlinux.org/packages/extra/x86_64/exo/download"
