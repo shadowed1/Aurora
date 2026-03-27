@@ -322,6 +322,7 @@ aurora_uninstall() {
             return 0
             ;;
         1)
+            unset LD_PRELOAD
             echo "${CYAN}Removing Aurora and Starman binaries (leaving apps/data)...${RESET}"
             if [ -e "$HOME/opt/aurora" ]; then
                 rm -f "$HOME/opt/aurora"
