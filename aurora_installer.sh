@@ -238,7 +238,8 @@ download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-desktop-po
 download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/xdg-desktop-portal-gtk/download"
 download_flatpakdeps "https://archlinux.org/packages/extra/any/node-gyp/download"
 download_flatpakdeps "https://archlinux.org/packages/core/x86_64/glib2/download/"
-download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/ostree//download"
+download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/ostree/download"
+download_flatpakdeps "https://archlinux.org/packages/extra/x86_64/accountsservice/download"
 
 sleep 1
 
