@@ -16,7 +16,7 @@ Run Steam games and apps *natively* in ChromeOS with GUI, audio, and full GPU ac
 <br>
 
 ### How to install:
-
+- Run Steam app and keep it open to prevent Borealis VM from shutting down. 
 - Open Crosh (ctrl-alt-t) and type in: <br>
 `vsh borealis`
 
