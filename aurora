@@ -307,6 +307,8 @@ show_help() {
 }
 
 aurora_uninstall() {
+    unset LD_LIBRARY_PATH
+    unset LD_PRELOAD
     echo ""
     echo "${MAGENTA}${BOLD}Aurora Uninstaller${RESET}"
     echo "${BLUE}${BOLD}Select an option:${RESET}"
@@ -387,7 +389,8 @@ aurora_uninstall() {
                     echo "${YELLOW}$DIR not found.${RESET}"
                 fi
             done
-
+            unset LD_LIBRARY_PATH
+            unset LD_PRELOAD
             echo "${CYAN}${BOLD}Full Aurora uninstall complete. All Flatpak dependencies, apps, data, and ~/.bashrc entries removed.${RESET}"
             ;;
         *)
